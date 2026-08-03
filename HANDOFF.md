@@ -32,6 +32,11 @@ Everything else — markup, CSS, JS — is the owner's verbatim.
 
 ## Release notes
 
+**`v2026.08.03.010` — header & wire range:** clocks removed from the header
+at the owner's request (theme + AA buttons now sit alone on the right); the
+random-wire check now includes 160 m (6 m still excluded) — short wires get
+an honest SHORT verdict there, and long-wire verdicts account for topband.
+
 **`v2026.08.03.005` — the full roadmap:** log↔calculator loop (load any
 entry back into its view; per-entry notes saved debounced; print a single
 entry as a clean black-on-white cut sheet via `@media print` + `.print-one`
@@ -83,14 +88,13 @@ constant stamped in the topbar pill + sidebar footer + backup JSON (`build`
 field), a storage-health dot in the sidebar footer, and delete-with-undo on
 log entries.
 
-Things the current file already has (don't regress them): dual UTC + local
-clocks, hash-based navigation surviving reload, numbered view tags (01–06)
+Things the current file already has (don't regress them): hash-based navigation surviving reload, numbered view tags (01–06)
 with serif Playfair titles, per-card SVG icons and contextual notes, 49:1
 recipe as 2:14-turn autotransformer with QRP/100 W build table and core cheat
 sheet (FT50→2×FT240), expandable spec-sheet log rows with per-entry × delete,
 save-button flash feedback, storage-health note detecting sandboxed IndexedDB,
-independent per-context unit toggles, and a wire check that skips 160 m/6 m
-and adds a SHORT verdict below a half wave.
+independent per-context unit toggles, and a wire check that covers 160-10 m
+(6 m excluded) and adds a SHORT verdict below a half wave.
 
 **Verdict-formula note:** within 7% of an integer half-wave multiple = AVOID,
 within 15% = MARGINAL. Since `v2026.08.03.002` this is computed across the
