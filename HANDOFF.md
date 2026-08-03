@@ -14,8 +14,12 @@ for the ham bands, 160–6 m, styled on Macro's dark theme.
 | Path | What it is |
 |---|---|
 | `feedpoint.html` | **The implementation** — the owner's v2 draft plus the v1 port items and an enterprise-shell pass (see below). Working; verified headless with a 29-check functional suite (navigation, formatting, import validation, undo, persistence, responsive breakpoints), zero console/page errors. ~220 KB. |
-| `README.md` | Short project description. **The owner's full product spec README was never pushed to this repo and is not recovered** — if the owner still has it, restore it here; it was the contract for scope and design. |
+| `README.md` | The public-facing README: hero, live-app button (GitHub Pages), tour, verdict-engine explainer, formulas, dev guide. **The owner's original spec README was never pushed to this repo and is not recovered** — this HANDOFF now carries the conventions that survived. |
 | `HANDOFF.md` | This file. |
+| `tests/app.test.mjs` | Headless functional suite (35 checks), run by CI on every PR. |
+| `.github/workflows/ci.yml` | GitHub Actions: runs the suite headless. |
+| `.github/workflows/pages.yml` | GitHub Actions: deploys `feedpoint.html` as `index.html` to GitHub Pages on push to `main` (self-enabling). |
+| `docs/` | README assets: screenshots (`hero/wire/mobile.png`) and brand SVGs (`mark`, `open-app` button, `palette`). |
 
 History note: a prior session produced a "v1" implementation and the owner's
 spec README on a branch (`claude/feedpoint-repo-afu64a`) that was never pushed
