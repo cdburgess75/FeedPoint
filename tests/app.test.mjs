@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.08.03.007';
+const VERSION = 'v2026.08.03.008';
 const errors = [];
 let failed = 0;
 const check = (name, cond, extra = '') => {
@@ -37,6 +37,35 @@ const desktopIcons = await page.evaluate(() => ({
   mask: document.querySelector('link[rel="mask-icon"]')?.getAttribute('href')
 }));
 check('desktop favicon set wired', desktopIcons.p32 === 'favicon-32.png' && desktopIcons.p16 === 'favicon-16.png' && desktopIcons.mask === 'mask-icon.svg', JSON.stringify(desktopIcons));
+
+// --- theme changer (FlockOff pattern) ---
+const darkBg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+check('boots in dark theme', await page.evaluate(() => document.documentElement.getAttribute('data-theme')) === 'dark');
+await page.click('#btnTheme');
+await page.waitForTimeout(200);
+const lightState = await page.evaluate(() => ({
+  attr: document.documentElement.getAttribute('data-theme'),
+  bg: getComputedStyle(document.body).backgroundColor,
+  metaColor: document.querySelector('meta[name="theme-color"]').getAttribute('content'),
+  btn: document.getElementById('btnTheme').textContent
+}));
+check('toggle switches to light', lightState.attr === 'light' && lightState.bg !== darkBg && lightState.btn === '☀', JSON.stringify(lightState));
+check('meta theme-color follows scheme', lightState.metaColor.toLowerCase() === '#e9f1f4', lightState.metaColor);
+await page.reload();
+await page.waitForTimeout(700);
+check('light theme survives reload (pre-paint stamp)', await page.evaluate(() => document.documentElement.getAttribute('data-theme')) === 'light');
+await page.click('#btnTheme');
+await page.waitForTimeout(200);
+check('toggle back to dark', await page.evaluate(() => document.documentElement.getAttribute('data-theme')) === 'dark');
+
+// --- AA text size ---
+await page.click('#btnTextSize');
+await page.waitForTimeout(100);
+check('AA steps to 2', await page.evaluate(() => document.documentElement.getAttribute('data-uiscale')) === '2');
+await page.click('#btnTextSize');
+await page.click('#btnTextSize');
+await page.waitForTimeout(100);
+check('AA wraps to 1', await page.evaluate(() => document.documentElement.getAttribute('data-uiscale')) === '1');
 
 // --- K-factor presets ---
 const kChip = await page.$$eval('.kpre button', els => els.map(e => [e.dataset.k, e.classList.contains('on')]));

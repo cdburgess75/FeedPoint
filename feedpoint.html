@@ -8,6 +8,15 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="FEEDPOINT">
+<script>
+/* Apply the saved scheme before first paint (no flash) — FlockOff pattern. */
+try{
+  var __t=localStorage.getItem("feedpoint.theme");
+  document.documentElement.setAttribute("data-theme",__t==="light"?"light":"dark");
+  var __u=localStorage.getItem("feedpoint.uiscale");
+  if(__u==="2"||__u==="3")document.documentElement.setAttribute("data-uiscale",__u);
+}catch(e){document.documentElement.setAttribute("data-theme","dark");}
+</script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2040%2040%27%3E%3Crect%20width%3D%2740%27%20height%3D%2740%27%20rx%3D%278%27%20fill%3D%27%237FB5C5%27%2F%3E%3Cg%20stroke%3D%27%23FF6700%27%20stroke-opacity%3D%27.28%27%20stroke-width%3D%27.45%27%20fill%3D%27none%27%3E%3Cpath%20d%3D%27M11.3%203%20V37%20M28.5%203%20V37%20M3%2011.6%20H37%20M3%2028.4%20H37%27%2F%3E%3C%2Fg%3E%3Crect%20x%3D%273%27%20y%3D%273%27%20width%3D%2734%27%20height%3D%2734%27%20fill%3D%27none%27%20stroke%3D%27%23FF6700%27%20stroke-opacity%3D%27.55%27%20stroke-width%3D%27.65%27%2F%3E%3Cpath%20d%3D%27M24.79%2019.66L25.34%2019.98Q25.11%2021.50%2024.42%2022.64Q23.73%2023.78%2022.53%2023.78Q21.50%2023.78%2021.50%2021.73L21.50%2016.90L21.45%2016.90L17.24%2023.48L13.86%2023.48L21.50%2012.07Q21.43%209.77%2020.46%209.77Q19.22%209.77%2018.65%2011.33L18.09%2011.06Q18.25%2010.32%2018.53%209.60Q18.81%208.87%2019.46%208.15Q20.12%207.42%2020.95%207.42Q21.73%207.42%2021.99%208.47Q22.26%209.52%2022.28%2011.56L22.35%2019.84Q22.35%2021.38%2023.25%2021.38Q23.82%2021.38%2024.26%2020.84Q24.69%2020.30%2024.79%2019.66%27%20fill%3D%27%23FF6700%27%2F%3E%3Cg%20stroke%3D%27%23FF6700%27%20stroke-linecap%3D%27butt%27%20fill%3D%27none%27%3E%3Cpath%20d%3D%27M8%2028.4%20H32%27%20stroke-width%3D%271.3%27%2F%3E%3Cpath%20d%3D%27M8%2028.4%20V31%20M12%2028.4%20V30.3%20M16%2028.4%20V30.3%20M20%2028.4%20V31%20M24%2028.4%20V30.3%20M28%2028.4%20V30.3%20M32%2028.4%20V31%27%20stroke-width%3D%27.8%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -39,9 +48,25 @@
   --serif:"Playfair Display Variable",Georgia,serif;
   --logo:"Chakra Petch","Inter Variable",sans-serif;
   --rail:236px;
+  --ui-scale:1;
+  color-scheme:dark;
 }
+/* Daylight — light theme drawn from the λ icon: Daphne-washed paper,
+   deep ink from the mark's accents, hi-vis orange. */
+:root[data-theme="light"]{
+  color-scheme:light;
+  --a0:#E85D00; --a1:#8A7400; --a2:#3C8A26; --a3:#00806A; --a4:#00789A;
+  --accent-bg:rgba(232,93,0,.1); --accent-hover:rgba(232,93,0,.22);
+  --b0:#E9F1F4; --b1:#F7FAFB; --b2:#DFEBEF; --b3:#CFE0E6; --b4:#A9C6D0;
+  --c0:#12242C; --c1:#2C4450; --c2:#48606C; --c3:#5F7885; --c4:#7E96A1;
+  --failure:#BE3A32; --success:#177A57; --alert:#8F6400;
+  --chrome:#EDF4F6;
+  --shadow-menu:0 8px 24px -16px rgb(30 60 70/.35),0 2px 8px -6px rgb(30 60 70/.25);
+}
+html[data-uiscale="2"] #main{zoom:1.18}
+html[data-uiscale="3"] #main{zoom:1.36}
 *{margin:0;padding:0;box-sizing:border-box}
-html{background:#050403;color-scheme:dark}
+html{background:var(--b0)}
 html,body{height:100%}
 body{background:var(--page);color:var(--c0);font-family:var(--sans);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow:hidden}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
@@ -60,6 +85,9 @@ a{color:var(--a0)}
 .clock .cl-time{font:300 26px/1.1 var(--mono);color:var(--c0);font-variant-numeric:tabular-nums}
 .clock.dim .cl-label{color:var(--c3)}
 .clock.dim .cl-time{color:var(--c2)}
+#hdBtns{display:flex;gap:6px;margin-left:16px}
+.tbtn{width:40px;height:40px;border-radius:9px;display:grid;place-items:center;color:var(--c2);font:700 15px/1 var(--mono);border:.5px solid var(--edge-muted);transition:background .12s,color .12s}
+.tbtn:hover{background:var(--hover);color:var(--c0)}
 
 /* nav sidebar (desktop) */
 #rail{border-right:.5px solid var(--edge);display:flex;flex-direction:column;padding:16px 12px 14px;gap:2px;background:var(--b1)}
@@ -93,7 +121,9 @@ a{color:var(--a0)}
   .v-head h1{font-size:27px}
   .clock .cl-time{font-size:24px}
   .verpill{font-size:9.5px;padding:3px 5px;letter-spacing:.04em}
-  #topbar{padding:0 14px;gap:8px}
+  #hdBtns{margin-left:8px;gap:4px}
+  .tbtn{width:34px;height:34px;font-size:13px}
+  #topbar{padding:0 12px;gap:8px}
   .brand{gap:8px}
   .mark{width:28px;height:28px}
   .wordmark{font-size:17px}
@@ -277,6 +307,10 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
     <div id="clocks">
       <div class="clock"><div class="cl-label">UTC</div><div class="cl-time" id="clkUtc">--:--</div></div>
       <div class="clock dim"><div class="cl-label" id="clkLocLbl">LOCAL</div><div class="cl-time" id="clkLoc">--:--</div></div>
+    </div>
+    <div id="hdBtns">
+      <button id="btnTextSize" class="tbtn" type="button" title="Text size">AA</button>
+      <button id="btnTheme" class="tbtn" type="button" title="Light / dark theme">☾</button>
     </div>
   </header>
 
@@ -507,7 +541,7 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
 "use strict";
 const $=id=>document.getElementById(id);
 const FT_M=0.3048;
-const APP_VERSION="v2026.08.03.007";
+const APP_VERSION="v2026.08.03.008";
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 /* ---------- data ---------- */
@@ -561,7 +595,31 @@ const VIEWS=[
 ];
 
 /* ---------- state ---------- */
-let metric=false, wireMetric=false;
+let metric=false, wireMetric=false, theme="dark", uiscale=1;
+
+/* ---------- theme + text size (FlockOff pattern) ---------- */
+const THEME_NAMES={dark:"Macro Dark",light:"Daylight"};
+function setTheme(t,persist=true){
+  theme=THEME_NAMES[t]?t:"dark";
+  document.documentElement.setAttribute("data-theme",theme);
+  try{localStorage.setItem("feedpoint.theme",theme);}catch(e){}
+  const bg=getComputedStyle(document.documentElement).getPropertyValue("--b0").trim();
+  const meta=document.querySelector('meta[name="theme-color"]');
+  if(meta&&bg)meta.setAttribute("content",bg);
+  const b=$("btnTheme");
+  b.textContent=theme==="dark"?"☾":"☀";
+  b.setAttribute("aria-label","Theme: "+THEME_NAMES[theme]+" — tap to switch");
+  if(persist)saveSettings();
+}
+function setTextSize(step,persist=true){
+  uiscale=(step===2||step===3)?step:1;
+  document.documentElement.setAttribute("data-uiscale",String(uiscale));
+  try{localStorage.setItem("feedpoint.uiscale",String(uiscale));}catch(e){}
+  $("btnTextSize").setAttribute("aria-label","Text size "+uiscale+" of 3");
+  if(persist)saveSettings();
+}
+$("btnTheme").addEventListener("click",()=>setTheme(theme==="dark"?"light":"dark"));
+$("btnTextSize").addEventListener("click",()=>setTextSize(uiscale===3?1:uiscale+1));
 
 /* ---------- clocks ---------- */
 function tickClock(){
@@ -857,7 +915,7 @@ function noteStorage(){
 
 /* ---------- settings persistence ---------- */
 function saveSettings(){
-  safeSet("settings",{metric,wireMetric,region,freq:$("freq").value,kf:$("kf").value,wire:$("wire").value});
+  safeSet("settings",{metric,wireMetric,region,theme,uiscale,freq:$("freq").value,kf:$("kf").value,wire:$("wire").value});
 }
 
 /* ---------- build log ---------- */
@@ -985,7 +1043,7 @@ function saveWire(){
 /* ---------- backup & restore ---------- */
 function exportBackup(){
   const data=JSON.stringify({app:"feedpoint",version:1,build:APP_VERSION,exported:new Date().toISOString(),
-    settings:{metric,wireMetric,region,freq:$("freq").value,kf:$("kf").value,wire:$("wire").value},log:LOG},null,2);
+    settings:{metric,wireMetric,region,theme,uiscale,freq:$("freq").value,kf:$("kf").value,wire:$("wire").value},log:LOG},null,2);
   const blob=new Blob([data],{type:"application/json"});
   const a=document.createElement("a");
   a.href=URL.createObjectURL(blob);
@@ -1008,7 +1066,9 @@ function importBackup(file){
         if(d.settings.freq)$("freq").value=d.settings.freq;
         if(d.settings.kf)$("kf").value=d.settings.kf;
         if(d.settings.wire)$("wire").value=d.settings.wire;
-        applyUnitButtons();markKChips();setRegion(d.settings.region||region,false);saveSettings();
+        applyUnitButtons();markKChips();setRegion(d.settings.region||region,false);
+        setTheme(d.settings.theme||theme,false);setTextSize(d.settings.uiscale||uiscale,false);
+        saveSettings();
       }
       logRender();toast("Restored "+LOG.length+" log entr"+(LOG.length===1?"y":"ies")+" from backup",{kind:"ok"});
     }catch(e){toast("Not a FEEDPOINT backup — nothing imported",{kind:"err"});}
@@ -1047,6 +1107,10 @@ $("impFile").addEventListener("change",e=>{if(e.target.files[0])importBackup(e.t
   LOG=await safeGet("log",[]);
   if(!Array.isArray(LOG))LOG=[];
   if(s&&[1,2,3].includes(s.region)){region=s.region;BANDS=BAND_PLANS[region];[1,2,3].forEach(i=>$("rg"+i).classList.toggle("on",i===region));}
+  /* theme was already stamped pre-paint from localStorage; IndexedDB settings
+     win if they differ (e.g. restored backup from another device) */
+  setTheme((s&&THEME_NAMES[s.theme])?s.theme:document.documentElement.getAttribute("data-theme"),false);
+  setTextSize((s&&(s.uiscale===2||s.uiscale===3))?s.uiscale:(parseInt(document.documentElement.getAttribute("data-uiscale"),10)||1),false);
   applyUnitButtons();markKChips();
   renderBands();buildNotes();calc();markBand();checkWire();logRender();noteStorage();renderCoil();
   go(VIEWS.some(v=>v.id===location.hash.slice(1))?location.hash.slice(1):"calc",false);
