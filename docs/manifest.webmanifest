@@ -1,13 +1,15 @@
 {
-  "name": "FEEDPOINT",
-  "short_name": "FEEDPOINT",
+  "name": "FeedPoint",
+  "short_name": "FeedPoint",
   "description": "Offline antenna calculator and wire-antenna workbench for the ham bands, 160-6 m.",
+  "id": "./",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#050403",
   "theme_color": "#050403",
   "icons": [
-    { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "touch-icon-180-v9.png", "sizes": "180x180", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512-v9.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512-v9.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }

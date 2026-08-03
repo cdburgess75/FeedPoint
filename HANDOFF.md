@@ -1,10 +1,10 @@
-# FEEDPOINT — Session Handoff
+# FeedPoint — Session Handoff
 
-Read this first if you are picking up work on FEEDPOINT in a new session.
+Read this first if you are picking up work on FeedPoint in a new session.
 This repository (`cdburgess75/FeedPoint`) is a **standalone project** — it has
 no relationship to FlockOff or any other repository. All work happens here.
 
-## What FEEDPOINT is
+## What FeedPoint is
 
 A single-file, fully offline antenna calculator and wire-antenna knowledge app
 for the ham bands, 160–6 m, styled on Macro's dark theme.
@@ -53,7 +53,7 @@ arc) replacing the zigzag, applied to the topbar, SVG data-URI favicon,
 `docs/mark.svg`, and the README button; `docs/apple-touch-icon.png` (180×180)
 deployed to the site root by the Pages workflow so iPhone add-to-home-screen
 gets a proper icon, plus iOS web-app meta (standalone, black-translucent,
-titled FEEDPOINT). **`v2026.08.03.003`:** version pill always visible in the
+titled FeedPoint). **`v2026.08.03.003`:** version pill always visible in the
 header, including mobile (tightened mobile topbar to fit).
 
 **`v2026.08.03.002` — correctness & trust:** band-span wire verdicts with a
