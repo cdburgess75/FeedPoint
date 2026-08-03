@@ -153,6 +153,12 @@ a{color:var(--a0)}
   #railFoot .db-lbl,#railFoot .ver{display:none}
 }
 
+/* update banner (FlockOff pattern) */
+#updateBar{display:none;position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:50;align-items:center;gap:14px;background:var(--chrome);border:.5px solid var(--edge);border-left:3px solid var(--a0);border-radius:10px;padding:12px 16px;box-shadow:var(--shadow-menu);font:500 14px/1.4 var(--sans);color:var(--c0);max-width:min(92vw,420px)}
+#updateBar.show{display:flex}
+#updateBar button{background:var(--accent-bg);border:.5px solid rgba(255,134,0,.45);color:var(--a0);font:600 13px/1 var(--sans);padding:10px 14px;border-radius:8px;flex:none}
+#updateBar button:hover{background:var(--accent-hover)}
+#updateBar button:disabled{opacity:.6;cursor:default}
 /* toasts */
 #toasts{position:fixed;right:18px;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);display:flex;flex-direction:column;gap:9px;z-index:40;pointer-events:none}
 .toast{pointer-events:auto;display:flex;align-items:center;gap:14px;background:var(--chrome);border:.5px solid var(--edge);border-left:3px solid var(--a0);border-radius:10px;padding:13px 16px;box-shadow:var(--shadow-menu);font:500 14px/1.4 var(--sans);color:var(--c0);max-width:360px;animation:toast-in .18s ease-out}
@@ -537,6 +543,10 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
   </main>
 
   <nav id="dock" aria-label="Views"></nav>
+<div id="updateBar" role="alert">
+  <span>A new version of FeedPoint is ready.</span>
+  <button id="updateBtn" type="button">Update now</button>
+</div>
 <div id="toasts" role="status" aria-live="polite"></div>
 </div>
 
@@ -544,7 +554,7 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
 "use strict";
 const $=id=>document.getElementById(id);
 const FT_M=0.3048;
-const APP_VERSION="v2026.08.03.017";
+const APP_VERSION="v2026.08.03.018";
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 /* ---------- data ---------- */
@@ -1168,8 +1178,45 @@ $("impFile").addEventListener("change",e=>{if(e.target.files[0])importBackup(e.t
   applyUnitButtons();markKChips();
   renderBands();buildNotes();calc();markBand();checkWire();renderBandPick();logRender();noteStorage();renderCoil();
   go(VIEWS.some(v=>v.id===location.hash.slice(1))?location.hash.slice(1):"calc",false);
-  if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
 })();
+
+/* PWA update flow — FlockOff methodology: the deploy stamps a new version
+   into sw.js, the updated worker waits, and this surfaces "Update now".
+   Skipped on file:// (service workers need https). */
+if("serviceWorker" in navigator&&location.protocol==="https:"){
+  let reloading=false,updateArmed=false;
+  navigator.serviceWorker.addEventListener("controllerchange",()=>{
+    if(reloading||!updateArmed)return;
+    reloading=true;
+    location.reload();
+  });
+  function showUpdate(worker){
+    if(!worker)return;
+    const bar=$("updateBar"),btn=$("updateBtn");
+    bar.classList.add("show");
+    btn.onclick=()=>{
+      btn.disabled=true;btn.textContent="Updating…";
+      updateArmed=true;
+      worker.postMessage({type:"SKIP_WAITING"});
+    };
+  }
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("sw.js").then(reg=>{
+      if(reg.waiting&&navigator.serviceWorker.controller)showUpdate(reg.waiting);
+      reg.addEventListener("updatefound",()=>{
+        const nw=reg.installing;
+        if(!nw)return;
+        nw.addEventListener("statechange",()=>{
+          if(nw.state==="installed"&&navigator.serviceWorker.controller)showUpdate(nw);
+        });
+      });
+      reg.update().catch(()=>{});
+      document.addEventListener("visibilitychange",()=>{
+        if(document.visibilityState==="visible")reg.update().catch(()=>{});
+      });
+    }).catch(()=>{});
+  });
+}
 </script>
 </body>
 </html>
