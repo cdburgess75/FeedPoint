@@ -80,12 +80,7 @@ a{color:var(--a0)}
 .brand{display:flex;align-items:center;gap:11px}
 .mark{width:32px;height:32px;border-radius:8px;background:#7FB5C5;display:grid;place-items:center;flex:none}
 .wordmark{font-family:var(--logo);font-weight:700;font-size:20px;letter-spacing:.1em;color:var(--a0)}
-#clocks{margin-left:auto;display:flex;gap:22px;align-items:baseline}
-.clock .cl-label{font:600 11px/1 var(--mono);letter-spacing:.22em;color:var(--a0)}
-.clock .cl-time{font:300 26px/1.1 var(--mono);color:var(--c0);font-variant-numeric:tabular-nums}
-.clock.dim .cl-label{color:var(--c3)}
-.clock.dim .cl-time{color:var(--c2)}
-#hdBtns{display:flex;gap:6px;margin-left:16px}
+#hdBtns{display:flex;gap:6px;margin-left:auto}
 .tbtn{width:40px;height:40px;border-radius:9px;display:grid;place-items:center;color:var(--c2);font:700 15px/1 var(--mono);border:.5px solid var(--edge-muted);transition:background .12s,color .12s}
 .tbtn:hover{background:var(--hover);color:var(--c0)}
 
@@ -117,9 +112,7 @@ a{color:var(--a0)}
   #dock{display:flex}
   #topbar{grid-column:1}
   #main{padding:20px 14px 130px}
-  .clock.dim{display:none}
   .v-head h1{font-size:27px}
-  .clock .cl-time{font-size:24px}
   .verpill{font-size:9.5px;padding:3px 5px;letter-spacing:.04em}
   #hdBtns{margin-left:8px;gap:4px}
   .tbtn{width:34px;height:34px;font-size:13px}
@@ -303,10 +296,6 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
       <span class="mark" aria-hidden="true"><svg width="27" height="27" viewBox="0 0 40 40"><path d="M24.79 19.66L25.34 19.98Q25.11 21.50 24.42 22.64Q23.73 23.78 22.53 23.78Q21.50 23.78 21.50 21.73L21.50 16.90L21.45 16.90L17.24 23.48L13.86 23.48L21.50 12.07Q21.43 9.77 20.46 9.77Q19.22 9.77 18.65 11.33L18.09 11.06Q18.25 10.32 18.53 9.60Q18.81 8.87 19.46 8.15Q20.12 7.42 20.95 7.42Q21.73 7.42 21.99 8.47Q22.26 9.52 22.28 11.56L22.35 19.84Q22.35 21.38 23.25 21.38Q23.82 21.38 24.26 20.84Q24.69 20.30 24.79 19.66" fill="#FF6700"/><g stroke="#FF6700" stroke-linecap="butt" fill="none"><path d="M8 28.4 H32" stroke-width="1.4"/><path d="M8 28.4 V31.2 M12 28.4 V30.4 M16 28.4 V30.4 M20 28.4 V31.2 M24 28.4 V30.4 M28 28.4 V30.4 M32 28.4 V31.2" stroke-width=".9"/></g></svg></span>
       <span class="wordmark">FeedPoint</span>
       <span class="verpill appver" title="Build version"></span>
-    </div>
-    <div id="clocks">
-      <div class="clock"><div class="cl-label">UTC</div><div class="cl-time" id="clkUtc">--:--</div></div>
-      <div class="clock dim"><div class="cl-label" id="clkLocLbl">LOCAL</div><div class="cl-time" id="clkLoc">--:--</div></div>
     </div>
     <div id="hdBtns">
       <button id="btnTextSize" class="tbtn" type="button" title="Text size">AA</button>
@@ -541,7 +530,7 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
 "use strict";
 const $=id=>document.getElementById(id);
 const FT_M=0.3048;
-const APP_VERSION="v2026.08.03.009";
+const APP_VERSION="v2026.08.03.010";
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 /* ---------- data ---------- */
@@ -620,19 +609,6 @@ function setTextSize(step,persist=true){
 }
 $("btnTheme").addEventListener("click",()=>setTheme(theme==="dark"?"light":"dark"));
 $("btnTextSize").addEventListener("click",()=>setTextSize(uiscale===3?1:uiscale+1));
-
-/* ---------- clocks ---------- */
-function tickClock(){
-  const now=new Date();
-  const f=(d,tz)=>d.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",hour12:false,timeZone:tz});
-  $("clkUtc").textContent=f(now,"UTC");
-  $("clkLoc").textContent=f(now);
-}
-setInterval(tickClock,1000);tickClock();
-try{
-  const tz=Intl.DateTimeFormat().resolvedOptions().timeZone||"LOCAL";
-  $("clkLocLbl").textContent=tz.split("/").pop().replace(/_/g," ").toUpperCase();
-}catch(e){}
 
 /* ---------- navigation ---------- */
 const GROUPS=[["Workbench",["calc","wire"]],["Reference",["unun","ant","notes"]],["Records",["log"]]];
@@ -769,7 +745,7 @@ function markBand(){
    center: the worst-case distance (in half-wave multiples) from the length's
    multiple range to any integer. A wire clear at center can still hit an
    impedance spike at a band edge. */
-function wireBands(){return BANDS.filter(b=>b.n!=="160m"&&b.n!=="6m");}
+function wireBands(){return BANDS.filter(b=>b.n!=="6m");}
 function distToInt(a,b,n){return n<a?a-n:(n>b?n-b:0);}
 function bandOffset(ft,b){
   const mLo=ft*b.lo/468,mHi=ft*b.hi/468;

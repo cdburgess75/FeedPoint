@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.08.03.009';
+const VERSION = 'v2026.08.03.010';
 const errors = [];
 let failed = 0;
 const check = (name, cond, extra = '') => {
@@ -144,6 +144,13 @@ const v40 = await page.$$eval('#verdict .li', els => {
   return row ? row.querySelector('.pill').textContent : null;
 });
 check('71 ft AVOID on 40m (band edge)', v40 === 'AVOID', v40);
+const wireRows = await page.$$eval('#verdict .li', els => ({
+  n: els.length,
+  first: els[0].querySelector('.t1').textContent,
+  pill: els[0].querySelector('.pill').textContent
+}));
+check('wire check covers 160m (SHORT at 71 ft)', wireRows.n === 10 && wireRows.first === '160m' && wireRows.pill === 'SHORT', JSON.stringify(wireRows));
+check('clocks removed from header', await page.evaluate(() => !document.getElementById('clkUtc') && !document.getElementById('clocks')));
 const fixShown = await page.$eval('#wireFix', e => !e.hidden);
 check('all-clear suggestion offered', fixShown);
 await page.click('#wireFix button');

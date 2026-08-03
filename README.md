@@ -57,7 +57,7 @@ Six views, reachable by click or by pressing <kbd>1</kbd>–<kbd>6</kbd>:
 | # | View | What it does |
 |:-:|------|--------------|
 | 01 | **Element calculator** | Pick a band or type a frequency; get EFHW, dipole, ¼-wave vertical, counterpoise, full-wave loop, and ⅝-wave cut lengths — feet-and-inches to the quarter inch, or meters. K-factor presets (bare / insulated / inverted-V), ITU region band plans (R1/R2/R3), and an orange dot on every band you've already cut for. |
-| 02 | **Random-wire check** | Test a 9:1 random-wire length against every band, 80–10 m. Verdicts across the whole band span, plus the nearest spike-free length when yours fails. |
+| 02 | **Random-wire check** | Test a 9:1 random-wire length against every band, 160–10 m. Verdicts across the whole band span, plus the nearest spike-free length when yours fails. |
 | 03 | **Ununs & baluns** | Build recipes for the four boxes that cover nearly every wire antenna: 1:1 choke, 4:1, 9:1, and the 49:1 EFHW autotransformer (2:14 turns) — QRP/100 W winding tables, a toroid core cheat sheet, and a coil winding calculator (Wheeler air-core + ferrite-toroid A·L turns). |
 | 04 | **End-fed antennas** | EFHW vs EFRW: harmonics tables, counterpoise rules, feed-end placement, and why 15 m rides the third harmonic. |
 | 05 | **Field notes** | The stuff datasheets skip: FT8 duty-cycle derating, NVIS as a feature, why a warm core is burning your signal. |
@@ -82,8 +82,6 @@ which one you're making.)
 
 - **Phone-first when it needs to be** — the sidebar becomes a floating dock,
   touch targets stay 48 px+, and the layout works one-handed on a summit.
-- **Dual clocks** — UTC for the log, local for lunch, automatically labeled
-  with your timezone.
 - **Keyboard-driven when you're home** — number keys switch views; every
   control is focusable and screen-reader labeled (`aria-live` toasts, visible
   focus rings, reduced-motion respected).
