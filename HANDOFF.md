@@ -13,7 +13,7 @@ for the ham bands, 160–6 m, styled on Macro's dark theme.
 
 | Path | What it is |
 |---|---|
-| `feedpoint.html` | **The implementation** — the owner's v2 draft, adopted directly. Working; smoke-tested headless (title, hash navigation across views, all four embedded fonts load, zero console/page errors). ~216 KB. |
+| `feedpoint.html` | **The implementation** — the owner's v2 draft plus the v1 port items and an enterprise-shell pass (see below). Working; verified headless with a 29-check functional suite (navigation, formatting, import validation, undo, persistence, responsive breakpoints), zero console/page errors. ~220 KB. |
 | `README.md` | Short project description. **The owner's full product spec README was never pushed to this repo and is not recovered** — if the owner still has it, restore it here; it was the contract for scope and design. |
 | `HANDOFF.md` | This file. |
 
@@ -26,17 +26,25 @@ from freshly downloaded latin-subset variable woff2s of the same four families
 (Inter var, Roboto Mono var, Playfair Display var, Chakra Petch 700).
 Everything else — markup, CSS, JS — is the owner's verbatim.
 
-## Features from the lost v1 worth re-adding (port checklist)
+## v1 port checklist — DONE (2026-08-03, `v2026.08.03.001`)
 
-v1 had a few things the current file lacks. Treat these as candidate
-improvements, not obligations:
+All four lost-v1 features were re-implemented:
 
-- Import validation that also accepts legacy `app:"halfwave"` backups **and**
-  `app:"FEEDPOINT"` casing (current file accepts `feedpoint`/`halfwave`;
-  unify the accepted set)
-- Toast notifications (aria-live region) for log/import feedback
-- Proven-length chips shown converted when in meters mode
-- Fractional inches (¼/½/¾) in imperial formatting
+- ✅ Import validation is case-insensitive and accepts `feedpoint` and legacy
+  `halfwave` app names in any casing
+- ✅ Toast notifications (aria-live `polite` region) for import/export/delete
+  feedback — save buttons keep their flash feedback
+- ✅ Proven-length chips render converted (e.g. `7.8 m`) in meters mode and
+  set the input in the active unit
+- ✅ Fractional inches (¼/½/¾, nearest quarter) in imperial formatting,
+  both live results and saved log entries
+
+The same pass added an enterprise shell: labeled sidebar grouped
+Workbench / Reference / Records (collapses to icon rail 801–1079px, mobile
+dock below), numbered key badges matching the 1–6 shortcuts, `APP_VERSION`
+constant stamped in the topbar pill + sidebar footer + backup JSON (`build`
+field), a storage-health dot in the sidebar footer, and delete-with-undo on
+log entries.
 
 Things the current file already has (don't regress them): dual UTC + local
 clocks, hash-based navigation surviving reload, numbered view tags (01–06)

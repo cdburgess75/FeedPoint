@@ -29,7 +29,7 @@
   --mono:"Roboto Mono Variable",ui-monospace,Menlo,Consolas,monospace;
   --serif:"Playfair Display Variable",Georgia,serif;
   --logo:"Chakra Petch","Inter Variable",sans-serif;
-  --rail:68px;
+  --rail:236px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{background:#050403;color-scheme:dark}
@@ -52,8 +52,8 @@ a{color:var(--a0)}
 .clock.dim .cl-label{color:var(--c3)}
 .clock.dim .cl-time{color:var(--c2)}
 
-/* icon rail (desktop) */
-#rail{border-right:.5px solid var(--edge);display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:6px}
+/* nav sidebar (desktop) */
+#rail{border-right:.5px solid var(--edge);display:flex;flex-direction:column;padding:16px 12px 14px;gap:2px;background:var(--b1)}
 .nav-btn{width:48px;height:48px;border-radius:11px;display:grid;place-items:center;color:var(--c3);transition:background .12s,color .12s;position:relative}
 .nav-btn:hover{background:var(--hover);color:var(--c1)}
 .nav-btn[aria-current="true"]{background:var(--accent-bg);color:var(--a0)}
@@ -83,7 +83,41 @@ a{color:var(--a0)}
   .clock.dim{display:none}
   .v-head h1{font-size:27px}
   .clock .cl-time{font-size:24px}
+  .verpill{display:none}
 }
+
+/* labeled sidebar */
+#rail .nav-btn{width:100%;height:44px;display:flex;align-items:center;justify-content:flex-start;gap:12px;padding:0 12px;border-radius:9px;font:500 14.5px/1 var(--sans);color:var(--c2);text-align:left}
+#rail .nav-btn:hover{color:var(--c0)}
+#rail .nav-btn[aria-current="true"]{color:var(--a0);box-shadow:inset 3px 0 0 var(--a0)}
+#rail .nav-btn svg{width:20px;height:20px}
+#rail .nav-btn .nav-lbl{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#rail .nav-btn .key{position:static;opacity:1;font:600 10px/1 var(--mono);color:var(--c4);border:.5px solid var(--edge-muted);border-radius:5px;padding:3px 5px}
+.rail-lbl{font:600 10.5px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--c4);margin:16px 12px 8px}
+.rail-lbl:first-child{margin-top:2px}
+#railFoot{margin-top:auto;padding:12px 4px 2px;border-top:.5px solid var(--edge-muted);display:flex;align-items:center;gap:8px;font:600 11px/1.4 var(--mono);letter-spacing:.06em;color:var(--c4)}
+#railFoot .dot{width:7px;height:7px;border-radius:50%;background:var(--success);flex:none}
+#railFoot.err .dot{background:var(--alert)}
+#railFoot .ver{margin-left:auto;font-weight:500}
+.verpill{font:600 10.5px/1 var(--mono);letter-spacing:.08em;color:var(--c4);border:.5px solid var(--edge-muted);border-radius:6px;padding:4px 7px}
+@media(max-width:1079px) and (min-width:801px){
+  #app{grid-template-columns:68px 1fr}
+  #rail{padding:12px 10px;align-items:center}
+  #rail .nav-btn{width:48px;height:48px;justify-content:center;padding:0;gap:0}
+  #rail .nav-btn .nav-lbl,#rail .nav-btn .key,.rail-lbl{display:none}
+  #railFoot{padding:12px 0 2px;justify-content:center;border-top:0}
+  #railFoot .db-lbl,#railFoot .ver{display:none}
+}
+
+/* toasts */
+#toasts{position:fixed;right:18px;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);display:flex;flex-direction:column;gap:9px;z-index:40;pointer-events:none}
+.toast{pointer-events:auto;display:flex;align-items:center;gap:14px;background:var(--chrome);border:.5px solid var(--edge);border-left:3px solid var(--a0);border-radius:10px;padding:13px 16px;box-shadow:var(--shadow-menu);font:500 14px/1.4 var(--sans);color:var(--c0);max-width:360px;animation:toast-in .18s ease-out}
+.toast.ok{border-left-color:var(--success)}
+.toast.err{border-left-color:var(--failure)}
+.toast .t-act{font:600 12.5px/1 var(--mono);letter-spacing:.08em;color:var(--a0);padding:6px 8px;border-radius:6px;flex:none}
+.toast .t-act:hover{background:var(--accent-bg)}
+@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(max-width:800px){#toasts{left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 86px)}.toast{max-width:none}}
 
 /* ================= SHARED PIECES ================= */
 .panel{background:var(--b1);border:.5px solid var(--edge);border-radius:12px}
@@ -173,6 +207,7 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
     <div class="brand">
       <span class="mark" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 20 20"><path d="M2 14 L6 5 L10 14 L14 5 L18 14" fill="none" stroke="#050403" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       <span class="wordmark">FEEDPOINT</span>
+      <span class="verpill appver" title="Build version"></span>
     </div>
     <div id="clocks">
       <div class="clock"><div class="cl-label">UTC</div><div class="cl-time" id="clkUtc">--:--</div></div>
@@ -352,12 +387,14 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
   </main>
 
   <nav id="dock" aria-label="Views"></nav>
+<div id="toasts" role="status" aria-live="polite"></div>
 </div>
 
 <script>
 "use strict";
 const $=id=>document.getElementById(id);
 const FT_M=0.3048;
+const APP_VERSION="v2026.08.03.001";
 
 /* ---------- data ---------- */
 const BANDS=[
@@ -409,15 +446,43 @@ try{
 }catch(e){}
 
 /* ---------- navigation ---------- */
-function navButton(v,i){
+const GROUPS=[["Workbench",["calc","wire"]],["Reference",["unun","ant","notes"]],["Records",["log"]]];
+function navButton(v,i,labeled){
   const b=document.createElement("button");
   b.type="button";b.className="nav-btn";b.dataset.view=v.id;
-  b.setAttribute("aria-label",v.label);b.title=v.label;
-  b.innerHTML=`<svg viewBox="0 0 20 20">${v.icon}</svg><span class="key">${i+1}</span>`;
+  b.setAttribute("aria-label",v.label);b.title=v.label+" — key "+(i+1);
+  b.innerHTML=`<svg viewBox="0 0 20 20">${v.icon}</svg>`
+    +(labeled?`<span class="nav-lbl">${v.label}</span>`:"")
+    +`<span class="key">${i+1}</span>`;
   b.addEventListener("click",()=>go(v.id));
   return b;
 }
-VIEWS.forEach((v,i)=>{$("rail").appendChild(navButton(v,i));$("dock").appendChild(navButton(v,i));});
+GROUPS.forEach(([name,ids])=>{
+  const l=document.createElement("div");l.className="rail-lbl";l.textContent=name;
+  $("rail").appendChild(l);
+  ids.forEach(id=>{const i=VIEWS.findIndex(v=>v.id===id);$("rail").appendChild(navButton(VIEWS[i],i,true));});
+});
+const railFoot=document.createElement("div");railFoot.id="railFoot";
+railFoot.innerHTML='<span class="dot"></span><span class="db-lbl">LOCAL DB</span><span class="ver appver"></span>';
+$("rail").appendChild(railFoot);
+VIEWS.forEach((v,i)=>$("dock").appendChild(navButton(v,i,false)));
+document.querySelectorAll(".appver").forEach(el=>el.textContent=APP_VERSION);
+
+/* ---------- toasts (aria-live) ---------- */
+function toast(msg,opts={}){
+  const T=$("toasts"),t=document.createElement("div");
+  t.className="toast"+(opts.kind?" "+opts.kind:"");
+  const s=document.createElement("span");s.textContent=msg;t.appendChild(s);
+  if(opts.action){
+    const b=document.createElement("button");
+    b.type="button";b.className="t-act";b.textContent=opts.action.label;
+    b.addEventListener("click",()=>{opts.action.fn();t.remove();});
+    t.appendChild(b);
+  }
+  T.appendChild(t);
+  while(T.children.length>3)T.firstChild.remove();
+  setTimeout(()=>{if(t.isConnected)t.remove();},opts.action?6000:3800);
+}
 
 function go(id,push=true){
   document.querySelectorAll(".view").forEach(s=>s.classList.toggle("on",s.id==="view-"+id));
@@ -430,17 +495,22 @@ window.addEventListener("hashchange",()=>{
   if(VIEWS.some(v=>v.id===id))go(id,false);
 });
 document.addEventListener("keydown",e=>{
-  if(e.target.tagName==="INPUT")return;
+  if(e.target.tagName==="INPUT"||e.metaKey||e.ctrlKey||e.altKey)return;
   const n=parseInt(e.key,10);
   if(n>=1&&n<=VIEWS.length)go(VIEWS[n-1].id);
 });
 
 /* ---------- calculator ---------- */
+const FRAC=["","¼","½","¾"];
+function ftIn(ft){
+  let w=Math.floor(ft),q=Math.round((ft-w)*48);
+  if(q===48){w++;q=0;}
+  return {w,i:(q-q%4)/4,f:FRAC[q%4]};
+}
 function fmt(ft){
   if(metric){const m=ft*FT_M;return (m>=100?m.toFixed(1):m.toFixed(2))+' <small>m</small>';}
-  const w=Math.floor(ft);let i=Math.round((ft-w)*12);
-  if(i===12)return (w+1)+'<small>′</small> 0<small>″</small>';
-  return w+'<small>′</small> '+i+'<small>″</small>';
+  const p=ftIn(ft);
+  return p.w+'<small>′</small> '+p.i+p.f+'<small>″</small>';
 }
 function fmtShort(ft){return metric?(ft*FT_M).toFixed(2)+" m":ft.toFixed(1)+" ft";}
 const CARD_ICONS={
@@ -506,14 +576,14 @@ function checkWire(){
       <span class="right">${pill}</span></div>`;
   }).join("");
 }
-function buildChips(){
-  const C=$("goodLens");
+function renderChips(){
+  const C=$("goodLens");C.innerHTML="";
   GOOD_LENS.forEach(l=>{
     const b=document.createElement("button");b.type="button";
-    b.textContent=l+" ft";
+    b.textContent=wireMetric?(l*FT_M).toFixed(1)+" m":l+" ft";
     b.addEventListener("click",()=>{
-      if(wireMetric){wireMetric=false;$("wFt").classList.add("on");$("wM").classList.remove("on");}
-      $("wire").value=l;checkWire();
+      $("wire").value=wireMetric?(l*FT_M).toFixed(1):l;
+      checkWire();saveSettings();
     });
     C.appendChild(b);
   });
@@ -571,6 +641,11 @@ function noteStorage(){
   $("storeNote").textContent=storageOK
     ?"Data lives in this browser's IndexedDB. It survives restarts, but not a site-data wipe — that's what the backup is for."
     :"Storage is unavailable here (some previews sandbox it). Download the file and open it directly — the log will work.";
+  const f=$("railFoot");
+  if(f){
+    f.classList.toggle("err",!storageOK);
+    f.querySelector(".db-lbl").textContent=storageOK?"LOCAL DB":"NO STORAGE";
+  }
 }
 
 /* ---------- settings persistence ---------- */
@@ -580,7 +655,7 @@ function saveSettings(){
 
 /* ---------- build log ---------- */
 let LOG=[];
-function fmtLogLen(ft){const w=Math.floor(ft),i=Math.round((ft-w)*12);return (i===12?(w+1)+"′ 0″":w+"′ "+i+"″")+" · "+(ft*FT_M).toFixed(2)+" m";}
+function fmtLogLen(ft){const p=ftIn(ft);return p.w+"′ "+p.i+p.f+"″ · "+(ft*FT_M).toFixed(2)+" m";}
 function logRender(){
   const L=$("logList");
   if(!LOG.length){
@@ -603,8 +678,14 @@ function logRender(){
   }).join("");
   L.querySelectorAll(".del").forEach(b=>b.addEventListener("click",ev=>{
     ev.preventDefault();ev.stopPropagation();
-    LOG=LOG.filter(x=>x.ts!==Number(b.dataset.id));
+    const idx=LOG.findIndex(x=>x.ts===Number(b.dataset.id));
+    if(idx<0)return;
+    const entry=LOG.splice(idx,1)[0];
     safeSet("log",LOG);logRender();
+    toast("Entry deleted",{action:{label:"UNDO",fn:()=>{
+      LOG.splice(Math.min(idx,LOG.length),0,entry);
+      safeSet("log",LOG);logRender();
+    }}});
   }));
 }
 function flash(btn,txt){
@@ -642,7 +723,7 @@ function saveWire(){
 
 /* ---------- backup & restore ---------- */
 function exportBackup(){
-  const data=JSON.stringify({app:"feedpoint",version:1,exported:new Date().toISOString(),
+  const data=JSON.stringify({app:"feedpoint",version:1,build:APP_VERSION,exported:new Date().toISOString(),
     settings:{metric,wireMetric,freq:$("freq").value,kf:$("kf").value,wire:$("wire").value},log:LOG},null,2);
   const blob=new Blob([data],{type:"application/json"});
   const a=document.createElement("a");
@@ -650,13 +731,15 @@ function exportBackup(){
   a.download="feedpoint-backup-"+new Date().toISOString().slice(0,10)+".json";
   document.body.appendChild(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+  toast("Backup downloaded — "+LOG.length+" log entr"+(LOG.length===1?"y":"ies"),{kind:"ok"});
 }
 function importBackup(file){
   const r=new FileReader();
   r.onload=async()=>{
     try{
       const d=JSON.parse(r.result);
-      if(d.app!=="feedpoint"&&d.app!=="halfwave"||!Array.isArray(d.log))throw new Error("wrong shape");
+      const appName=String(d.app||"").toLowerCase();
+      if((appName!=="feedpoint"&&appName!=="halfwave")||!Array.isArray(d.log))throw new Error("wrong shape");
       LOG=d.log.filter(e=>e&&typeof e.ts==="number"&&Array.isArray(e.items));
       await safeSet("log",LOG);
       if(d.settings){
@@ -666,14 +749,15 @@ function importBackup(file){
         if(d.settings.wire)$("wire").value=d.settings.wire;
         applyUnitButtons();saveSettings();calc();markBand();checkWire();
       }
-      logRender();flash($("impBtn"),"Restored "+LOG.length+" entries");
-    }catch(e){flash($("impBtn"),"Not a FEEDPOINT backup");}
+      logRender();toast("Restored "+LOG.length+" log entr"+(LOG.length===1?"y":"ies")+" from backup",{kind:"ok"});
+    }catch(e){toast("Not a FEEDPOINT backup — nothing imported",{kind:"err"});}
   };
   r.readAsText(file);
 }
 function applyUnitButtons(){
   $("uFt").classList.toggle("on",!metric);$("uM").classList.toggle("on",metric);
   $("wFt").classList.toggle("on",!wireMetric);$("wM").classList.toggle("on",wireMetric);
+  renderChips();
 }
 
 /* ---------- wiring ---------- */
@@ -702,7 +786,7 @@ $("impFile").addEventListener("change",e=>{if(e.target.files[0])importBackup(e.t
   LOG=await safeGet("log",[]);
   if(!Array.isArray(LOG))LOG=[];
   applyUnitButtons();
-  buildBands();buildChips();buildNotes();calc();markBand();checkWire();logRender();noteStorage();
+  buildBands();buildNotes();calc();markBand();checkWire();logRender();noteStorage();
   go(VIEWS.some(v=>v.id===location.hash.slice(1))?location.hash.slice(1):"calc",false);
 })();
 </script>
