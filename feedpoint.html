@@ -10,6 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="FEEDPOINT">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Crect width='20' height='20' rx='4.5' fill='%23FF8600'/%3E%3Cpath d='M2.6 7.2 H7.5 M12.5 7.2 H17.4 M10 9.2 V16.4' fill='none' stroke='%23050403' stroke-width='2.4' stroke-linecap='round'/%3E%3Ccircle cx='10' cy='7.2' r='2.1' fill='%23050403'/%3E%3Cpath d='M6.5 3.9 A4.6 4.6 0 0 1 13.5 3.9' fill='none' stroke='%23050403' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
 <title>FEEDPOINT</title>
 <style>
 /* ---- Macro fonts, embedded (offline) ---- */
@@ -128,6 +129,58 @@ a{color:var(--a0)}
 @keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @media(max-width:800px){#toasts{left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 86px)}.toast{max-width:none}}
 
+/* section row with inline control */
+.sec-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:26px 2px 10px}
+.sec-row .sec-lbl{margin:0}
+.seg-sm button{padding:8px 11px;font-size:12px}
+/* K presets */
+.kpre{margin-top:12px}
+.kpre button.on{border-color:var(--a0);color:var(--a0)}
+/* band cut-memory dot */
+.cutdot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--a0);margin-left:7px;vertical-align:2px}
+/* log entry tools */
+.k-actions{display:flex;gap:8px;margin:2px 0 12px;flex-wrap:wrap}
+.k-actions button{background:var(--b0);border:.5px solid var(--edge);border-radius:999px;font:600 12.5px/1 var(--mono);color:var(--c1);padding:10px 13px;transition:border-color .1s,color .1s}
+.k-actions button:hover{border-color:var(--a0);color:var(--a0)}
+.note-lbl{display:block;font:600 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--c3);margin:12px 0 6px}
+textarea.note{width:100%;max-width:520px;background:var(--b0);border:.5px solid var(--edge-muted);border-radius:8px;color:var(--c0);font:400 14px/1.5 var(--sans);padding:10px 12px;resize:vertical;display:block}
+textarea.note:focus{border-color:var(--a0);outline:none}
+/* coil calculator */
+select{background:var(--b1);border:.5px solid var(--edge);border-radius:10px;color:var(--c0);font:500 14px/1.3 var(--mono);padding:13px 10px;width:100%}
+select:focus{border-color:var(--a0);outline:none}
+.coil-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:680px){.coil-grid{grid-template-columns:1fr}}
+.coil-title{font:600 12px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--a0);margin-bottom:12px}
+.coil-row{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:10px}
+.coil-row.two{grid-template-columns:1fr 1.6fr}
+.coil-out{font:500 14.5px/1.6 var(--mono);color:var(--c1);margin-top:12px}
+.coil-out b{color:var(--c0)}
+/* print: cut sheets (printing always renders the build log) */
+@media print{
+  html,body{background:#fff!important;color:#000!important;overflow:visible!important}
+  #topbar,#rail,#dock,#toasts,#wireFix{display:none!important}
+  #app{display:block!important;height:auto!important}
+  #main{overflow:visible!important;padding:0!important}
+  .view{display:none!important}
+  #view-log{display:block!important;max-width:100%}
+  #view-log .v-head{border-left:4px solid #000;background:none}
+  #view-log .v-head h1,#view-log .vh-tag{color:#000}
+  .v-sub,.chips,.hint,.k-actions,#storeNote{display:none!important}
+  #logList{border-color:#bbb;background:#fff}
+  #logList details.k{border-bottom:1px solid #ccc;break-inside:avoid}
+  body.print-one #logList details.k{display:none}
+  body.print-one #logList details.k.print-target{display:block}
+  details.k summary{background:none!important;border-left:0}
+  details.k summary .del,details.k summary .chev,details.k summary .ico{display:none!important}
+  details.k summary .t1{color:#000}
+  details.k summary .t2,.k-body{color:#333}
+  .spec{border-color:#bbb;background:#fff}
+  .spec .srow span:first-child{color:#555}
+  .spec .srow span:last-child{color:#000}
+  textarea.note{border:0;background:none;color:#000;padding:0}
+  .note-lbl{color:#555}
+}
+
 /* ================= SHARED PIECES ================= */
 .panel{background:var(--b1);border:.5px solid var(--edge);border-radius:12px}
 .seg{display:inline-flex;background:var(--b1);border:.5px solid var(--edge);border-radius:10px;padding:3px;gap:2px}
@@ -239,7 +292,18 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
           <div class="seg" role="group" aria-label="Units"><button id="uFt" class="on" type="button">FT · IN</button><button id="uM" type="button">METERS</button></div>
         </div>
       </div>
-      <div class="sec-lbl">Bands</div>
+      <div class="chips kpre" aria-label="K-factor presets">
+        <button type="button" data-k="0.95">Bare wire · 0.95</button>
+        <button type="button" data-k="0.91">Insulated · 0.91</button>
+        <button type="button" data-k="0.92">Inverted-V · 0.92</button>
+      </div>
+      <div class="sec-row"><span class="sec-lbl">Bands</span>
+        <div class="seg seg-sm" role="group" aria-label="ITU region">
+          <button id="rg1" type="button" title="Region 1 · Europe, Africa, Middle East">R1</button>
+          <button id="rg2" type="button" class="on" title="Region 2 · Americas">R2</button>
+          <button id="rg3" type="button" title="Region 3 · Asia-Pacific">R3</button>
+        </div>
+      </div>
       <div class="row-list" id="bandList"></div>
       <div class="sec-lbl">Cut lengths</div>
       <div class="cards" id="results"></div>
@@ -343,6 +407,42 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
         </table>
       </div>
       <p class="hint">Mix 43 is the workhorse 1.8–30 MHz. Mix 61 takes more power with less loss but wants more turns down low. <b>A warm core after an FT8 over is burning your signal</b> — go bigger or stack two.</p>
+
+      <div class="sec-lbl">Coil winding calculator</div>
+      <div class="panel" style="padding:16px 17px 18px">
+        <div class="coil-grid">
+          <div>
+            <div class="coil-title">Air-core · single layer</div>
+            <div class="coil-row">
+              <div><label class="lbl" for="coilL">Target · µH</label><input id="coilL" type="number" inputmode="decimal" step="0.1" min="0.1" value="34"></div>
+              <div><label class="lbl" for="coilD">Form Ø · in</label><input id="coilD" type="number" inputmode="decimal" step="0.1" min="0.3" value="2"></div>
+              <div><label class="lbl" for="coilAwg">Wire</label><select id="coilAwg">
+                <option value="12.4">14 AWG</option>
+                <option value="15.5">16 AWG</option>
+                <option value="19.4" selected>18 AWG</option>
+                <option value="24.3">20 AWG</option>
+                <option value="30.4">22 AWG</option>
+              </select></div>
+            </div>
+            <p class="coil-out" id="coilOut">—</p>
+          </div>
+          <div>
+            <div class="coil-title">Toroid · ferrite</div>
+            <div class="coil-row two">
+              <div><label class="lbl" for="torL">Target · µH</label><input id="torL" type="number" inputmode="decimal" step="0.1" min="0.1" value="34"></div>
+              <div><label class="lbl" for="torCore">Core</label><select id="torCore">
+                <option value="557">FT82-43</option>
+                <option value="603">FT114-43</option>
+                <option value="952" selected>FT140-43</option>
+                <option value="1075">FT240-43</option>
+                <option value="173">FT240-61</option>
+              </select></div>
+            </div>
+            <p class="coil-out" id="torOut">—</p>
+          </div>
+        </div>
+        <p class="hint">Air core uses Wheeler's formula, close-wound enameled wire. Toroid turns come from published A<sub>L</sub> values (mH/1000 t) — spread the winding over ~300° of core. Verify with an LC meter before it goes in line.</p>
+      </div>
     </section>
 
     <!-- ============ ANTENNAS ============ -->
@@ -404,11 +504,11 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
 "use strict";
 const $=id=>document.getElementById(id);
 const FT_M=0.3048;
-const APP_VERSION="v2026.08.03.004";
+const APP_VERSION="v2026.08.03.005";
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 /* ---------- data ---------- */
-const BANDS=[
+const R2_BANDS=[
  {n:"160m",lo:1.800,hi:2.000,c:1.900},
  {n:"80m", lo:3.500,hi:4.000,c:3.800},
  {n:"60m", lo:5.330,hi:5.405,c:5.357},
@@ -421,6 +521,23 @@ const BANDS=[
  {n:"10m", lo:28.000,hi:29.700,c:28.400},
  {n:"6m",  lo:50.000,hi:54.000,c:52.000}
 ];
+const ovr=(base,changes)=>base.map(b=>changes[b.n]?{...b,...changes[b.n]}:b);
+const BAND_PLANS={
+ 2:R2_BANDS,
+ 1:ovr(R2_BANDS,{
+   "160m":{lo:1.810,hi:2.000,c:1.905},
+   "80m":{lo:3.500,hi:3.800,c:3.650},
+   "60m":{lo:5.3515,hi:5.3665,c:5.359},
+   "40m":{lo:7.000,hi:7.200,c:7.100},
+   "6m":{lo:50.000,hi:52.000,c:51.000}
+ }),
+ 3:ovr(R2_BANDS,{
+   "80m":{lo:3.500,hi:3.900,c:3.700},
+   "40m":{lo:7.000,hi:7.200,c:7.100}
+ })
+};
+let region=2;
+let BANDS=BAND_PLANS[region];
 const HUES=["#FF8600","#CFAD00","#62CA40","#00D4B0","#00C7FF"];
 const GOOD_LENS=[25.5,35.5,41,58,71,84,107,119];
 const NOTES=[
@@ -548,19 +665,36 @@ function calc(){
   +card("","loop","Full-wave loop",1005/f*adj,`Perimeter · ≈115 Ω — feed via 4:1 or λ/4 of 75 Ω.`)
   +card("","v58","⅝-wave vertical",585/f*adj,`Lower takeoff for DX · needs base matching coil.`);
 }
-function buildBands(){
-  const L=$("bandList");
+function renderBands(){
+  const L=$("bandList");L.innerHTML="";
   BANDS.forEach((b,i)=>{
     const hue=HUES[i%HUES.length];
+    const logged=LOG.some(e=>e.kind==="cut"&&e.band===b.n);
     const btn=document.createElement("button");
     btn.type="button";btn.className="li";btn.dataset.f=b.c;
     btn.innerHTML=`<span class="ico" style="background:${hue}1f"><svg viewBox="0 0 16 16"><path d="M2 11c2 0 2-6 4-6s2 8 4 8 2-6 4-6" fill="none" stroke="${hue}" stroke-width="1.5" stroke-linecap="round"/></svg></span>
-      <span><span class="t1">${b.n}</span><br><span class="t2">${b.lo.toFixed(3)} – ${b.hi.toFixed(3)} MHz</span></span>
+      <span><span class="t1">${b.n}${logged?'<span class="cutdot" title="cuts saved in the build log"></span>':''}</span><br><span class="t2">${b.lo.toFixed(3)} – ${b.hi.toFixed(3)} MHz</span></span>
       <span class="right">${b.c.toFixed(3)}<small>center</small></span>`;
-    btn.addEventListener("click",()=>{$("freq").value=b.c.toFixed(3);markBand();calc();});
+    btn.addEventListener("click",()=>{$("freq").value=b.c.toFixed(3);markBand();calc();saveSettings();});
     L.appendChild(btn);
   });
 }
+function setRegion(r,persist=true){
+  region=[1,2,3].includes(r)?r:2;
+  BANDS=BAND_PLANS[region];
+  [1,2,3].forEach(i=>$("rg"+i).classList.toggle("on",i===region));
+  renderBands();markBand();calc();checkWire();
+  if(persist)saveSettings();
+}
+[1,2,3].forEach(i=>$("rg"+i).addEventListener("click",()=>setRegion(i)));
+/* K-factor presets */
+function markKChips(){
+  const k=parseFloat($("kf").value);
+  document.querySelectorAll(".kpre button").forEach(b=>b.classList.toggle("on",parseFloat(b.dataset.k)===k));
+}
+document.querySelectorAll(".kpre button").forEach(b=>b.addEventListener("click",()=>{
+  $("kf").value=b.dataset.k;markKChips();calc();saveSettings();
+}));
 function markBand(){
   const f=parseFloat($("freq").value);
   document.querySelectorAll("#bandList .li").forEach(el=>{
@@ -574,7 +708,7 @@ function markBand(){
    center: the worst-case distance (in half-wave multiples) from the length's
    multiple range to any integer. A wire clear at center can still hit an
    impedance spike at a band edge. */
-const WIRE_BANDS=BANDS.filter(b=>b.n!=="160m"&&b.n!=="6m");
+function wireBands(){return BANDS.filter(b=>b.n!=="160m"&&b.n!=="6m");}
 function distToInt(a,b,n){return n<a?a-n:(n>b?n-b:0);}
 function bandOffset(ft,b){
   const mLo=ft*b.lo/468,mHi=ft*b.hi/468;
@@ -587,7 +721,7 @@ function bandOffset(ft,b){
 /* "Spike-free" = no AVOID on any band. Demanding no-MARGINAL-anywhere is
    unsatisfiable past ~13 ft once band edges are honored, so the suggestion
    targets what a tuner actually can't handle: the impedance spikes. */
-function hasAvoid(ft){return WIRE_BANDS.some(b=>{const r=bandOffset(ft,b);return r.n>0&&r.off<0.07;});}
+function hasAvoid(ft){return wireBands().some(b=>{const r=bandOffset(ft,b);return r.n>0&&r.off<0.07;});}
 function suggestClear(ft){
   for(let d=0.5;d<=30;d+=0.5)for(const s of [1,-1]){
     const l=+(ft+s*d).toFixed(1);
@@ -599,7 +733,7 @@ function checkWire(){
   const raw=parseFloat($("wire").value),V=$("verdict"),FX=$("wireFix");
   if(!raw||raw<=0){V.innerHTML='<div class="li"><span class="t2">Enter a wire length above.</span></div>';FX.hidden=true;return;}
   const ft=wireMetric?raw/FT_M:raw;
-  V.innerHTML=WIRE_BANDS.map((b,i)=>{
+  V.innerHTML=wireBands().map((b,i)=>{
     const hue=HUES[i%HUES.length];
     const {n,off}=bandOffset(ft,b);
     let pill,msg;
@@ -633,6 +767,31 @@ function renderChips(){
     C.appendChild(b);
   });
 }
+
+/* ---------- coil winding calculator ---------- */
+/* Air core: Wheeler, L(µH)=d²n²/(18d+40l), l=n/tpi — solve for n:
+   d²n² − (40L/tpi)n − 18dL = 0 (positive root). */
+function airTurns(L,d,tpi){
+  const b=40*L/tpi,c=18*d*L;
+  return (b+Math.sqrt(b*b+4*d*d*c))/(2*d*d);
+}
+/* Ferrite toroid: A_L in mH/1000 turns → N=1000·√(L_mH/A_L) */
+function torTurns(L,al){return 1000*Math.sqrt((L/1000)/al);}
+function renderCoil(){
+  const L=parseFloat($("coilL").value),d=parseFloat($("coilD").value),tpi=parseFloat($("coilAwg").value);
+  const awgTxt=$("coilAwg").options[$("coilAwg").selectedIndex].text;
+  if(L>0&&d>0){
+    const n=airTurns(L,d,tpi),len=n/tpi;
+    $("coilOut").innerHTML=`<b>${n.toFixed(1)} turns</b> · winding ${len.toFixed(2)}″ long · ${awgTxt} close-wound`;
+  }else $("coilOut").textContent="—";
+  const tL=parseFloat($("torL").value),al=parseFloat($("torCore").value);
+  const coreTxt=$("torCore").options[$("torCore").selectedIndex].text;
+  if(tL>0){
+    const N=torTurns(tL,al);
+    $("torOut").innerHTML=`<b>${N.toFixed(1)} turns</b> on ${coreTxt}`;
+  }else $("torOut").textContent="—";
+}
+["coilL","coilD","coilAwg","torL","torCore"].forEach(id=>$(id).addEventListener("input",renderCoil));
 
 /* ---------- notes ---------- */
 function buildNotes(){
@@ -695,7 +854,7 @@ function noteStorage(){
 
 /* ---------- settings persistence ---------- */
 function saveSettings(){
-  safeSet("settings",{metric,wireMetric,freq:$("freq").value,kf:$("kf").value,wire:$("wire").value});
+  safeSet("settings",{metric,wireMetric,region,freq:$("freq").value,kf:$("kf").value,wire:$("wire").value});
 }
 
 /* ---------- build log ---------- */
@@ -712,8 +871,12 @@ function logRender(){
     const when=d.toLocaleDateString("en-US",{month:"short",day:"numeric"})+" "+d.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",hour12:false});
     const hue=e.kind==="cut"?"#FF8600":"#00D4B0";
     /* titles/items may come from an imported backup file — always escape */
-    const body=`<div class="spec">${e.items.map(it=>`<div class="srow"><span>${esc(it[0])}</span><span>${esc(it[1])}</span></div>`).join("")}</div>`;
-    return `<details class="k"><summary>
+    const loadLbl=e.kind==="cut"?"Load into calculator":"Load into wire check";
+    const body=`<div class="spec">${e.items.map(it=>`<div class="srow"><span>${esc(it[0])}</span><span>${esc(it[1])}</span></div>`).join("")}</div>
+      <div class="k-actions"><button type="button" class="load" data-id="${e.ts}">${loadLbl}</button><button type="button" class="print" data-id="${e.ts}">Print cut sheet</button></div>
+      <label class="note-lbl" for="note-${e.ts}">Notes</label>
+      <textarea class="note" id="note-${e.ts}" data-id="${e.ts}" rows="2" placeholder="Antenna, QTH, how it tuned…">${esc(e.note||"")}</textarea>`;
+    return `<details class="k" data-ts="${e.ts}"><summary>
       <span class="ico" style="background:${hue}1f"><svg viewBox="0 0 16 16" width="15" height="15"><path d="M2 11c2 0 2-6 4-6s2 8 4 8 2-6 4-6" fill="none" stroke="${hue}" stroke-width="1.5" stroke-linecap="round"/></svg></span>
       <span><span class="t1">${esc(e.title)}</span><br><span class="t2">${when}</span></span>
       <button class="del" style="margin-left:auto" data-id="${e.ts}" type="button" aria-label="Delete entry"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
@@ -731,6 +894,49 @@ function logRender(){
       safeSet("log",LOG);logRender();
     }}});
   }));
+  L.querySelectorAll(".load").forEach(b=>b.addEventListener("click",()=>loadEntry(Number(b.dataset.id))));
+  L.querySelectorAll(".print").forEach(b=>b.addEventListener("click",()=>printEntry(Number(b.dataset.id))));
+  L.querySelectorAll("textarea.note").forEach(t=>t.addEventListener("input",()=>{
+    const e=LOG.find(x=>x.ts===Number(t.dataset.id));
+    if(!e)return;
+    e.note=t.value;
+    clearTimeout(noteTimer);noteTimer=setTimeout(()=>safeSet("log",LOG),500);
+  }));
+  renderBands();markBand();
+}
+let noteTimer;
+function loadEntry(id){
+  const e=LOG.find(x=>x.ts===id);
+  if(!e)return;
+  if(e.kind==="cut"){
+    const f=typeof e.f==="number"?e.f:parseFloat((e.title.match(/([\d.]+) MHz/)||[])[1]);
+    const k=typeof e.k==="number"?e.k:parseFloat((e.title.match(/K ([\d.]+)/)||[])[1]);
+    if(!f)return toast("Entry has no frequency to load",{kind:"err"});
+    $("freq").value=f.toFixed(3);
+    if(k)$("kf").value=k.toFixed(2);
+    markKChips();markBand();calc();saveSettings();go("calc");
+  }else{
+    const ft=typeof e.ft==="number"?e.ft:parseFloat((e.title.match(/([\d.]+) ft/)||[])[1]);
+    if(!ft)return toast("Entry has no length to load",{kind:"err"});
+    $("wire").value=wireMetric?(ft*FT_M).toFixed(1):ft.toFixed(1);
+    checkWire();saveSettings();go("wire");
+  }
+}
+function printEntry(id){
+  const el=document.querySelector(`#logList details.k[data-ts="${id}"]`);
+  if(!el)return;
+  const wasOpen=el.open;
+  document.body.classList.add("print-one");el.classList.add("print-target");el.open=true;
+  let done=false;
+  const cleanup=()=>{
+    if(done)return;done=true;
+    document.body.classList.remove("print-one");el.classList.remove("print-target");el.open=wasOpen;
+    window.removeEventListener("afterprint",cleanup);
+  };
+  window.addEventListener("afterprint",cleanup);
+  go("log");
+  window.print();
+  setTimeout(cleanup,1000);
 }
 function flash(btn,txt){
   const old=btn.textContent;btn.textContent=txt;btn.classList.add("flash");
@@ -749,7 +955,7 @@ function saveCut(){
   if(!f||f<1||f>60)return;
   const adj=k/0.95,half=468/f*adj;
   const band=BANDS.find(b=>f>=b.lo-0.05&&f<=b.hi+0.05);
-  LOG.unshift({ts:Date.now(),kind:"cut",title:`Cuts · ${band?band.n+" · ":""}${f.toFixed(3)} MHz · K ${k.toFixed(2)}`,items:[
+  LOG.unshift({ts:Date.now(),kind:"cut",f,k,band:band?band.n:null,title:`Cuts · ${band?band.n+" · ":""}${f.toFixed(3)} MHz · K ${k.toFixed(2)}`,items:[
     ["EFHW / dipole total",fmtLogLen(half)],
     ["Dipole per leg",fmtLogLen(half/2)],
     ["¼-wave vertical",fmtLogLen(234/f*adj)],
@@ -763,20 +969,20 @@ function saveWire(){
   const raw=parseFloat($("wire").value);
   if(!raw||raw<=0)return;
   const ft=wireMetric?raw/FT_M:raw;
-  const items=WIRE_BANDS.map(b=>{
+  const items=wireBands().map(b=>{
     const {n,off}=bandOffset(ft,b);
     let v="CLEAR";
     if(n===0)v="SHORT";else if(off<0.07)v="AVOID ("+n+"×½λ)";else if(off<0.15)v="MARGINAL";
     return [b.n,v];
   });
-  LOG.unshift({ts:Date.now(),kind:"wire",title:`Wire check · ${ft.toFixed(1)} ft (${(ft*FT_M).toFixed(1)} m)`,items});
+  LOG.unshift({ts:Date.now(),kind:"wire",ft,title:`Wire check · ${ft.toFixed(1)} ft (${(ft*FT_M).toFixed(1)} m)`,items});
   logRender();persistLog($("saveWire"));
 }
 
 /* ---------- backup & restore ---------- */
 function exportBackup(){
   const data=JSON.stringify({app:"feedpoint",version:1,build:APP_VERSION,exported:new Date().toISOString(),
-    settings:{metric,wireMetric,freq:$("freq").value,kf:$("kf").value,wire:$("wire").value},log:LOG},null,2);
+    settings:{metric,wireMetric,region,freq:$("freq").value,kf:$("kf").value,wire:$("wire").value},log:LOG},null,2);
   const blob=new Blob([data],{type:"application/json"});
   const a=document.createElement("a");
   a.href=URL.createObjectURL(blob);
@@ -799,7 +1005,7 @@ function importBackup(file){
         if(d.settings.freq)$("freq").value=d.settings.freq;
         if(d.settings.kf)$("kf").value=d.settings.kf;
         if(d.settings.wire)$("wire").value=d.settings.wire;
-        applyUnitButtons();saveSettings();calc();markBand();checkWire();
+        applyUnitButtons();markKChips();setRegion(d.settings.region||region,false);saveSettings();
       }
       logRender();toast("Restored "+LOG.length+" log entr"+(LOG.length===1?"y":"ies")+" from backup",{kind:"ok"});
     }catch(e){toast("Not a FEEDPOINT backup — nothing imported",{kind:"err"});}
@@ -814,7 +1020,7 @@ function applyUnitButtons(){
 
 /* ---------- wiring ---------- */
 $("freq").addEventListener("input",()=>{markBand();calc();saveSettings();});
-$("kf").addEventListener("input",()=>{calc();saveSettings();});
+$("kf").addEventListener("input",()=>{markKChips();calc();saveSettings();});
 $("uFt").addEventListener("click",()=>{metric=false;applyUnitButtons();calc();saveSettings();});
 $("uM").addEventListener("click",()=>{metric=true;applyUnitButtons();calc();saveSettings();});
 $("wire").addEventListener("input",()=>{checkWire();saveSettings();});
@@ -837,9 +1043,11 @@ $("impFile").addEventListener("change",e=>{if(e.target.files[0])importBackup(e.t
   }
   LOG=await safeGet("log",[]);
   if(!Array.isArray(LOG))LOG=[];
-  applyUnitButtons();
-  buildBands();buildNotes();calc();markBand();checkWire();logRender();noteStorage();
+  if(s&&[1,2,3].includes(s.region)){region=s.region;BANDS=BAND_PLANS[region];[1,2,3].forEach(i=>$("rg"+i).classList.toggle("on",i===region));}
+  applyUnitButtons();markKChips();
+  renderBands();buildNotes();calc();markBand();checkWire();logRender();noteStorage();renderCoil();
   go(VIEWS.some(v=>v.id===location.hash.slice(1))?location.hash.slice(1):"calc",false);
+  if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
 })();
 </script>
 </body>

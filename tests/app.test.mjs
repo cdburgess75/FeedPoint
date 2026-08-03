@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.08.03.004';
+const VERSION = 'v2026.08.03.005';
 const errors = [];
 let failed = 0;
 const check = (name, cond, extra = '') => {
@@ -29,6 +29,48 @@ const icons = await page.evaluate(() => ({
   iosTitle: document.querySelector('meta[name="apple-mobile-web-app-title"]')?.content
 }));
 check('favicon + apple-touch-icon wired', icons.favicon && icons.touch === 'apple-touch-icon.png' && icons.iosTitle === 'FEEDPOINT', JSON.stringify(icons));
+const manifest = await page.$eval('link[rel="manifest"]', e => e.getAttribute('href'));
+check('PWA manifest linked', manifest === 'manifest.webmanifest', manifest);
+
+// --- K-factor presets ---
+const kChip = await page.$$eval('.kpre button', els => els.map(e => [e.dataset.k, e.classList.contains('on')]));
+check('K preset 0.95 active by default', JSON.stringify(kChip) === JSON.stringify([["0.95",true],["0.91",false],["0.92",false]]), JSON.stringify(kChip));
+await page.click('.kpre button[data-k="0.91"]');
+await page.waitForTimeout(150);
+const kVal = await page.$eval('#kf', e => e.value);
+const kOn = await page.$eval('.kpre button[data-k="0.91"]', e => e.classList.contains('on'));
+check('K preset click sets value + active', kVal === '0.91' && kOn, kVal);
+await page.click('.kpre button[data-k="0.95"]');
+await page.waitForTimeout(150);
+
+// --- ITU region band plans ---
+const bandRange = async (name) => page.$$eval('#bandList .li', (els, n) => {
+  const row = els.find(e => e.querySelector('.t1').textContent.startsWith(n));
+  return row ? row.querySelector('.t2').textContent : null;
+}, name);
+check('R2 80m default', (await bandRange('80m')).includes('3.500 – 4.000'), await bandRange('80m'));
+await page.click('#rg1');
+await page.waitForTimeout(200);
+check('R1 80m narrows', (await bandRange('80m')).includes('3.500 – 3.800'), await bandRange('80m'));
+check('R1 40m narrows', (await bandRange('40m')).includes('7.000 – 7.200'), await bandRange('40m'));
+await page.reload();
+await page.waitForTimeout(700);
+check('region persists reload', (await bandRange('80m')).includes('3.500 – 3.800'), await bandRange('80m'));
+const r1on = await page.$eval('#rg1', e => e.classList.contains('on'));
+check('region seg restored', r1on);
+await page.click('#rg2');
+await page.waitForTimeout(200);
+check('back to R2', (await bandRange('80m')).includes('3.500 – 4.000'));
+
+// --- coil winding calculator ---
+const coil = await page.evaluate(() => ({
+  air: airTurns(34, 2, 19.4),          // ~28.3 turns
+  tor: torTurns(34, 952)               // FT140-43 ≈ 6 turns
+}));
+check('air-core turns math', coil.air > 27.5 && coil.air < 29, coil.air.toFixed(2));
+check('toroid turns math', coil.tor > 5.5 && coil.tor < 6.5, coil.tor.toFixed(2));
+const coilOut = await page.$eval('#coilOut', e => e.textContent);
+check('coil output rendered', coilOut.includes('turns'), coilOut);
 const labels = await page.$$eval('#rail .nav-lbl', els => els.map(e => e.textContent));
 check('sidebar labels', JSON.stringify(labels) === JSON.stringify(['Calculator','Wire check','Ununs & baluns','End-fed antennas','Field notes','Build log']), JSON.stringify(labels));
 const groups = await page.$$eval('#rail .rail-lbl', els => els.map(e => e.textContent));
@@ -156,6 +198,54 @@ await undoBtn.click();
 await page.waitForTimeout(200);
 count = await page.$$eval('#logList details.k', els => els.length);
 check('undo restores entry', count === 1, String(count));
+
+// --- per-band cut memory dot ---
+await page.keyboard.press('1');
+await page.waitForTimeout(150);
+const dot40 = await page.$$eval('#bandList .li', els => {
+  const row = els.find(e => e.querySelector('.t1').textContent.startsWith('40m'));
+  return !!row.querySelector('.cutdot');
+});
+check('40m shows cut-memory dot', dot40);
+
+// --- load log entry back into calculator ---
+await page.fill('#freq', '14.175');
+await page.waitForTimeout(150);
+await page.evaluate(() => go('log'));
+await page.waitForTimeout(150);
+await page.$eval('#logList details.k', e => e.open = true);
+await page.click('#logList .load');
+await page.waitForTimeout(200);
+const loaded = await page.evaluate(() => ({
+  view: document.getElementById('view-calc').classList.contains('on'),
+  freq: document.getElementById('freq').value
+}));
+check('load restores freq + switches view', loaded.view && loaded.freq === '7.150', JSON.stringify(loaded));
+
+// --- per-entry notes persist ---
+await page.evaluate(() => go('log'));
+await page.waitForTimeout(150);
+await page.$eval('#logList details.k', e => e.open = true);
+await page.fill('#logList textarea.note', 'Backyard EFHW, tuned flat on 40');
+await page.waitForTimeout(800);
+await page.reload();
+await page.waitForTimeout(700);
+await page.$eval('#logList details.k', e => e.open = true);
+const noteVal = await page.$eval('#logList textarea.note', e => e.value);
+check('note persists across reload', noteVal === 'Backyard EFHW, tuned flat on 40', noteVal);
+
+// --- print cut sheet isolates the entry ---
+await page.evaluate(() => { window.print = () => {}; });
+await page.click('#logList .print');
+await page.waitForTimeout(100);
+const during = await page.evaluate(() => ({
+  one: document.body.classList.contains('print-one'),
+  target: !!document.querySelector('#logList details.k.print-target')
+}));
+check('print marks single entry', during.one && during.target, JSON.stringify(during));
+await page.waitForTimeout(1100);
+const after = await page.evaluate(() => document.body.classList.contains('print-one'));
+check('print state cleaned up', !after);
 
 // --- backup includes build stamp ---
 const build = await page.evaluate(() => APP_VERSION);
