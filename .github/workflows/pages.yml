@@ -42,6 +42,14 @@ jobs:
           cp docs/icon-512-v11.png _site/icon-512-v11.png
           cp docs/touch-icon-180-v12.png _site/touch-icon-180-v12.png
           cp docs/icon-512-v12.png _site/icon-512-v12.png
+      - name: Stamp build version
+        run: |
+          VER=$(grep -o 'APP_VERSION="[^"]*"' _site/index.html | head -1 | cut -d'"' -f2)
+          echo "Build version: $VER"
+          # Stamping sw.js makes every release ship a different worker —
+          # that's what triggers the in-app "Update now" banner.
+          sed -i "s/__BUILD_VERSION__/${VER}/g" _site/sw.js
+          grep -q "$VER" _site/sw.js
       - name: Verify icons
         run: |
           set -e

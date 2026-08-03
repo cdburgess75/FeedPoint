@@ -32,6 +32,16 @@ Everything else — markup, CSS, JS — is the owner's verbatim.
 
 ## Release notes
 
+**`v2026.08.03.018` — update notifications (FlockOff methodology):** the
+service worker now carries a `__BUILD_VERSION__` placeholder that the Pages
+workflow stamps with `APP_VERSION` at deploy time, so every release ships a
+byte-different worker — no more manual cache-name bumps in `docs/sw.js`.
+An updated worker *waits* (no skipWaiting on install); the page detects the
+waiting worker and shows an in-app banner ("A new version of FeedPoint is
+ready" + **Update now**), which posts `SKIP_WAITING` and reloads on
+`controllerchange`. `reg.update()` runs on load and whenever the tab becomes
+visible, so installed-PWA users hear about updates without an app-store.
+
 **`v2026.08.03.010` — header & wire range:** clocks removed from the header
 at the owner's request (theme + AA buttons now sit alone on the right); the
 random-wire check now includes 160 m (6 m still excluded) — short wires get
