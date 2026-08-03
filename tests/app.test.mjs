@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.08.03.003';
+const VERSION = 'v2026.08.03.004';
 const errors = [];
 let failed = 0;
 const check = (name, cond, extra = '') => {
@@ -23,6 +23,12 @@ await page.waitForTimeout(600);
 
 // --- shell ---
 check('title', await page.title() === 'FEEDPOINT');
+const icons = await page.evaluate(() => ({
+  favicon: !!document.querySelector('link[rel="icon"][href^="data:image/svg+xml"]'),
+  touch: document.querySelector('link[rel="apple-touch-icon"]')?.getAttribute('href'),
+  iosTitle: document.querySelector('meta[name="apple-mobile-web-app-title"]')?.content
+}));
+check('favicon + apple-touch-icon wired', icons.favicon && icons.touch === 'apple-touch-icon.png' && icons.iosTitle === 'FEEDPOINT', JSON.stringify(icons));
 const labels = await page.$$eval('#rail .nav-lbl', els => els.map(e => e.textContent));
 check('sidebar labels', JSON.stringify(labels) === JSON.stringify(['Calculator','Wire check','Ununs & baluns','End-fed antennas','Field notes','Build log']), JSON.stringify(labels));
 const groups = await page.$$eval('#rail .rail-lbl', els => els.map(e => e.textContent));

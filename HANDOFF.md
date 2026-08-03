@@ -32,6 +32,15 @@ Everything else — markup, CSS, JS — is the owner's verbatim.
 
 ## Release notes
 
+**`v2026.08.03.004` — brand & home-screen:** new "feed point" mark (center-fed
+dipole: two wire halves, feed dot bridging the gap, feedline drop, radiating
+arc) replacing the zigzag, applied to the topbar, SVG data-URI favicon,
+`docs/mark.svg`, and the README button; `docs/apple-touch-icon.png` (180×180)
+deployed to the site root by the Pages workflow so iPhone add-to-home-screen
+gets a proper icon, plus iOS web-app meta (standalone, black-translucent,
+titled FEEDPOINT). **`v2026.08.03.003`:** version pill always visible in the
+header, including mobile (tightened mobile topbar to fit).
+
 **`v2026.08.03.002` — correctness & trust:** band-span wire verdicts with a
 nearest-spike-free suggestion chip; save buttons report "Session only" plus an
 error toast when IndexedDB is unavailable instead of a false "Saved"; log
