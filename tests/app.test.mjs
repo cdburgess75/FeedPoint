@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.08.03.010';
+const VERSION = 'v2026.08.03.011';
 const errors = [];
 let failed = 0;
 const check = (name, cond, extra = '') => {
@@ -151,6 +151,17 @@ const wireRows = await page.$$eval('#verdict .li', els => ({
 }));
 check('wire check covers 160m (SHORT at 71 ft)', wireRows.n === 10 && wireRows.first === '160m' && wireRows.pill === 'SHORT', JSON.stringify(wireRows));
 check('clocks removed from header', await page.evaluate(() => !document.getElementById('clkUtc') && !document.getElementById('clocks')));
+
+// --- long proven lengths + wide suggestion search ---
+const chipTexts = await page.$$eval('#goodLens button', els => els.map(e => e.textContent));
+check('chips extend past 119 ft', chipTexts.length === 12 && chipTexts.includes('203 ft') && chipTexts.at(-1) === '423 ft', JSON.stringify(chipTexts.slice(-4)));
+await page.fill('#wire', '150');
+await page.waitForTimeout(250);
+const longFix = await page.evaluate(() => ({
+  shown: !document.getElementById('wireFix').hidden,
+  label: document.querySelector('#wireFix button')?.textContent
+}));
+check('suggestion reaches far for long wires', longFix.shown && longFix.label.includes('107.5 ft'), JSON.stringify(longFix));
 const fixShown = await page.$eval('#wireFix', e => !e.hidden);
 check('all-clear suggestion offered', fixShown);
 await page.click('#wireFix button');

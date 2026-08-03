@@ -350,7 +350,7 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
       <div class="chips" id="wireFix" hidden></div>
       <div class="sec-lbl">Proven non-resonant lengths</div>
       <div class="chips" id="goodLens"></div>
-      <p class="hint">Tap a length to test it. Rule of thumb: pick the <b>longest that fits the lot</b>, then run a counterpoise.</p>
+      <p class="hint">Tap a length to test it. Rule of thumb: pick the <b>longest that fits the lot</b>, then run a counterpoise. Long wires will flag <i>somewhere</i> — judge by the bands you actually work.</p>
       <button class="btn" id="saveWire" type="button">Save wire to log</button>
     </section>
 
@@ -530,7 +530,7 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
 "use strict";
 const $=id=>document.getElementById(id);
 const FT_M=0.3048;
-const APP_VERSION="v2026.08.03.010";
+const APP_VERSION="v2026.08.03.011";
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 /* ---------- data ---------- */
@@ -565,7 +565,7 @@ const BAND_PLANS={
 let region=2;
 let BANDS=BAND_PLANS[region];
 const HUES=["#FF8600","#CFAD00","#62CA40","#00D4B0","#00C7FF"];
-const GOOD_LENS=[25.5,35.5,41,58,71,84,107,119];
+const GOOD_LENS=[25.5,35.5,41,58,71,84,107,119,148,203,347,423];
 const NOTES=[
  ["Unun vs balun","terminology","Unun = unbalanced-to-unbalanced (coax to end-fed wire). Balun = unbalanced-to-balanced (coax to dipole or doublet). Same cores, different job."],
  ["Doublet + tuner","feeding ladder line","A doublet on ladder line wants a 4:1 or 1:1 balun at the tuner, not an unun — the feedline is part of the antenna system."],
@@ -760,7 +760,7 @@ function bandOffset(ft,b){
    targets what a tuner actually can't handle: the impedance spikes. */
 function hasAvoid(ft){return wireBands().some(b=>{const r=bandOffset(ft,b);return r.n>0&&r.off<0.07;});}
 function suggestClear(ft){
-  for(let d=0.5;d<=30;d+=0.5)for(const s of [1,-1]){
+  for(let d=0.5;d<=60;d+=0.5)for(const s of [1,-1]){
     const l=+(ft+s*d).toFixed(1);
     if(l>=5&&!hasAvoid(l))return l;
   }
