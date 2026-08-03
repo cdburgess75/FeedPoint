@@ -57,7 +57,7 @@ Six views, reachable by click or by pressing <kbd>1</kbd>–<kbd>6</kbd>:
 | # | View | What it does |
 |:-:|------|--------------|
 | 01 | **Element calculator** | Pick a band or type a frequency; get EFHW, dipole, ¼-wave vertical, counterpoise, full-wave loop, and ⅝-wave cut lengths — feet-and-inches to the quarter inch, or meters. K-factor presets (bare / insulated / inverted-V), ITU region band plans (R1/R2/R3), and an orange dot on every band you've already cut for. |
-| 02 | **Random-wire check** | Test a 9:1 random-wire length against every band, 160–10 m. Verdicts across the whole band span, plus the nearest spike-free length when yours fails. |
+| 02 | **Random-wire check** | Test a 9:1 random-wire length against every band, 160–10 m — or work backwards: pick the bands you want and get recommended lengths sitting dead-center in the safe windows. Verdicts across the whole band span, plus the nearest spike-free length when yours fails. |
 | 03 | **Ununs & baluns** | Build recipes for the four boxes that cover nearly every wire antenna: 1:1 choke, 4:1, 9:1, and the 49:1 EFHW autotransformer (2:14 turns) — QRP/100 W winding tables, a toroid core cheat sheet, and a coil winding calculator (Wheeler air-core + ferrite-toroid A·L turns). |
 | 04 | **End-fed antennas** | EFHW vs EFRW: harmonics tables, counterpoise rules, feed-end placement, and why 15 m rides the third harmonic. |
 | 05 | **Field notes** | The stuff datasheets skip: FT8 duty-cycle derating, NVIS as a feature, why a warm core is burning your signal. |

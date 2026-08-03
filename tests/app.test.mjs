@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.08.03.014';
+const VERSION = 'v2026.08.03.015';
 const errors = [];
 let failed = 0;
 const check = (name, cond, extra = '') => {
@@ -173,6 +173,35 @@ const longFix = await page.evaluate(() => ({
   label: document.querySelector('#wireFix button')?.textContent
 }));
 check('suggestion reaches far for long wires', longFix.shown && longFix.label.includes('107.5 ft'), JSON.stringify(longFix));
+
+// --- band-set length recommender ---
+const pickCount = await page.$$eval('#bandPick button', els => els.length);
+check('band picker shows 10 bands', pickCount === 10, String(pickCount));
+const clickBand = async (name) => page.$$eval('#bandPick button', (els, n) => {
+  els.find(e => e.textContent === n).click();
+}, name);
+await clickBand('40m'); await clickBand('20m'); await clickBand('10m');
+await page.waitForTimeout(250);
+const recs = await page.$$eval('#recLens button', els => els.map(e => parseFloat(e.querySelector('b').textContent)));
+check('recommendations produced', recs.length >= 3, JSON.stringify(recs));
+const recsClear = await page.evaluate((vals) => {
+  const sel = wireBands().filter(b => ['40m','20m','10m'].includes(b.n));
+  return vals.every(ft => sel.every(b => { const r = bandOffset(ft, b); return r.n > 0 && r.off >= 0.15; }));
+}, recs);
+check('every recommendation CLEAR on selected bands', recsClear);
+const lowestFloor = await page.evaluate(() => 234 / 7.15);
+check('recommendations respect quarter-wave floor', recs.every(v => v >= Math.floor(lowestFloor)), JSON.stringify([recs[0], lowestFloor.toFixed(1)]));
+await page.click('#recLens button');
+await page.waitForTimeout(250);
+const recLoaded = await page.evaluate((first) => parseFloat(document.getElementById('wire').value) === first, recs[0]);
+check('tapping a recommendation loads it', recLoaded);
+await page.reload();
+await page.waitForTimeout(700);
+const selRestored = await page.$$eval('#bandPick button.on', els => els.map(e => e.textContent).sort().join(','));
+check('band selection persists reload', selRestored === '10m,20m,40m', selRestored);
+await clickBand('40m'); await clickBand('20m'); await clickBand('10m'); // reset selection
+await page.fill('#wire', '71');   // restore the state the next section expects
+await page.waitForTimeout(250);
 const fixShown = await page.$eval('#wireFix', e => !e.hidden);
 check('all-clear suggestion offered', fixShown);
 await page.click('#wireFix button');
