@@ -99,7 +99,10 @@ a{color:var(--a0)}
 .nav-btn svg{width:22px;height:22px}
 
 /* main */
-#main{overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:26px 24px 120px}
+/* The one scroller. overscroll none = no inner elastic bounce; the transform
+   pins it to its own compositor layer so iOS doesn't re-rasterize rows
+   (hairline shimmer / momentary blur) during momentum scrolls. */
+#main{overflow-y:auto;overscroll-behavior:none;padding:26px 24px 120px;transform:translateZ(0);backface-visibility:hidden}
 .view{display:none;max-width:900px;margin:0 auto}
 .view.on{display:block}
 /* ad-signature header: orange bar + tinted band, like the highlighted row / "like MACRO" band */
@@ -535,7 +538,7 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
 "use strict";
 const $=id=>document.getElementById(id);
 const FT_M=0.3048;
-const APP_VERSION="v2026.08.03.013";
+const APP_VERSION="v2026.08.03.014";
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 /* ---------- data ---------- */

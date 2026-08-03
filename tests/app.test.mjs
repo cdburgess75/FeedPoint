@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.08.03.013';
+const VERSION = 'v2026.08.03.014';
 const errors = [];
 let failed = 0;
 const check = (name, cond, extra = '') => {
@@ -157,6 +157,11 @@ const pinned = await page.evaluate(() => ({
   mainScrolls: getComputedStyle(document.getElementById('main')).overflowY
 }));
 check('document pinned, main scrolls', pinned.body === 'fixed' && pinned.overscroll === 'none' && pinned.mainScrolls === 'auto', JSON.stringify(pinned));
+const mainLayer = await page.evaluate(() => {
+  const s = getComputedStyle(document.getElementById('main'));
+  return { over: s.overscrollBehaviorY, tf: s.transform };
+});
+check('main pane: no bounce, own layer', mainLayer.over === 'none' && mainLayer.tf !== 'none', JSON.stringify(mainLayer));
 
 // --- long proven lengths + wide suggestion search ---
 const chipTexts = await page.$$eval('#goodLens button', els => els.map(e => e.textContent));
