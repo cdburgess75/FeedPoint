@@ -30,6 +30,10 @@ jobs:
           cp docs/icon-512.png _site/icon-512.png
           cp docs/manifest.webmanifest _site/manifest.webmanifest
           cp docs/sw.js _site/sw.js
+          cp docs/favicon.ico _site/favicon.ico
+          cp docs/favicon-16.png _site/favicon-16.png
+          cp docs/favicon-32.png _site/favicon-32.png
+          cp docs/mask-icon.svg _site/mask-icon.svg
       - uses: actions/configure-pages@v5
         with:
           enablement: true

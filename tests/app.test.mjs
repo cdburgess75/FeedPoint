@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.08.03.006';
+const VERSION = 'v2026.08.03.007';
 const errors = [];
 let failed = 0;
 const check = (name, cond, extra = '') => {
@@ -31,6 +31,12 @@ const icons = await page.evaluate(() => ({
 check('favicon + apple-touch-icon wired', icons.favicon && icons.touch === 'apple-touch-icon.png' && icons.iosTitle === 'FEEDPOINT', JSON.stringify(icons));
 const manifest = await page.$eval('link[rel="manifest"]', e => e.getAttribute('href'));
 check('PWA manifest linked', manifest === 'manifest.webmanifest', manifest);
+const desktopIcons = await page.evaluate(() => ({
+  p32: document.querySelector('link[rel="icon"][sizes="32x32"]')?.getAttribute('href'),
+  p16: document.querySelector('link[rel="icon"][sizes="16x16"]')?.getAttribute('href'),
+  mask: document.querySelector('link[rel="mask-icon"]')?.getAttribute('href')
+}));
+check('desktop favicon set wired', desktopIcons.p32 === 'favicon-32.png' && desktopIcons.p16 === 'favicon-16.png' && desktopIcons.mask === 'mask-icon.svg', JSON.stringify(desktopIcons));
 
 // --- K-factor presets ---
 const kChip = await page.$$eval('.kpre button', els => els.map(e => [e.dataset.k, e.classList.contains('on')]));
