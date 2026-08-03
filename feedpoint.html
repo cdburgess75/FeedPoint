@@ -83,7 +83,11 @@ a{color:var(--a0)}
   .clock.dim{display:none}
   .v-head h1{font-size:27px}
   .clock .cl-time{font-size:24px}
-  .verpill{display:none}
+  .verpill{font-size:9.5px;padding:3px 5px;letter-spacing:.04em}
+  #topbar{padding:0 14px;gap:8px}
+  .brand{gap:8px}
+  .mark{width:28px;height:28px}
+  .wordmark{font-size:17px}
 }
 
 /* labeled sidebar */
@@ -395,7 +399,7 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
 "use strict";
 const $=id=>document.getElementById(id);
 const FT_M=0.3048;
-const APP_VERSION="v2026.08.03.002";
+const APP_VERSION="v2026.08.03.003";
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 /* ---------- data ---------- */

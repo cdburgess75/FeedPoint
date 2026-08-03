@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.08.03.002';
+const VERSION = 'v2026.08.03.003';
 const errors = [];
 let failed = 0;
 const check = (name, cond, extra = '') => {
@@ -169,6 +169,12 @@ await page.waitForTimeout(200);
 const dockShown = await page.$eval('#dock', e => getComputedStyle(e).display);
 const railShown = await page.$eval('#rail', e => getComputedStyle(e).display);
 check('mobile: dock shown, rail hidden', dockShown === 'flex' && railShown === 'none');
+const pillMobile = await page.$eval('.verpill', e => {
+  const r = e.getBoundingClientRect();
+  return getComputedStyle(e).display !== 'none' && r.width > 0
+    && r.right <= window.innerWidth && e.textContent.startsWith('v20');
+});
+check('version pill visible on mobile', pillMobile);
 
 // --- persistence across reload ---
 await page.setViewportSize({ width: 1280, height: 900 });
