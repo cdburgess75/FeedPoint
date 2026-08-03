@@ -487,7 +487,7 @@ function toast(msg,opts={}){
 function go(id,push=true){
   document.querySelectorAll(".view").forEach(s=>s.classList.toggle("on",s.id==="view-"+id));
   document.querySelectorAll(".nav-btn").forEach(b=>b.setAttribute("aria-current",b.dataset.view===id?"true":"false"));
-  if(push)history.replaceState(null,"","#"+id);
+  if(push)try{history.replaceState(null,"","#"+id);}catch(e){}
   $("main").scrollTop=0;
 }
 window.addEventListener("hashchange",()=>{
