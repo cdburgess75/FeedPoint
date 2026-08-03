@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="336" height="28" viewBox="0 0 336 28" role="img" aria-label="Macro Dark palette">
+  <clipPath id="r"><rect width="336" height="28" rx="8"/></clipPath>
+  <g clip-path="url(#r)">
+    <rect x="0" width="48" height="28" fill="#FF8600"/>
+    <rect x="48" width="48" height="28" fill="#CFAD00"/>
+    <rect x="96" width="48" height="28" fill="#62CA40"/>
+    <rect x="144" width="48" height="28" fill="#00D4B0"/>
+    <rect x="192" width="48" height="28" fill="#00C7FF"/>
+    <rect x="240" width="48" height="28" fill="#171310"/>
+    <rect x="288" width="48" height="28" fill="#050403"/>
+  </g>
+</svg>
