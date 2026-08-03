@@ -32,6 +32,13 @@ Everything else — markup, CSS, JS — is the owner's verbatim.
 
 ## Release notes
 
+**`v2026.08.03.019` — v13 brand, owner's pick:** flat pale sky `#9FDEFF`
+tile with LED amber `#FF9500` λ/grid/rule (option 2 of the pale-sky × LED-
+amber board — no gradients). Rolled out everywhere: touch/512 icons (v13
+URLs for iOS cache-busting), favicons + .ico, inline SVG favicon, mark.svg,
+open-app.svg, header `.mark` chip, mask-icon tint, manifest, sw.js ASSETS,
+Pages staging/verify.
+
 **`v2026.08.03.018` — update notifications (FlockOff methodology):** the
 service worker now carries a `__BUILD_VERSION__` placeholder that the Pages
 workflow stamps with `APP_VERSION` at deploy time, so every release ships a
