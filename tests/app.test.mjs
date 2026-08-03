@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.08.03.019';
+const VERSION = 'v2026.08.03.020';
 const errors = [];
 let failed = 0;
 const check = (name, cond, extra = '') => {
@@ -151,6 +151,11 @@ const wireRows = await page.$$eval('#verdict .li', els => ({
 }));
 check('wire check covers 160m (SHORT at 71 ft)', wireRows.n === 10 && wireRows.first === '160m' && wireRows.pill === 'SHORT', JSON.stringify(wireRows));
 check('clocks removed from header', await page.evaluate(() => !document.getElementById('clkUtc') && !document.getElementById('clocks')));
+const topbarSafe = await page.evaluate(() => {
+  const s = getComputedStyle(document.getElementById('topbar'));
+  return { minH: s.minHeight, padTop: s.paddingTop };
+});
+check('header reserves iOS safe area (60px min, env pad)', topbarSafe.minH === '60px' && topbarSafe.padTop === '0px', JSON.stringify(topbarSafe));
 check('update banner present, hidden by default', await page.evaluate(() => {
   const b = document.getElementById('updateBar');
   return !!b && !b.classList.contains('show') && getComputedStyle(b).display === 'none' && !!document.getElementById('updateBtn');
