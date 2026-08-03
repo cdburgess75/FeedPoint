@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.08.03.012';
+const VERSION = 'v2026.08.03.013';
 const errors = [];
 let failed = 0;
 const check = (name, cond, extra = '') => {
@@ -151,6 +151,12 @@ const wireRows = await page.$$eval('#verdict .li', els => ({
 }));
 check('wire check covers 160m (SHORT at 71 ft)', wireRows.n === 10 && wireRows.first === '160m' && wireRows.pill === 'SHORT', JSON.stringify(wireRows));
 check('clocks removed from header', await page.evaluate(() => !document.getElementById('clkUtc') && !document.getElementById('clocks')));
+const pinned = await page.evaluate(() => ({
+  body: getComputedStyle(document.body).position,
+  overscroll: getComputedStyle(document.documentElement).overscrollBehaviorY,
+  mainScrolls: getComputedStyle(document.getElementById('main')).overflowY
+}));
+check('document pinned, main scrolls', pinned.body === 'fixed' && pinned.overscroll === 'none' && pinned.mainScrolls === 'auto', JSON.stringify(pinned));
 
 // --- long proven lengths + wide suggestion search ---
 const chipTexts = await page.$$eval('#goodLens button', els => els.map(e => e.textContent));
