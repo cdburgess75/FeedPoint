@@ -32,6 +32,13 @@ Everything else — markup, CSS, JS — is the owner's verbatim.
 
 ## Release notes
 
+**`v2026.08.03.020` — iOS safe area:** when installed to the home screen
+(`viewport-fit=cover` + translucent status bar) the header sat under the
+iPhone status bar/notch, so its buttons couldn't be tapped. The topbar now
+pads down by `env(safe-area-inset-top)` (grid row `60px`→`auto`, min-height
+includes the inset because of border-box), and the update banner drops
+below it too. Desktop/Safari-browser layout unchanged (inset is 0 there).
+
 **`v2026.08.03.019` — v13 brand, owner's pick:** flat pale sky `#9FDEFF`
 tile with LED amber `#FF9500` λ/grid/rule (option 2 of the pale-sky × LED-
 amber board — no gradients). Rolled out everywhere: touch/512 icons (v13
