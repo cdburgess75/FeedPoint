@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="FEEDPOINT">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Crect width='20' height='20' rx='4.5' fill='%23FF8600'/%3E%3Cpath d='M2.6 7.2 H7.5 M12.5 7.2 H17.4 M10 9.2 V16.4' fill='none' stroke='%23050403' stroke-width='2.4' stroke-linecap='round'/%3E%3Ccircle cx='10' cy='7.2' r='2.1' fill='%23050403'/%3E%3Cpath d='M6.5 3.9 A4.6 4.6 0 0 1 13.5 3.9' fill='none' stroke='%23050403' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2040%2040%27%3E%3Crect%20width%3D%2740%27%20height%3D%2740%27%20rx%3D%278%27%20fill%3D%27%237FB5C5%27%2F%3E%3Cg%20stroke%3D%27%23FF6700%27%20stroke-opacity%3D%27.28%27%20stroke-width%3D%27.45%27%20fill%3D%27none%27%3E%3Cpath%20d%3D%27M11.3%203%20V37%20M28.5%203%20V37%20M3%2011.6%20H37%20M3%2028.4%20H37%27%2F%3E%3C%2Fg%3E%3Crect%20x%3D%273%27%20y%3D%273%27%20width%3D%2734%27%20height%3D%2734%27%20fill%3D%27none%27%20stroke%3D%27%23FF6700%27%20stroke-opacity%3D%27.55%27%20stroke-width%3D%27.65%27%2F%3E%3Cpath%20d%3D%27M24.79%2019.66L25.34%2019.98Q25.11%2021.50%2024.42%2022.64Q23.73%2023.78%2022.53%2023.78Q21.50%2023.78%2021.50%2021.73L21.50%2016.90L21.45%2016.90L17.24%2023.48L13.86%2023.48L21.50%2012.07Q21.43%209.77%2020.46%209.77Q19.22%209.77%2018.65%2011.33L18.09%2011.06Q18.25%2010.32%2018.53%209.60Q18.81%208.87%2019.46%208.15Q20.12%207.42%2020.95%207.42Q21.73%207.42%2021.99%208.47Q22.26%209.52%2022.28%2011.56L22.35%2019.84Q22.35%2021.38%2023.25%2021.38Q23.82%2021.38%2024.26%2020.84Q24.69%2020.30%2024.79%2019.66%27%20fill%3D%27%23FF6700%27%2F%3E%3Cg%20stroke%3D%27%23FF6700%27%20stroke-linecap%3D%27butt%27%20fill%3D%27none%27%3E%3Cpath%20d%3D%27M8%2028.4%20H32%27%20stroke-width%3D%271.3%27%2F%3E%3Cpath%20d%3D%27M8%2028.4%20V31%20M12%2028.4%20V30.3%20M16%2028.4%20V30.3%20M20%2028.4%20V31%20M24%2028.4%20V30.3%20M28%2028.4%20V30.3%20M32%2028.4%20V31%27%20stroke-width%3D%27.8%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
 <title>FEEDPOINT</title>
@@ -50,7 +50,7 @@ a{color:var(--a0)}
 #app{display:grid;grid-template-columns:var(--rail) 1fr;grid-template-rows:60px 1fr;height:100dvh}
 #topbar{grid-column:1/3;display:flex;align-items:center;gap:12px;padding:0 18px;border-bottom:.5px solid var(--edge);background:var(--page)}
 .brand{display:flex;align-items:center;gap:11px}
-.mark{width:32px;height:32px;border-radius:8px;background:var(--a0);display:grid;place-items:center;flex:none}
+.mark{width:32px;height:32px;border-radius:8px;background:#7FB5C5;display:grid;place-items:center;flex:none}
 .wordmark{font-family:var(--logo);font-weight:700;font-size:20px;letter-spacing:.1em;color:var(--a0)}
 #clocks{margin-left:auto;display:flex;gap:22px;align-items:baseline}
 .clock .cl-label{font:600 11px/1 var(--mono);letter-spacing:.22em;color:var(--a0)}
@@ -267,7 +267,7 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
 <div id="app">
   <header id="topbar">
     <div class="brand">
-      <span class="mark" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 20 20"><path d="M2.6 7.2 H7.5 M12.5 7.2 H17.4 M10 9.2 V16.4" fill="none" stroke="#050403" stroke-width="2.4" stroke-linecap="round"/><circle cx="10" cy="7.2" r="2.1" fill="#050403"/><path d="M6.5 3.9 A4.6 4.6 0 0 1 13.5 3.9" fill="none" stroke="#050403" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+      <span class="mark" aria-hidden="true"><svg width="27" height="27" viewBox="0 0 40 40"><path d="M24.79 19.66L25.34 19.98Q25.11 21.50 24.42 22.64Q23.73 23.78 22.53 23.78Q21.50 23.78 21.50 21.73L21.50 16.90L21.45 16.90L17.24 23.48L13.86 23.48L21.50 12.07Q21.43 9.77 20.46 9.77Q19.22 9.77 18.65 11.33L18.09 11.06Q18.25 10.32 18.53 9.60Q18.81 8.87 19.46 8.15Q20.12 7.42 20.95 7.42Q21.73 7.42 21.99 8.47Q22.26 9.52 22.28 11.56L22.35 19.84Q22.35 21.38 23.25 21.38Q23.82 21.38 24.26 20.84Q24.69 20.30 24.79 19.66" fill="#FF6700"/><g stroke="#FF6700" stroke-linecap="butt" fill="none"><path d="M8 28.4 H32" stroke-width="1.4"/><path d="M8 28.4 V31.2 M12 28.4 V30.4 M16 28.4 V30.4 M20 28.4 V31.2 M24 28.4 V30.4 M28 28.4 V30.4 M32 28.4 V31.2" stroke-width=".9"/></g></svg></span>
       <span class="wordmark">FEEDPOINT</span>
       <span class="verpill appver" title="Build version"></span>
     </div>
@@ -504,7 +504,7 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
 "use strict";
 const $=id=>document.getElementById(id);
 const FT_M=0.3048;
-const APP_VERSION="v2026.08.03.005";
+const APP_VERSION="v2026.08.03.006";
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 /* ---------- data ---------- */

@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.08.03.005';
+const VERSION = 'v2026.08.03.006';
 const errors = [];
 let failed = 0;
 const check = (name, cond, extra = '') => {

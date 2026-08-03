@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="250" height="58" viewBox="0 0 250 58" role="img" aria-label="Open the app">
-  <rect x="1" y="1" width="248" height="56" rx="13" fill="#FF8600"/>
-  <g transform="translate(20 15) scale(1.4)">
-    <path d="M2.6 7.2 H7.5 M12.5 7.2 H17.4 M10 9.2 V16.4" fill="none" stroke="#050403" stroke-width="2.2" stroke-linecap="round"/>
-    <circle cx="10" cy="7.2" r="2.1" fill="#050403"/>
-    <path d="M6.5 3.9 A4.6 4.6 0 0 1 13.5 3.9" fill="none" stroke="#050403" stroke-width="1.7" stroke-linecap="round"/>
+<svg xmlns='http://www.w3.org/2000/svg' width='250' height='58' viewBox='0 0 250 58' role='img' aria-label='Open the app'>
+  <rect x='1' y='1' width='248' height='56' rx='13' fill='#FF6700'/>
+  <g transform='translate(16 11) scale(0.9)'>
+    <rect width='40' height='40' rx='9' fill='#7FB5C5'/>
+    <path d='M24.79 19.66L25.34 19.98Q25.11 21.50 24.42 22.64Q23.73 23.78 22.53 23.78Q21.50 23.78 21.50 21.73L21.50 16.90L21.45 16.90L17.24 23.48L13.86 23.48L21.50 12.07Q21.43 9.77 20.46 9.77Q19.22 9.77 18.65 11.33L18.09 11.06Q18.25 10.32 18.53 9.60Q18.81 8.87 19.46 8.15Q20.12 7.42 20.95 7.42Q21.73 7.42 21.99 8.47Q22.26 9.52 22.28 11.56L22.35 19.84Q22.35 21.38 23.25 21.38Q23.82 21.38 24.26 20.84Q24.69 20.30 24.79 19.66' fill='#FF6700'/>
+    <g stroke='#FF6700' stroke-linecap='butt' fill='none'><path d='M8 28.4 H32' stroke-width='1.4'/><path d='M8 28.4 V31.2 M14 28.4 V30.4 M20 28.4 V31.2 M26 28.4 V30.4 M32 28.4 V31.2' stroke-width='.9'/></g>
   </g>
-  <text x="66" y="36" font-family="Segoe UI, system-ui, -apple-system, Helvetica, Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="2.2" fill="#050403">OPEN THE APP</text>
+  <text x='66' y='36' font-family='Segoe UI, system-ui, -apple-system, Helvetica, Arial, sans-serif' font-size='18' font-weight='700' letter-spacing='2.2' fill='#050403'>OPEN THE APP</text>
 </svg>
