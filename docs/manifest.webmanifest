@@ -2,14 +2,15 @@
   "name": "FeedPoint",
   "short_name": "FeedPoint",
   "description": "Offline antenna calculator and wire-antenna workbench for the ham bands, 160-6 m.",
-  "id": "./",
-  "start_url": ".",
+  "id": "https://cdburgess75.github.io/FeedPoint/",
+  "start_url": "https://cdburgess75.github.io/FeedPoint/",
+  "scope": "https://cdburgess75.github.io/FeedPoint/",
   "display": "standalone",
   "background_color": "#050403",
   "theme_color": "#050403",
   "icons": [
-    { "src": "touch-icon-180-v9.png", "sizes": "180x180", "type": "image/png", "purpose": "any" },
-    { "src": "icon-512-v9.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icon-512-v9.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    { "src": "https://cdburgess75.github.io/FeedPoint/touch-icon-180-v10.png", "sizes": "180x180", "type": "image/png", "purpose": "any" },
+    { "src": "https://cdburgess75.github.io/FeedPoint/icon-512-v10.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "https://cdburgess75.github.io/FeedPoint/icon-512-v10.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
