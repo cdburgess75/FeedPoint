@@ -1,8 +1,8 @@
 /* FEEDPOINT service worker — network-first with full offline fallback.
    Fresh when online, complete app from cache when not. */
-const CACHE = "feedpoint-site-v3";
+const CACHE = "feedpoint-site-v4";
 const ASSETS = ["./", "apple-touch-icon.png", "icon-512.png", "manifest.webmanifest",
-  "touch-icon-180-v9.png", "icon-512-v9.png",
+  "touch-icon-180-v10.png", "icon-512-v10.png",
   "favicon.ico", "favicon-16.png", "favicon-32.png", "mask-icon.svg"];
 
 self.addEventListener("install", e => {
