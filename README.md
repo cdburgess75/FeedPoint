@@ -56,12 +56,12 @@ Six views, reachable by click or by pressing <kbd>1</kbd>–<kbd>6</kbd>:
 
 | # | View | What it does |
 |:-:|------|--------------|
-| 01 | **Element calculator** | Pick a band or type a frequency; get EFHW, dipole, ¼-wave vertical, counterpoise, full-wave loop, and ⅝-wave cut lengths — feet-and-inches to the quarter inch, or meters. Adjustable K factor. |
+| 01 | **Element calculator** | Pick a band or type a frequency; get EFHW, dipole, ¼-wave vertical, counterpoise, full-wave loop, and ⅝-wave cut lengths — feet-and-inches to the quarter inch, or meters. K-factor presets (bare / insulated / inverted-V), ITU region band plans (R1/R2/R3), and an orange dot on every band you've already cut for. |
 | 02 | **Random-wire check** | Test a 9:1 random-wire length against every band, 80–10 m. Verdicts across the whole band span, plus the nearest spike-free length when yours fails. |
-| 03 | **Ununs & baluns** | Build recipes for the four boxes that cover nearly every wire antenna: 1:1 choke, 4:1, 9:1, and the 49:1 EFHW autotransformer (2:14 turns) — with QRP/100 W winding tables and a toroid core cheat sheet. |
+| 03 | **Ununs & baluns** | Build recipes for the four boxes that cover nearly every wire antenna: 1:1 choke, 4:1, 9:1, and the 49:1 EFHW autotransformer (2:14 turns) — QRP/100 W winding tables, a toroid core cheat sheet, and a coil winding calculator (Wheeler air-core + ferrite-toroid A·L turns). |
 | 04 | **End-fed antennas** | EFHW vs EFRW: harmonics tables, counterpoise rules, feed-end placement, and why 15 m rides the third harmonic. |
 | 05 | **Field notes** | The stuff datasheets skip: FT8 duty-cycle derating, NVIS as a feature, why a warm core is burning your signal. |
-| 06 | **Build log** | Every saved cut and wire check, as expandable spec sheets with delete-and-undo. Exports and imports JSON backups. |
+| 06 | **Build log** | Every saved cut and wire check as expandable spec sheets — per-entry notes, load any entry back into the calculator, print a clean cut sheet to take to the wire, delete with undo. Exports and imports JSON backups. |
 
 ## The verdict engine doesn't flatter you
 
@@ -90,6 +90,9 @@ which one you're making.)
 - **Storage honesty** — a status dot tells you whether IndexedDB is really
   persisting. If it isn't (some sandboxed previews), saves say *"Session
   only"* instead of a comforting lie, and the log still works for the session.
+- **Installable** — the live site is a PWA: add it to your home screen
+  (iPhone or Android) and it launches full-screen with its own icon, and the
+  service worker keeps the whole app working with no signal at all.
 
 <br clear="right">
 
@@ -149,10 +152,10 @@ Project history, conventions, and design contract live in
 
 ## Roadmap
 
-- Load a saved cut back into the calculator, printable cut sheets, per-entry notes
-- K-factor presets (bare wire / insulated / inverted-V)
-- ITU region band plans
-- PWA manifest — install it on the phone that goes up the mountain
+Everything on the original roadmap shipped: log↔calculator loop with
+printable cut sheets and per-entry notes, K-factor presets, ITU region band
+plans, PWA install, per-band cut memory, and the coil winding calculator.
+Got an idea for what's next? Open an issue.
 
 ---
 

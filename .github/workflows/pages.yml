@@ -27,6 +27,9 @@ jobs:
           mkdir -p _site
           cp feedpoint.html _site/index.html
           cp docs/apple-touch-icon.png _site/apple-touch-icon.png
+          cp docs/icon-512.png _site/icon-512.png
+          cp docs/manifest.webmanifest _site/manifest.webmanifest
+          cp docs/sw.js _site/sw.js
       - uses: actions/configure-pages@v5
         with:
           enablement: true

@@ -32,6 +32,21 @@ Everything else — markup, CSS, JS — is the owner's verbatim.
 
 ## Release notes
 
+**`v2026.08.03.005` — the full roadmap:** log↔calculator loop (load any
+entry back into its view; per-entry notes saved debounced; print a single
+entry as a clean black-on-white cut sheet via `@media print` + `.print-one`
+body class); K-factor preset chips (bare 0.95 / insulated 0.91 / inverted-V
+0.92) synced to the K input; ITU region band plans (R1/R2/R3 seg next to
+Bands — R1 narrows 160/80/60/40/6 m, R3 widens 80 m to 3.9 and narrows 40 m;
+verdicts and centers all recompute; persisted in settings and backups);
+per-band cut memory (orange dot on band rows with cuts in the log, `band`
+field stored on cut entries, `f`/`k`/`ft` stored for load-back); coil winding
+calculator in view 03 (Wheeler air-core closed-form turns solve +
+ferrite-toroid turns from A·L, values from the Amidon tables); PWA
+(manifest.webmanifest + network-first sw.js + icon-512, all deployed to the
+site root; SW registers only over https so the single-file story is
+untouched). Suite: 53 checks.
+
 **`v2026.08.03.004` — brand & home-screen:** new "feed point" mark (center-fed
 dipole: two wire halves, feed dot bridging the gap, feedline drop, radiating
 arc) replacing the zigzag, applied to the topbar, SVG data-URI favicon,
