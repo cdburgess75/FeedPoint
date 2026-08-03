@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.08.03.008';
+const VERSION = 'v2026.08.03.009';
 const errors = [];
 let failed = 0;
 const check = (name, cond, extra = '') => {
@@ -22,13 +22,13 @@ await page.goto(PAGE_URL);
 await page.waitForTimeout(600);
 
 // --- shell ---
-check('title', await page.title() === 'FEEDPOINT');
+check('title', await page.title() === 'FeedPoint');
 const icons = await page.evaluate(() => ({
   favicon: !!document.querySelector('link[rel="icon"][href^="data:image/svg+xml"]'),
   touch: document.querySelector('link[rel="apple-touch-icon"]')?.getAttribute('href'),
   iosTitle: document.querySelector('meta[name="apple-mobile-web-app-title"]')?.content
 }));
-check('favicon + apple-touch-icon wired', icons.favicon && icons.touch === 'apple-touch-icon.png' && icons.iosTitle === 'FEEDPOINT', JSON.stringify(icons));
+check('favicon + apple-touch-icon wired', icons.favicon && icons.touch === 'touch-icon-180-v9.png' && icons.iosTitle === 'FeedPoint', JSON.stringify(icons));
 const manifest = await page.$eval('link[rel="manifest"]', e => e.getAttribute('href'));
 check('PWA manifest linked', manifest === 'manifest.webmanifest', manifest);
 const desktopIcons = await page.evaluate(() => ({

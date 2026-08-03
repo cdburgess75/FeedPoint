@@ -2,7 +2,7 @@
 
 <img src="docs/mark.svg" width="88" alt="">
 
-# FEEDPOINT
+# FeedPoint
 
 **The wire-antenna workbench that lives in a single file.**
 
@@ -27,7 +27,7 @@ That is the entire install.*
 
 <br>
 
-<img src="docs/hero.png" width="860" alt="FEEDPOINT element calculator — band list, cut-length cards, dual UTC/local clocks">
+<img src="docs/hero.png" width="860" alt="FeedPoint element calculator — band list, cut-length cards, dual UTC/local clocks">
 
 </div>
 
@@ -37,7 +37,7 @@ That is the entire install.*
 
 Every antenna cut chart on the internet assumes you have the internet. On a
 summit, at a field day table, or in a basement shack with the router off,
-FEEDPOINT still works — because it isn't a website, it's a **file**. The
+FeedPoint still works — because it isn't a website, it's a **file**. The
 fonts, the icons, the formulas, the storage, all of it travels inside one
 HTML document. Copy it to a thumb drive, email it to a friend, open it in
 2040. It will still cut wire.
@@ -68,17 +68,17 @@ Six views, reachable by click or by pressing <kbd>1</kbd>–<kbd>6</kbd>:
 <img src="docs/wire.png" width="860" alt="Random-wire check: 71 feet flagged AVOID on 40 m with a nearest spike-free suggestion">
 
 A random wire near a half-wave multiple presents an impedance spike no tuner
-can match. Most charts check band centers; FEEDPOINT checks the **entire band
+can match. Most charts check band centers; FeedPoint checks the **entire band
 span** — because a wire that's clear at 7.150 can still spike at 7.000. That's
 why the classic 71-footer honestly flags AVOID on 40 m above, and why the app
 offers the nearest **spike-free** length instead of pretending. (Fun fact the
 math forced us to document: past ~13 ft, *no* length avoids even MARGINAL on
-all nine bands. Antennas are compromises. FEEDPOINT just refuses to lie about
+all nine bands. Antennas are compromises. FeedPoint just refuses to lie about
 which one you're making.)
 
 ## Made for the field
 
-<img src="docs/mobile.png" align="right" width="230" alt="FEEDPOINT build log on a phone">
+<img src="docs/mobile.png" align="right" width="230" alt="FeedPoint build log on a phone">
 
 - **Phone-first when it needs to be** — the sidebar becomes a floating dock,
   touch targets stay 48 px+, and the layout works one-handed on a summit.

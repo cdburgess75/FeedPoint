@@ -34,6 +34,8 @@ jobs:
           cp docs/favicon-16.png _site/favicon-16.png
           cp docs/favicon-32.png _site/favicon-32.png
           cp docs/mask-icon.svg _site/mask-icon.svg
+          cp docs/apple-touch-icon.png _site/touch-icon-180-v9.png
+          cp docs/icon-512.png _site/icon-512-v9.png
       - uses: actions/configure-pages@v5
         with:
           enablement: true
