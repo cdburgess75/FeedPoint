@@ -169,7 +169,9 @@ a{color:var(--a0)}
 .seg-sm button{padding:8px 11px;font-size:12px}
 /* K presets */
 .kpre{margin-top:12px}
-.kpre button.on{border-color:var(--a0);color:var(--a0)}
+.kpre button.on,.chips button.on{border-color:var(--a0);color:var(--a0);background:var(--accent-bg)}
+#recLens button b{font-weight:700}
+#recLens button small{color:var(--c3);font-weight:500;margin-left:6px}
 /* band cut-memory dot */
 .cutdot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--a0);margin-left:7px;vertical-align:2px}
 /* log entry tools */
@@ -356,6 +358,10 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
       </div>
       <div class="row-list" id="verdict"></div>
       <div class="chips" id="wireFix" hidden></div>
+      <div class="sec-lbl">Find a length for your bands</div>
+      <div class="chips" id="bandPick"></div>
+      <div class="chips" id="recLens"></div>
+      <p class="hint" id="recHint">Tap the bands you actually work — you'll get lengths that stay clear of every half-wave spike on all of them, with the quarter-wave floor of your lowest band respected.</p>
       <div class="sec-lbl">Proven non-resonant lengths</div>
       <div class="chips" id="goodLens"></div>
       <p class="hint">Tap a length to test it. Rule of thumb: pick the <b>longest that fits the lot</b>, then run a counterpoise. Long wires will flag <i>somewhere</i> — judge by the bands you actually work.</p>
@@ -538,7 +544,7 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
 "use strict";
 const $=id=>document.getElementById(id);
 const FT_M=0.3048;
-const APP_VERSION="v2026.08.03.014";
+const APP_VERSION="v2026.08.03.015";
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 /* ---------- data ---------- */
@@ -728,7 +734,7 @@ function setRegion(r,persist=true){
   region=[1,2,3].includes(r)?r:2;
   BANDS=BAND_PLANS[region];
   [1,2,3].forEach(i=>$("rg"+i).classList.toggle("on",i===region));
-  renderBands();markBand();calc();checkWire();
+  renderBands();markBand();calc();checkWire();renderBandPick();
   if(persist)saveSettings();
 }
 [1,2,3].forEach(i=>$("rg"+i).addEventListener("click",()=>setRegion(i)));
@@ -800,6 +806,68 @@ function checkWire(){
     FX.appendChild(b);
   }
 }
+/* ---------- band-set length recommendations ---------- */
+let wireSel=new Set();
+/* A length qualifies when every selected band is CLEAR across its whole span
+   (no AVOID, no MARGINAL, not SHORT), with a quarter-wave floor on the lowest
+   selected band so the wire stays an efficient radiator there. Contiguous
+   qualifying ranges become recommendations at their midpoints — the farthest
+   points from any resonance. */
+function recommendLens(sel){
+  if(!sel.length)return [];
+  const lowest=sel.reduce((a,b)=>a.c<b.c?a:b);
+  const minFt=Math.ceil((234/lowest.c)*2)/2;
+  const okLen=ft=>sel.every(b=>{const r=bandOffset(ft,b);return r.n>0&&r.off>=0.15;});
+  const wins=[];let start=null;
+  for(let ft=minFt;ft<=500;ft+=0.5){
+    if(okLen(ft)){if(start===null)start=ft;}
+    else if(start!==null){wins.push([start,ft-0.5]);start=null;}
+  }
+  if(start!==null)wins.push([start,500]);
+  return wins.filter(w=>w[1]-w[0]>=1)
+    .map(([a,b])=>({mid:Math.round(a+b)/2,a,b,width:b-a}))
+    .slice(0,8);
+}
+function renderBandPick(){
+  const C=$("bandPick");C.innerHTML="";
+  const names=new Set(wireBands().map(b=>b.n));
+  wireSel=new Set([...wireSel].filter(n=>names.has(n)));
+  wireBands().forEach(b=>{
+    const btn=document.createElement("button");btn.type="button";
+    btn.textContent=b.n;
+    btn.classList.toggle("on",wireSel.has(b.n));
+    btn.addEventListener("click",()=>{
+      wireSel.has(b.n)?wireSel.delete(b.n):wireSel.add(b.n);
+      btn.classList.toggle("on",wireSel.has(b.n));
+      renderRecs();saveSettings();
+    });
+    C.appendChild(btn);
+  });
+  renderRecs();
+}
+function renderRecs(){
+  const R=$("recLens");R.innerHTML="";
+  const sel=wireBands().filter(b=>wireSel.has(b.n));
+  $("recHint").textContent=sel.length
+    ?"Midpoint of each safe window — the farthest you can sit from every half-wave spike on "+sel.map(b=>b.n).join(" · ")+". Tap one to load it."
+    :"Tap the bands you actually work — you'll get lengths that stay clear of every half-wave spike on all of them, with the quarter-wave floor of your lowest band respected.";
+  if(!sel.length)return;
+  const recs=recommendLens(sel);
+  if(!recs.length){$("recHint").textContent="No length clears every one of those bands — drop one band and try again.";return;}
+  recs.forEach(r=>{
+    const btn=document.createElement("button");btn.type="button";
+    const disp=wireMetric?(r.mid*FT_M).toFixed(1)+" m":r.mid+" ft";
+    const spread=wireMetric?((r.width/2)*FT_M).toFixed(1)+" m":(r.width/2)+" ft";
+    btn.innerHTML="<b>"+disp+"</b><small>±"+spread+"</small>";
+    btn.title="Safe from "+(wireMetric?(r.a*FT_M).toFixed(1)+" to "+(r.b*FT_M).toFixed(1)+" m":r.a+" to "+r.b+" ft")+" on "+sel.map(b=>b.n).join(", ");
+    btn.addEventListener("click",()=>{
+      $("wire").value=wireMetric?(r.mid*FT_M).toFixed(1):r.mid;
+      checkWire();saveSettings();
+    });
+    R.appendChild(btn);
+  });
+}
+
 function renderChips(){
   const C=$("goodLens");C.innerHTML="";
   GOOD_LENS.forEach(l=>{
@@ -899,7 +967,7 @@ function noteStorage(){
 
 /* ---------- settings persistence ---------- */
 function saveSettings(){
-  safeSet("settings",{metric,wireMetric,region,theme,uiscale,freq:$("freq").value,kf:$("kf").value,wire:$("wire").value});
+  safeSet("settings",{metric,wireMetric,region,theme,uiscale,wireSel:[...wireSel],freq:$("freq").value,kf:$("kf").value,wire:$("wire").value});
 }
 
 /* ---------- build log ---------- */
@@ -1050,6 +1118,7 @@ function importBackup(file){
         if(d.settings.freq)$("freq").value=d.settings.freq;
         if(d.settings.kf)$("kf").value=d.settings.kf;
         if(d.settings.wire)$("wire").value=d.settings.wire;
+        if(Array.isArray(d.settings.wireSel))wireSel=new Set(d.settings.wireSel.filter(n=>typeof n==="string"));
         applyUnitButtons();markKChips();setRegion(d.settings.region||region,false);
         setTheme(d.settings.theme||theme,false);setTextSize(d.settings.uiscale||uiscale,false);
         saveSettings();
@@ -1062,7 +1131,7 @@ function importBackup(file){
 function applyUnitButtons(){
   $("uFt").classList.toggle("on",!metric);$("uM").classList.toggle("on",metric);
   $("wFt").classList.toggle("on",!wireMetric);$("wM").classList.toggle("on",wireMetric);
-  renderChips();
+  renderChips();renderRecs();
 }
 
 /* ---------- wiring ---------- */
@@ -1095,8 +1164,9 @@ $("impFile").addEventListener("change",e=>{if(e.target.files[0])importBackup(e.t
      win if they differ (e.g. restored backup from another device) */
   setTheme((s&&THEME_NAMES[s.theme])?s.theme:document.documentElement.getAttribute("data-theme"),false);
   setTextSize((s&&(s.uiscale===2||s.uiscale===3))?s.uiscale:(parseInt(document.documentElement.getAttribute("data-uiscale"),10)||1),false);
+  if(s&&Array.isArray(s.wireSel))wireSel=new Set(s.wireSel.filter(n=>typeof n==="string"));
   applyUnitButtons();markKChips();
-  renderBands();buildNotes();calc();markBand();checkWire();logRender();noteStorage();renderCoil();
+  renderBands();buildNotes();calc();markBand();checkWire();renderBandPick();logRender();noteStorage();renderCoil();
   go(VIEWS.some(v=>v.id===location.hash.slice(1))?location.hash.slice(1):"calc",false);
   if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
 })();
