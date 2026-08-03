@@ -248,6 +248,7 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
         </div>
       </div>
       <div class="row-list" id="verdict"></div>
+      <div class="chips" id="wireFix" hidden></div>
       <div class="sec-lbl">Proven non-resonant lengths</div>
       <div class="chips" id="goodLens"></div>
       <p class="hint">Tap a length to test it. Rule of thumb: pick the <b>longest that fits the lot</b>, then run a counterpoise.</p>
@@ -394,7 +395,8 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
 "use strict";
 const $=id=>document.getElementById(id);
 const FT_M=0.3048;
-const APP_VERSION="v2026.08.03.001";
+const APP_VERSION="v2026.08.03.002";
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 /* ---------- data ---------- */
 const BANDS=[
@@ -559,22 +561,56 @@ function markBand(){
 }
 
 /* ---------- wire check ---------- */
+/* Verdicts are computed across the whole band span (lo–hi), not just band
+   center: the worst-case distance (in half-wave multiples) from the length's
+   multiple range to any integer. A wire clear at center can still hit an
+   impedance spike at a band edge. */
+const WIRE_BANDS=BANDS.filter(b=>b.n!=="160m"&&b.n!=="6m");
+function distToInt(a,b,n){return n<a?a-n:(n>b?n-b:0);}
+function bandOffset(ft,b){
+  const mLo=ft*b.lo/468,mHi=ft*b.hi/468;
+  const c1=Math.round(mLo),c2=Math.round(mHi);
+  let n=c1,off=distToInt(mLo,mHi,c1);
+  const o2=distToInt(mLo,mHi,c2);
+  if(o2<off){n=c2;off=o2;}
+  return {n,off};
+}
+/* "Spike-free" = no AVOID on any band. Demanding no-MARGINAL-anywhere is
+   unsatisfiable past ~13 ft once band edges are honored, so the suggestion
+   targets what a tuner actually can't handle: the impedance spikes. */
+function hasAvoid(ft){return WIRE_BANDS.some(b=>{const r=bandOffset(ft,b);return r.n>0&&r.off<0.07;});}
+function suggestClear(ft){
+  for(let d=0.5;d<=30;d+=0.5)for(const s of [1,-1]){
+    const l=+(ft+s*d).toFixed(1);
+    if(l>=5&&!hasAvoid(l))return l;
+  }
+  return null;
+}
 function checkWire(){
-  const raw=parseFloat($("wire").value),V=$("verdict");
-  if(!raw||raw<=0){V.innerHTML='<div class="li"><span class="t2">Enter a wire length above.</span></div>';return;}
+  const raw=parseFloat($("wire").value),V=$("verdict"),FX=$("wireFix");
+  if(!raw||raw<=0){V.innerHTML='<div class="li"><span class="t2">Enter a wire length above.</span></div>';FX.hidden=true;return;}
   const ft=wireMetric?raw/FT_M:raw;
-  V.innerHTML=BANDS.filter(b=>b.n!=="160m"&&b.n!=="6m").map((b,i)=>{
+  V.innerHTML=WIRE_BANDS.map((b,i)=>{
     const hue=HUES[i%HUES.length];
-    const mult=ft/(468/b.c),nearest=Math.round(mult),off=Math.abs(mult-nearest);
+    const {n,off}=bandOffset(ft,b);
     let pill,msg;
-    if(nearest===0){pill='<span class="pill warn">SHORT</span>';msg="under a half wave here";}
-    else if(off<0.07){pill='<span class="pill bad">AVOID</span>';msg=`≈ ${nearest} × half wave — impedance spike`;}
-    else if(off<0.15){pill='<span class="pill warn">MARGINAL</span>';msg=`close to ${nearest} × half wave`;}
-    else{pill='<span class="pill ok">CLEAR</span>';msg="comfortably non-resonant";}
+    if(n===0){pill='<span class="pill warn">SHORT</span>';msg="under a half wave here";}
+    else if(off<0.07){pill='<span class="pill bad">AVOID</span>';msg=`≈ ${n} × half wave in band — impedance spike`;}
+    else if(off<0.15){pill='<span class="pill warn">MARGINAL</span>';msg=`close to ${n} × half wave in band`;}
+    else{pill='<span class="pill ok">CLEAR</span>';msg="non-resonant across the band";}
     return `<div class="li"><span class="ico" style="background:${hue}1f"><svg viewBox="0 0 16 16"><path d="M2 11c2 0 2-6 4-6s2 8 4 8 2-6 4-6" fill="none" stroke="${hue}" stroke-width="1.5" stroke-linecap="round"/></svg></span>
       <span><span class="t1">${b.n}</span><br><span class="t2">${msg}</span></span>
       <span class="right">${pill}</span></div>`;
   }).join("");
+  const sug=hasAvoid(ft)?suggestClear(ft):null;
+  FX.hidden=!sug;
+  if(sug){
+    FX.innerHTML="";
+    const b=document.createElement("button");b.type="button";
+    b.textContent="Nearest spike-free length: "+(wireMetric?(sug*FT_M).toFixed(1)+" m":sug+" ft");
+    b.addEventListener("click",()=>{$("wire").value=wireMetric?(sug*FT_M).toFixed(1):sug;checkWire();saveSettings();});
+    FX.appendChild(b);
+  }
 }
 function renderChips(){
   const C=$("goodLens");C.innerHTML="";
@@ -666,12 +702,11 @@ function logRender(){
     const d=new Date(e.ts);
     const when=d.toLocaleDateString("en-US",{month:"short",day:"numeric"})+" "+d.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",hour12:false});
     const hue=e.kind==="cut"?"#FF8600":"#00D4B0";
-    const body=e.kind==="cut"
-      ? `<div class="spec">${e.items.map(it=>`<div class="srow"><span>${it[0]}</span><span>${it[1]}</span></div>`).join("")}</div>`
-      : `<div class="spec">${e.items.map(it=>`<div class="srow"><span>${it[0]}</span><span>${it[1]}</span></div>`).join("")}</div>`;
+    /* titles/items may come from an imported backup file — always escape */
+    const body=`<div class="spec">${e.items.map(it=>`<div class="srow"><span>${esc(it[0])}</span><span>${esc(it[1])}</span></div>`).join("")}</div>`;
     return `<details class="k"><summary>
       <span class="ico" style="background:${hue}1f"><svg viewBox="0 0 16 16" width="15" height="15"><path d="M2 11c2 0 2-6 4-6s2 8 4 8 2-6 4-6" fill="none" stroke="${hue}" stroke-width="1.5" stroke-linecap="round"/></svg></span>
-      <span><span class="t1">${e.title}</span><br><span class="t2">${when}</span></span>
+      <span><span class="t1">${esc(e.title)}</span><br><span class="t2">${when}</span></span>
       <button class="del" style="margin-left:auto" data-id="${e.ts}" type="button" aria-label="Delete entry"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
       <svg class="chev" width="14" height="14" viewBox="0 0 14 14"><path d="M5 3l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></summary>
       <div class="k-body">${body}</div></details>`;
@@ -692,6 +727,14 @@ function flash(btn,txt){
   const old=btn.textContent;btn.textContent=txt;btn.classList.add("flash");
   setTimeout(()=>{btn.textContent=old;btn.classList.remove("flash");},900);
 }
+async function persistLog(btn){
+  await safeSet("log",LOG);
+  if(storageOK)flash(btn,"Saved");
+  else{
+    flash(btn,"Session only");
+    toast("Storage unavailable — this entry won't survive a reload. Export a backup to keep it.",{kind:"err"});
+  }
+}
 function saveCut(){
   const f=parseFloat($("freq").value),k=parseFloat($("kf").value)||0.95;
   if(!f||f<1||f>60)return;
@@ -705,20 +748,20 @@ function saveCut(){
     ["Full-wave loop",fmtLogLen(1005/f*adj)],
     ["⅝-wave vertical",fmtLogLen(585/f*adj)]
   ]});
-  safeSet("log",LOG);logRender();flash($("saveCut"),"Saved");
+  logRender();persistLog($("saveCut"));
 }
 function saveWire(){
   const raw=parseFloat($("wire").value);
   if(!raw||raw<=0)return;
   const ft=wireMetric?raw/FT_M:raw;
-  const items=BANDS.filter(b=>b.n!=="160m"&&b.n!=="6m").map(b=>{
-    const mult=ft/(468/b.c),nearest=Math.round(mult),off=Math.abs(mult-nearest);
+  const items=WIRE_BANDS.map(b=>{
+    const {n,off}=bandOffset(ft,b);
     let v="CLEAR";
-    if(nearest===0)v="SHORT";else if(off<0.07)v="AVOID ("+nearest+"×½λ)";else if(off<0.15)v="MARGINAL";
+    if(n===0)v="SHORT";else if(off<0.07)v="AVOID ("+n+"×½λ)";else if(off<0.15)v="MARGINAL";
     return [b.n,v];
   });
   LOG.unshift({ts:Date.now(),kind:"wire",title:`Wire check · ${ft.toFixed(1)} ft (${(ft*FT_M).toFixed(1)} m)`,items});
-  safeSet("log",LOG);logRender();flash($("saveWire"),"Saved");
+  logRender();persistLog($("saveWire"));
 }
 
 /* ---------- backup & restore ---------- */
