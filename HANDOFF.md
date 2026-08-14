@@ -32,6 +32,13 @@ Everything else — markup, CSS, JS — is the owner's verbatim.
 
 ## Release notes
 
+**`v2026.08.03.021` — share button:** new header button (left of AA) that
+shares the canonical live URL. Uses the native share sheet
+(`navigator.share` — text, email, AirDrop, whatever the OS offers); on
+browsers without it, copies the link to the clipboard with a toast. Always
+shares the live-site URL even when running from a local file, so the
+recipient lands on the installable PWA.
+
 **`v2026.08.03.020` — iOS safe area:** when installed to the home screen
 (`viewport-fit=cover` + translucent status bar) the header sat under the
 iPhone status bar/notch, so its buttons couldn't be tapped. The topbar now
