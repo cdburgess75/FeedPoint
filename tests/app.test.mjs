@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.08.03.020';
+const VERSION = 'v2026.08.03.021';
 const errors = [];
 let failed = 0;
 const check = (name, cond, extra = '') => {
@@ -151,6 +151,30 @@ const wireRows = await page.$$eval('#verdict .li', els => ({
 }));
 check('wire check covers 160m (SHORT at 71 ft)', wireRows.n === 10 && wireRows.first === '160m' && wireRows.pill === 'SHORT', JSON.stringify(wireRows));
 check('clocks removed from header', await page.evaluate(() => !document.getElementById('clkUtc') && !document.getElementById('clocks')));
+const shared = await page.evaluate(async () => {
+  const btn = document.getElementById('btnShare');
+  if (!btn || btn.parentElement.id !== 'hdBtns') return null;
+  let captured = null;
+  navigator.share = d => { captured = d; return Promise.resolve(); };
+  btn.click();
+  await new Promise(r => setTimeout(r, 80));
+  return { captured, label: btn.getAttribute('aria-label') };
+});
+check('share button in header uses Web Share with live URL',
+  !!shared && shared.label === 'Share FeedPoint' && shared.captured &&
+  shared.captured.url === 'https://cdburgess75.github.io/FeedPoint/' && shared.captured.title === 'FeedPoint',
+  JSON.stringify(shared));
+const copied = await page.evaluate(async () => {
+  delete navigator.share;
+  let text = null;
+  navigator.clipboard.writeText = t => { text = t; return Promise.resolve(); };
+  document.getElementById('btnShare').click();
+  await new Promise(r => setTimeout(r, 80));
+  return { text, toast: document.querySelector('#toasts .toast')?.textContent || '' };
+});
+check('share falls back to clipboard + toast',
+  !!copied && copied.text === 'https://cdburgess75.github.io/FeedPoint/' && copied.toast.includes('Link copied'),
+  JSON.stringify(copied));
 const topbarSafe = await page.evaluate(() => {
   const s = getComputedStyle(document.getElementById('topbar'));
   return { minH: s.minHeight, padTop: s.paddingTop };

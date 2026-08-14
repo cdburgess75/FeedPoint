@@ -316,6 +316,7 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
       <span class="verpill appver" title="Build version"></span>
     </div>
     <div id="hdBtns">
+      <button id="btnShare" class="tbtn" type="button" title="Share FeedPoint" aria-label="Share FeedPoint"><svg width="17" height="17" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 12.5V2.5 M6.8 5.2 10 2 13.2 5.2 M5 9H4.5A1.5 1.5 0 0 0 3 10.5v6A1.5 1.5 0 0 0 4.5 18h11a1.5 1.5 0 0 0 1.5-1.5v-6A1.5 1.5 0 0 0 15.5 9H15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <button id="btnTextSize" class="tbtn" type="button" title="Text size">AA</button>
       <button id="btnTheme" class="tbtn" type="button" title="Light / dark theme">☾</button>
     </div>
@@ -556,7 +557,7 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
 "use strict";
 const $=id=>document.getElementById(id);
 const FT_M=0.3048;
-const APP_VERSION="v2026.08.03.020";
+const APP_VERSION="v2026.08.03.021";
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 /* ---------- data ---------- */
@@ -635,6 +636,20 @@ function setTextSize(step,persist=true){
 }
 $("btnTheme").addEventListener("click",()=>setTheme(theme==="dark"?"light":"dark"));
 $("btnTextSize").addEventListener("click",()=>setTextSize(uiscale===3?1:uiscale+1));
+
+/* ---------- share ---------- */
+/* Always share the canonical live URL — a mailed/texted link should open the
+   installable PWA, even when this copy is running from a local file. */
+const SHARE_URL="https://cdburgess75.github.io/FeedPoint/";
+$("btnShare").addEventListener("click",async()=>{
+  if(navigator.share){
+    try{await navigator.share({title:"FeedPoint",text:"FeedPoint — the offline wire-antenna workbench for 160–6 m.",url:SHARE_URL});}
+    catch(e){/* user closed the share sheet */}
+    return;
+  }
+  try{await navigator.clipboard.writeText(SHARE_URL);toast("Link copied — paste it anywhere");}
+  catch(e){toast("Couldn't copy automatically — the app lives at "+SHARE_URL,{kind:"err"});}
+});
 
 /* ---------- navigation ---------- */
 const GROUPS=[["Workbench",["calc","wire"]],["Reference",["unun","ant","notes"]],["Records",["log"]]];
