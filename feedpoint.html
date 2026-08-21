@@ -130,7 +130,7 @@ a{color:var(--a0)}
 .v-sub{color:var(--c2);max-width:640px;margin-bottom:22px;font-size:15px}
 
 /* mobile dock — Macro island chrome */
-#dock{display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 12px);background:var(--chrome);border:.5px solid var(--edge);border-radius:999px;padding:7px;gap:3px;box-shadow:var(--shadow-menu);z-index:24;backdrop-filter:blur(12px)}
+#dock{display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:max(env(safe-area-inset-bottom,0px),8px);background:var(--chrome);border:.5px solid var(--edge);border-radius:999px;padding:7px;gap:3px;box-shadow:var(--shadow-menu);z-index:24;backdrop-filter:blur(12px)}
 #dock .nav-btn{width:52px;height:52px;border-radius:999px}
 @media(max-width:800px){
   #app{grid-template-columns:minmax(0,1fr)}
@@ -187,7 +187,7 @@ a{color:var(--a0)}
 .toast .t-act{font:600 12.5px/1 var(--mono);letter-spacing:.08em;color:var(--a0);padding:6px 8px;border-radius:6px;flex:none}
 .toast .t-act:hover{background:var(--accent-bg)}
 @keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-@media(max-width:800px){#toasts{left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 86px)}.toast{max-width:none}}
+@media(max-width:800px){#toasts{left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 74px)}.toast{max-width:none}}
 
 /* section row with inline control */
 .sec-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:26px 2px 10px}
@@ -575,7 +575,7 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
 "use strict";
 const $=id=>document.getElementById(id);
 const FT_M=0.3048;
-const APP_VERSION="v2026.08.20.001";
+const APP_VERSION="v2026.08.20.002";
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 /* ---------- data ---------- */

@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.08.20.001';
+const VERSION = 'v2026.08.20.002';
 const errors = [];
 let failed = 0;
 const check = (name, cond, extra = '') => {
@@ -406,6 +406,8 @@ await page.waitForTimeout(200);
 const dockShown = await page.$eval('#dock', e => getComputedStyle(e).display);
 const railShown = await page.$eval('#rail', e => getComputedStyle(e).display);
 check('mobile: dock shown, rail hidden', dockShown === 'flex' && railShown === 'none');
+const dockBottom = await page.$eval('#dock', e => getComputedStyle(e).bottom);
+check('dock hugs the bottom (safe-area floor 8px)', dockBottom === '8px', dockBottom);
 const pillMobile = await page.$eval('.verpill', e => {
   const r = e.getBoundingClientRect();
   return getComputedStyle(e).display !== 'none' && r.width > 0
