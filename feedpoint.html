@@ -16,7 +16,7 @@
 /* Apply the saved scheme before first paint (no flash) — FlockOff pattern. */
 try{
   var __t=localStorage.getItem("feedpoint.theme");
-  document.documentElement.setAttribute("data-theme",__t==="light"?"light":"dark");
+  document.documentElement.setAttribute("data-theme",__t==="light"||__t==="circuit"?__t:"dark");
   var __u=localStorage.getItem("feedpoint.uiscale");
   if(__u==="2"||__u==="3")document.documentElement.setAttribute("data-uiscale",__u);
 }catch(e){document.documentElement.setAttribute("data-theme","dark");}
@@ -65,6 +65,22 @@ try{
   --chrome:#EDF4F6;
   --shadow-menu:0 8px 24px -16px rgb(30 60 70/.35),0 2px 8px -6px rgb(30 60 70/.25);
 }
+/* Circuit — deep navy, neon lime accent, electric-blue data colors, from
+   the owner's "Keep React" ad reference. Dark scheme; verdict green pushed
+   toward teal so it doesn't compete with the lime accent. */
+:root[data-theme="circuit"]{
+  color-scheme:dark;
+  --a0:#C6F135; --a1:#3B82F6; --a2:#7BD84A; --a3:#22D3EE; --a4:#2E90FA;
+  --accent-bg:rgba(198,241,53,.10); --accent-hover:rgba(198,241,53,.25);
+  --b0:#070F1E; --b1:#0C1830; --b2:#13233D; --b3:#1A2E4E; --b4:#28405F;
+  --c0:#F2F7FF; --c1:#CBD8EC; --c2:#A8B9D2; --c3:#8296B4; --c4:#66789A;
+  --failure:#FF6B6B; --success:#2FE0A0; --alert:#F5C542;
+  --chrome:#101E38;
+  --shadow-menu:0 8px 24px -16px rgb(0 10 30/.6),0 2px 8px -6px rgb(0 10 30/.5);
+}
+:root[data-theme="circuit"] .mark{background:#C6F135}
+:root[data-theme="circuit"] .mark svg path{fill:#08111F}
+:root[data-theme="circuit"] .mark svg g{stroke:#08111F}
 html[data-uiscale="2"] #main{zoom:1.18}
 html[data-uiscale="3"] #main{zoom:1.36}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -318,7 +334,7 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
     <div id="hdBtns">
       <button id="btnShare" class="tbtn" type="button" title="Share FeedPoint" aria-label="Share FeedPoint"><svg width="17" height="17" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 12.5V2.5 M6.8 5.2 10 2 13.2 5.2 M5 9H4.5A1.5 1.5 0 0 0 3 10.5v6A1.5 1.5 0 0 0 4.5 18h11a1.5 1.5 0 0 0 1.5-1.5v-6A1.5 1.5 0 0 0 15.5 9H15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <button id="btnTextSize" class="tbtn" type="button" title="Text size">AA</button>
-      <button id="btnTheme" class="tbtn" type="button" title="Light / dark theme">☾</button>
+      <button id="btnTheme" class="tbtn" type="button" title="Theme">☾</button>
     </div>
   </header>
 
@@ -557,7 +573,7 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
 "use strict";
 const $=id=>document.getElementById(id);
 const FT_M=0.3048;
-const APP_VERSION="v2026.08.03.021";
+const APP_VERSION="v2026.08.03.022";
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 /* ---------- data ---------- */
@@ -614,7 +630,9 @@ const VIEWS=[
 let metric=false, wireMetric=false, theme="dark", uiscale=1;
 
 /* ---------- theme + text size (FlockOff pattern) ---------- */
-const THEME_NAMES={dark:"Macro Dark",light:"Daylight"};
+const THEME_NAMES={dark:"Macro Dark",light:"Daylight",circuit:"Circuit"};
+const THEME_GLYPH={dark:"☾",light:"☀",circuit:"⚡"};
+const THEME_NEXT={dark:"light",light:"circuit",circuit:"dark"};
 function setTheme(t,persist=true){
   theme=THEME_NAMES[t]?t:"dark";
   document.documentElement.setAttribute("data-theme",theme);
@@ -623,7 +641,7 @@ function setTheme(t,persist=true){
   const meta=document.querySelector('meta[name="theme-color"]');
   if(meta&&bg)meta.setAttribute("content",bg);
   const b=$("btnTheme");
-  b.textContent=theme==="dark"?"☾":"☀";
+  b.textContent=THEME_GLYPH[theme];
   b.setAttribute("aria-label","Theme: "+THEME_NAMES[theme]+" — tap to switch");
   if(persist)saveSettings();
 }
@@ -634,7 +652,7 @@ function setTextSize(step,persist=true){
   $("btnTextSize").setAttribute("aria-label","Text size "+uiscale+" of 3");
   if(persist)saveSettings();
 }
-$("btnTheme").addEventListener("click",()=>setTheme(theme==="dark"?"light":"dark"));
+$("btnTheme").addEventListener("click",()=>setTheme(THEME_NEXT[theme]||"dark"));
 $("btnTextSize").addEventListener("click",()=>setTextSize(uiscale===3?1:uiscale+1));
 
 /* ---------- share ---------- */
