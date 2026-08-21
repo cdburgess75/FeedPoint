@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.08.20.005';
+const VERSION = 'v2026.08.20.006';
 const errors = [];
 let failed = 0;
 const check = (name, cond, extra = '') => {
@@ -425,6 +425,13 @@ const dockSlab = await page.evaluate(() => {
 check('under-bar slab paints past the bottom (Safari chrome strip)',
   dockSlab.h === '200px' && Math.abs(dockSlab.top - dockSlab.dockH) <= 1.5 && dockSlab.bg === dockSlab.dockBg,
   JSON.stringify(dockSlab));
+const displayMode = await page.evaluate(() => ({
+  attr: document.documentElement.getAttribute('data-display'),
+  padBottom: getComputedStyle(document.getElementById('dock')).paddingBottom
+}));
+check('browser mode drops the home-indicator inset (6px pad)',
+  displayMode.attr === 'browser' && displayMode.padBottom === '6px',
+  JSON.stringify(displayMode));
 const pillMobile = await page.$eval('.verpill', e => {
   const r = e.getBoundingClientRect();
   return getComputedStyle(e).display !== 'none' && r.width > 0
