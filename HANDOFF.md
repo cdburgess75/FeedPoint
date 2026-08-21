@@ -32,6 +32,14 @@ Everything else — markup, CSS, JS — is the owner's verbatim.
 
 ## Release notes
 
+**`v2026.08.03.023` — header fits every phone:** the share button had tipped
+the header past narrow viewports (the app grid's `1fr` columns carry an
+implicit `auto` minimum, so the column refused to shrink below the header's
+natural width and the buttons slid off-screen). All three `#app` grid
+column definitions now use `minmax(0,1fr)`; on mobile the brand group
+flexes and the version pill truncates with an ellipsis before the
+share/AA/theme buttons can be pushed off. Verified 320–430 px.
+
 **`v2026.08.03.022` — Circuit theme:** third theme in the toggle rotation
 (Macro Dark ☾ → Daylight ☀ → Circuit ⚡ → …), from the owner's "Keep React"
 ad reference: deep navy surfaces, neon lime `#C6F135` accent, electric-blue
