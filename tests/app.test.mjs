@@ -4,7 +4,7 @@ import { chromium } from 'playwright';
 import { readFileSync } from 'fs';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.08.20.010';
+const VERSION = 'v2026.08.20.011';
 const SRC = readFileSync(new URL('../feedpoint.html', import.meta.url), 'utf8');
 const errors = [];
 let failed = 0;
@@ -445,13 +445,12 @@ check('full version string fits its pill and stays on screen',
   JSON.stringify(pillFits));
 const noAdjust = await page.evaluate(() => getComputedStyle(document.documentElement).webkitTextSizeAdjust);
 check('iOS text inflation disabled', noAdjust === '100%', noAdjust);
-const displayMode = await page.evaluate(() => ({
+const dockPad = await page.evaluate(() => ({
   attr: document.documentElement.getAttribute('data-display'),
-  padBottom: getComputedStyle(document.getElementById('dock')).paddingBottom
+  padBottom: parseFloat(getComputedStyle(document.getElementById('dock')).paddingBottom)
 }));
-check('browser mode drops the home-indicator inset (6px pad)',
-  displayMode.attr === 'browser' && displayMode.padBottom === '6px',
-  JSON.stringify(displayMode));
+check('footer keeps home-indicator padding in every display mode',
+  !!dockPad.attr && dockPad.padBottom >= 6, JSON.stringify(dockPad));
 check('app box is sized to the dynamic viewport, not the physical screen',
   SRC.includes('height:100dvh'));
 const vvFit = await page.evaluate(() => {
@@ -459,8 +458,15 @@ const vvFit = await page.evaluate(() => {
   return { appH: document.documentElement.style.getPropertyValue('--app-h'),
            vv: Math.round(visualViewport.height), dockBottom: Math.round(d.bottom) };
 });
-check('app height is measured from visualViewport, footer lands on its bottom edge',
+check('app fills the visible area, footer lands on its bottom edge — no dead band below',
   vvFit.appH === vvFit.vv + 'px' && vvFit.dockBottom === vvFit.vv, JSON.stringify(vvFit));
+const noGap = await page.evaluate(() => {
+  const d = document.getElementById('dock').getBoundingClientRect();
+  const biggest = Math.max(visualViewport.height, document.documentElement.clientHeight, innerHeight);
+  return { dockBottom: Math.round(d.bottom), biggest: Math.round(biggest) };
+});
+check('no dead space below the footer on any reported viewport measure',
+  noGap.dockBottom === noGap.biggest, JSON.stringify(noGap));
 const vvBefore = await page.evaluate(() => document.documentElement.style.getPropertyValue('--app-h'));
 await page.setViewportSize({ width: 400, height: 860 });
 await page.waitForTimeout(350);
@@ -542,6 +548,26 @@ await page.reload();
 await page.waitForTimeout(700);
 count = await page.$$eval('#logList details.k', els => els.length);
 check('log persists across reload', count === 1, String(count));
+
+// --- iOS small-viewport regression -------------------------------------
+/* Reproduces the reported defect: iOS reports the LAYOUT viewport (sized as
+   if the browser toolbar were showing) while the screen is actually taller,
+   which left a dead band of page background below the footer. */
+const iosPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
+await iosPage.addInitScript(() => {
+  Object.defineProperty(window.visualViewport, 'height', { get: () => 760 });
+});
+await iosPage.goto(PAGE_URL);
+await iosPage.waitForTimeout(1500);
+const iosFit = await iosPage.evaluate(() => {
+  const d = document.getElementById('dock').getBoundingClientRect();
+  return { appH: document.documentElement.style.getPropertyValue('--app-h'),
+           vvReports: visualViewport.height, innerH: innerHeight,
+           dockBottom: Math.round(d.bottom), gapBelow: innerHeight - Math.round(d.bottom) };
+});
+check('iOS short-viewport report leaves no dead band below the footer',
+  iosFit.gapBelow === 0 && iosFit.dockBottom === iosFit.innerH, JSON.stringify(iosFit));
+await iosPage.close();
 
 console.log(errors.length ? 'JS ERRORS:\n' + errors.join('\n') : 'NO JS ERRORS');
 console.log(failed ? failed + ' FAILURES' : 'ALL PASS');
