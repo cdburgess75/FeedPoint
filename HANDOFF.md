@@ -32,6 +32,29 @@ Everything else — markup, CSS, JS — is the owner's verbatim.
 
 ## Release notes
 
+**`v2026.08.20.009` — the footer fix that actually addresses the cause:**
+review of .008 surfaced that converting the dock to an in-flow row did NOT
+move it. `html,body{position:fixed;inset:0}` resolves against the initial
+containing block — the same box a `position:fixed;bottom:0` dock used — so
+old and new sat on the identical pixel. With `viewport-fit=cover` that edge
+is the PHYSICAL screen bottom, which in Safari lies behind the browser
+toolbar. Fix: `@supports(height:100dvh){html,body{height:100dvh}}` — height
+wins over `inset`'s `bottom:0`, so the app box ends at the DYNAMIC viewport
+bottom (excludes browser chrome, re-resolves as the toolbar minimizes).
+`height:100%` remains the fallback. If dvh reflow reintroduces scroll
+wobble on iOS, switch to `svh`.
+Also from the review: removed the dead `#dock::after` slab (clipped since
+the dock left fixed positioning) and its now-false comment; corrected the
+`.verpill` comment (it no longer ellipsis-truncates — `.brand` wraps);
+dropped a no-op duplicate `#topbar{align-items:center}`.
+Tests: the "never truncated" pill check was near-vacuous (compared
+`scrollWidth` to border-box width) — replaced with a Range-measured text
+vs. content-box comparison plus right-edge assertions at 400px AND 320px;
+restored the deleted `data-display` / browser-pad coverage; added a
+simulated-inset layout guard and a `100dvh` source assertion.
+**Known limit:** headless Chromium has no browser chrome, so no test here
+can prove the footer clears a real Safari toolbar. Device check is manual.
+
 **`v2026.08.20.008` — footer is a real footer; header stops overflowing:**
 the root cause of both complaints. The dock was a `position:fixed` overlay,
 which on iOS argues with browser chrome and the home indicator no matter
@@ -44,8 +67,9 @@ Header: `-webkit-text-size-adjust:100%` stops iOS inflating small text (a
 silent cause of on-device overflow that desktop testing cannot reproduce),
 and the version pill is `flex:none` with `.brand{flex-wrap:wrap}` — the
 full build string is now guaranteed readable at every width, wrapping to a
-second line rather than ever truncating. Verified 320–430px with simulated
-59px/34px safe-area insets.
+second line rather than ever truncating. (Correction: the .008 note claimed
+simulated-inset verification that existed only as a manual check — .009 adds
+it to the suite.)
 
 **`v2026.08.20.007` — v15 icons + full audit:** icons redone per the owner
 (solid `#C6F135` tile, navy λ only — no grid/frame/rule) across favicons,
