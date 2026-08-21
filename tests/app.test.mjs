@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.08.20.003';
+const VERSION = 'v2026.08.20.004';
 const errors = [];
 let failed = 0;
 const check = (name, cond, extra = '') => {
@@ -406,8 +406,16 @@ await page.waitForTimeout(200);
 const dockShown = await page.$eval('#dock', e => getComputedStyle(e).display);
 const railShown = await page.$eval('#rail', e => getComputedStyle(e).display);
 check('mobile: dock shown, rail hidden', dockShown === 'flex' && railShown === 'none');
-const dockBottom = await page.$eval('#dock', e => getComputedStyle(e).bottom);
-check('dock hugs the bottom (safe-area floor 8px)', dockBottom === '8px', dockBottom);
+const dockFooter = await page.evaluate(() => {
+  const d = document.getElementById('dock');
+  const s = getComputedStyle(d);
+  const r = d.getBoundingClientRect();
+  return { bottom: s.bottom, left: Math.round(r.left), right: Math.round(r.right),
+           vw: innerWidth, borderTop: s.borderTopWidth !== '0px', radius: s.borderRadius };
+});
+check('dock is a full-width footer flush to the bottom',
+  dockFooter.bottom === '0px' && dockFooter.left === 0 && dockFooter.right === dockFooter.vw && dockFooter.borderTop,
+  JSON.stringify(dockFooter));
 const pillMobile = await page.$eval('.verpill', e => {
   const r = e.getBoundingClientRect();
   return getComputedStyle(e).display !== 'none' && r.width > 0

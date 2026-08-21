@@ -32,6 +32,11 @@ Everything else — markup, CSS, JS — is the owner's verbatim.
 
 ## Release notes
 
+**`v2026.08.20.004` — footer tab bar:** the mobile floating dock island is
+now a full-width footer flush to the bottom edge — hairline top border,
+buttons spread evenly, and the home-indicator inset padded INSIDE the bar
+so its background runs under the indicator like a native tab bar.
+
 **`v2026.08.20.003` — v14 icons, Circuit lime:** the whole icon set redone
 in the Circuit accent at the owner's request — lime `#C6F135` tile, deep
 navy `#08111F` λ/grid/rule, matching the in-app chip. Applies to desktop
