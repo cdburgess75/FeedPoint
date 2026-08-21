@@ -1,9 +1,11 @@
 /* FEEDPOINT headless functional suite.
    Run: npm i playwright && npx playwright install chromium && node tests/app.test.mjs */
 import { chromium } from 'playwright';
+import { readFileSync } from 'fs';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.08.20.008';
+const VERSION = 'v2026.08.20.009';
+const SRC = readFileSync(new URL('../feedpoint.html', import.meta.url), 'utf8');
 const errors = [];
 let failed = 0;
 const check = (name, cond, extra = '') => {
@@ -423,17 +425,58 @@ check('footer is an in-flow grid row reaching the true bottom',
   JSON.stringify(dockFooter));
 check('content ends exactly where the footer begins (no gap, no overlap)',
   dockFooter.mainBottom === dockFooter.top, JSON.stringify(dockFooter));
-const pillFits = await page.evaluate(() => {
+/* Measures the RENDERED TEXT with a Range and compares it to the pill's
+   content box. The previous version compared scrollWidth to border-box
+   width, which passes by construction once truncation is removed. */
+const measurePill = () => page.evaluate(() => {
   const p = document.querySelector('.verpill');
-  const r = p.getBoundingClientRect();
-  return { full: r.width >= p.scrollWidth - 0.5, text: p.textContent,
-           right: Math.round(r.right), vw: innerWidth };
+  const r = document.createRange(); r.selectNodeContents(p);
+  const cs = getComputedStyle(p), box = p.getBoundingClientRect();
+  const inner = box.width
+    - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)
+    - parseFloat(cs.borderLeftWidth) - parseFloat(cs.borderRightWidth);
+  return { textW: +r.getBoundingClientRect().width.toFixed(1), inner: +inner.toFixed(1),
+           right: Math.round(box.right), vw: innerWidth, text: p.textContent };
 });
-check('full version string visible on mobile, never truncated',
-  pillFits.full && /^v\d{4}\.\d{2}\.\d{2}\.\d{3}$/.test(pillFits.text) && pillFits.right <= pillFits.vw,
+const pillFits = await measurePill();
+check('full version string fits its pill and stays on screen',
+  pillFits.inner >= pillFits.textW - 0.5 && pillFits.right <= pillFits.vw &&
+  /^v\d{4}\.\d{2}\.\d{2}\.\d{3}$/.test(pillFits.text),
   JSON.stringify(pillFits));
 const noAdjust = await page.evaluate(() => getComputedStyle(document.documentElement).webkitTextSizeAdjust);
 check('iOS text inflation disabled', noAdjust === '100%', noAdjust);
+const displayMode = await page.evaluate(() => ({
+  attr: document.documentElement.getAttribute('data-display'),
+  padBottom: getComputedStyle(document.getElementById('dock')).paddingBottom
+}));
+check('browser mode drops the home-indicator inset (6px pad)',
+  displayMode.attr === 'browser' && displayMode.padBottom === '6px',
+  JSON.stringify(displayMode));
+check('app box is sized to the dynamic viewport, not the physical screen',
+  SRC.includes('height:100dvh'));
+const dvhBox = await page.evaluate(() => ({
+  bodyH: Math.round(document.body.getBoundingClientRect().height), vh: innerHeight
+}));
+check('app box height tracks the viewport', dvhBox.bodyH === dvhBox.vh, JSON.stringify(dvhBox));
+/* Simulated iPhone insets (59px top / 34px bottom). Headless Chromium has no
+   browser chrome, so this cannot prove the footer clears a real Safari
+   toolbar — it guards the layout math only. Device check remains manual. */
+await page.addStyleTag({ content: '#topbar{padding-top:59px!important;min-height:119px!important}#dock{padding-bottom:40px!important}' });
+await page.waitForTimeout(200);
+const inset = await page.evaluate(() => {
+  const d = document.getElementById('dock').getBoundingClientRect();
+  const m = document.getElementById('main').getBoundingClientRect();
+  return { dockBottom: Math.round(d.bottom), vh: innerHeight, dockTop: Math.round(d.top),
+           mainBottom: Math.round(m.bottom), btnsRight: Math.round(document.getElementById('hdBtns').getBoundingClientRect().right),
+           vw: innerWidth, hOverflow: document.documentElement.scrollWidth > innerWidth };
+});
+check('layout holds with simulated safe-area insets',
+  inset.dockBottom === inset.vh && inset.mainBottom === inset.dockTop &&
+  inset.btnsRight <= inset.vw && !inset.hOverflow, JSON.stringify(inset));
+const insetPill = await measurePill();
+check('version still fits with insets applied',
+  insetPill.inner >= insetPill.textW - 0.5 && insetPill.right <= insetPill.vw, JSON.stringify(insetPill));
+await page.reload(); await page.waitForTimeout(600);
 const pillMobile = await page.$eval('.verpill', e => {
   const r = e.getBoundingClientRect();
   return getComputedStyle(e).display !== 'none' && r.width > 0
@@ -446,10 +489,18 @@ const narrowFit = await page.evaluate(() => {
   const t = document.getElementById('btnTheme').getBoundingClientRect();
   const s = document.getElementById('btnShare').getBoundingClientRect();
   const p = document.querySelector('.verpill').getBoundingClientRect();
-  return { themeRight: Math.round(t.right), shareOn: s.left >= 0, pillOn: p.width > 0, vw: innerWidth };
+  const pl = document.querySelector('.verpill');
+  const rg = document.createRange(); rg.selectNodeContents(pl);
+  const cs = getComputedStyle(pl);
+  const innerW = p.width - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)
+    - parseFloat(cs.borderLeftWidth) - parseFloat(cs.borderRightWidth);
+  return { themeRight: Math.round(t.right), shareOn: s.left >= 0,
+           pillFits: innerW >= rg.getBoundingClientRect().width - 0.5,
+           pillRight: Math.round(p.right), vw: innerWidth };
 });
 check('header buttons fit on the narrowest phones (320px)',
-  narrowFit.themeRight <= narrowFit.vw && narrowFit.shareOn && narrowFit.pillOn,
+  narrowFit.themeRight <= narrowFit.vw && narrowFit.shareOn &&
+  narrowFit.pillFits && narrowFit.pillRight <= narrowFit.vw,
   JSON.stringify(narrowFit));
 
 // --- persistence across reload ---

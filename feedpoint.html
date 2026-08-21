@@ -92,6 +92,11 @@ html{background:var(--b0)}
 /* Pin the document on iOS: the page itself can never scroll or rubber-band,
    so the shell stays locked while #main scrolls inside it. */
 html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
+/* height wins over inset's bottom:0, so the app box ends at the DYNAMIC
+   viewport bottom — above browser chrome — instead of the physical screen
+   bottom that viewport-fit=cover exposes. This is what puts the footer on
+   screen in Safari; 100% above is the fallback for engines without dvh. */
+@supports(height:100dvh){html,body{height:100dvh}}
 body{background:var(--page);color:var(--c0);font-family:var(--sans);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%}
 button,a,input,select,textarea{touch-action:manipulation}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
@@ -137,14 +142,11 @@ input[type=number]:focus-visible,select:focus-visible,textarea.note:focus-visibl
 /* mobile dock — Macro island chrome */
 /* Full-width footer tab bar; the safe-area inset lives INSIDE the bar so
    its background runs under the iPhone home indicator like a native app. */
-/* The footer is a real grid row of #app, not a fixed overlay: #app fills the
-   pinned body box, so row 3 IS the physical bottom of whatever area the
-   browser grants the page. No fixed-positioning fights with browser chrome. */
+/* The footer is a real grid row of #app, not a fixed overlay. #app fills the
+   pinned body box, which is sized to the dynamic viewport (see 100dvh above),
+   so row 3 lands at the bottom of the VISIBLE area — on screen and tappable
+   even when a browser toolbar is showing. */
 #dock{display:none;position:relative;grid-column:1/-1;background:var(--chrome);border-top:.5px solid var(--edge);padding:6px 8px calc(env(safe-area-inset-bottom,0px) + 6px);justify-content:space-evenly;z-index:24}
-/* Chrome-colored slab below the bar. In the installed app it's offscreen;
-   in Safari it fills the strip behind the browser's minimized bottom bar,
-   so the footer reads as reaching the physical bottom of the screen. */
-#dock::after{content:"";position:absolute;top:100%;left:0;right:0;height:200px;background:var(--chrome)}
 /* In a browser the home-indicator zone is already guarded by the browser's
    own chrome — drop the redundant inset so the buttons sit as low as the
    browser physically allows. The installed app keeps the full inset. */
@@ -157,8 +159,8 @@ html[data-display="browser"] #dock{padding-bottom:6px}
   #topbar{grid-column:1}
   #main{padding:20px 14px 28px}
   .v-head h1{font-size:27px}
-  /* The brand group yields, the buttons never do: the pill truncates with
-     an ellipsis before the share/AA/theme buttons can be pushed off-screen. */
+  /* The pill never shrinks and never truncates (flex:none, nowrap): if the
+     header runs out of room, .brand wraps it onto a second line instead. */
   .brand .verpill{font-size:9.5px;padding:3px 5px;letter-spacing:0;flex:none;white-space:nowrap}
   #hdBtns{margin-left:8px;gap:4px;flex:none}
   .tbtn{width:34px;height:34px;font-size:13px}
@@ -166,7 +168,6 @@ html[data-display="browser"] #dock{padding-bottom:6px}
   .brand{gap:6px 8px;flex:1 1 auto;min-width:0;flex-wrap:wrap}
   .mark{width:28px;height:28px;flex:none}
   .wordmark{font-size:17px;letter-spacing:.04em;flex:none}
-  #topbar{align-items:center}
   /* Canvas behind the body takes the footer chrome color, so any strip a
      browser reserves below the layout viewport reads as part of the bar. */
   html{background:var(--chrome)}
@@ -604,7 +605,7 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
 "use strict";
 const $=id=>document.getElementById(id);
 const FT_M=0.3048;
-const APP_VERSION="v2026.08.20.008";
+const APP_VERSION="v2026.08.20.009";
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 /* ---------- data ---------- */
