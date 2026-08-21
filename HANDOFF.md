@@ -32,6 +32,25 @@ Everything else — markup, CSS, JS — is the owner's verbatim.
 
 ## Release notes
 
+**`v2026.08.20.011` — the dead band below the footer, finally diagnosed:**
+an owner screenshot showed the footer drawn correctly but with a ~85px band
+of page background BELOW it. Cause: iOS exposes several viewport heights,
+and the smallest — the layout viewport, sized as if the browser toolbar
+were showing — is what `position:fixed` and (at some moments)
+`visualViewport.height` resolve to. With the toolbar collapsed the screen is
+taller than that, so the app box ended short and the strip showed through.
+Every prior attempt (.002/.004/.005/.006/.008/.009/.010) moved the footer
+WITHIN that short box, which is why none of them fixed it.
+Fix: `fit()` now takes the LARGEST of `visualViewport.height`,
+`documentElement.clientHeight` and `window.innerHeight`, so the app always
+fills what the user can see; the footer keeps `env(safe-area-inset-bottom)`
+padding in every mode so its buttons stay clear of the home indicator
+(the browser-mode 6px override is gone). It also re-measures at
+DOMContentLoaded, load, rAF and 150/500/1200ms, because a height read during
+launch can be stale and iOS does not always fire a resize afterwards.
+Regression test reproduces the exact condition (visualViewport stubbed to
+report 760 on an 844 screen) and asserts zero gap below the footer.
+
 **`v2026.08.20.010` — measure the viewport instead of guessing at it:**
 `.009` (dvh) still did not satisfy the owner. Rather than a ninth CSS
 assumption about iOS, the app now sizes itself from `window.visualViewport`

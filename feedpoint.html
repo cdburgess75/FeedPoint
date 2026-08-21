@@ -37,11 +37,25 @@ try{
       var ae=document.activeElement;
       if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName))return;
       if(Math.abs(vv.scale-1)>0.01)return;
-      var h=Math.round(vv.height);
+      /* iOS reports several different "viewport" heights, and the smallest
+         of them (the layout viewport, sized as if the browser toolbar were
+         showing) is what position:fixed and often visualViewport resolve to.
+         When the toolbar is collapsed the screen is taller than that, which
+         left a band of dead space under the footer. Take the LARGEST measure
+         so the app always fills what the user can see; the footer keeps its
+         safe-area padding so its buttons stay clear of the home indicator. */
+      var h=Math.round(Math.max(vv.height||0,d.clientHeight||0,window.innerHeight||0));
       if(h>0&&h!==last){last=h;d.style.setProperty("--app-h",h+"px");}
     }catch(e){}
   }
   fit();
+  /* A height read during launch can be stale (iOS settles the viewport after
+     first paint and does not always fire resize), so re-measure a few times. */
+  try{
+    addEventListener("DOMContentLoaded",fit);
+    addEventListener("load",function(){fit();requestAnimationFrame(fit);});
+    [150,500,1200].forEach(function(ms){setTimeout(fit,ms);});
+  }catch(e){}
   try{
     if(window.visualViewport){
       visualViewport.addEventListener("resize",fit);
@@ -179,10 +193,6 @@ input[type=number]:focus-visible,select:focus-visible,textarea.note:focus-visibl
    so row 3 lands at the bottom of the VISIBLE area — on screen and tappable
    even when a browser toolbar is showing. */
 #dock{display:none;position:relative;grid-column:1/-1;background:var(--chrome);border-top:.5px solid var(--edge);padding:6px 8px calc(env(safe-area-inset-bottom,0px) + 6px);justify-content:space-evenly;z-index:24}
-/* In a browser the home-indicator zone is already guarded by the browser's
-   own chrome — drop the redundant inset so the buttons sit as low as the
-   browser physically allows. The installed app keeps the full inset. */
-html[data-display="browser"] #dock{padding-bottom:6px}
 #dock .nav-btn{width:52px;height:52px;border-radius:12px}
 @media(max-width:800px){
   #app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto}
@@ -637,7 +647,7 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
 "use strict";
 const $=id=>document.getElementById(id);
 const FT_M=0.3048;
-const APP_VERSION="v2026.08.20.010";
+const APP_VERSION="v2026.08.20.011";
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 /* ---------- data ---------- */
