@@ -32,6 +32,15 @@ Everything else — markup, CSS, JS — is the owner's verbatim.
 
 ## Release notes
 
+**`v2026.08.20.003` — v14 icons, Circuit lime:** the whole icon set redone
+in the Circuit accent at the owner's request — lime `#C6F135` tile, deep
+navy `#08111F` λ/grid/rule, matching the in-app chip. Applies to desktop
+favicons (16/32/.ico + inline SVG), touch/512 icons (fresh v14 URLs for
+iOS cache-busting), manifest, sw ASSETS, mask-icon tint, mark.svg,
+open-app.svg (lime button, navy chip), and the header `.mark` chip in
+every theme (the Circuit-only chip override is gone — it's the default
+now).
+
 **`v2026.08.20.002` — dock sits lower:** the floating dock stacked 12px on
 top of the home-indicator inset, leaving it hovering ~46px off the bottom
 on iPhones. Now `bottom:max(env(safe-area-inset-bottom),8px)` — it hugs
