@@ -63,10 +63,10 @@ try{
    deep ink from the mark's accents, hi-vis orange. */
 :root[data-theme="light"]{
   color-scheme:light;
-  --a0:#E85D00; --a1:#8A7400; --a2:#3C8A26; --a3:#00806A; --a4:#00789A;
-  --accent-bg:rgba(232,93,0,.1); --accent-hover:rgba(232,93,0,.22);
+  --a0:#C24A00; --a1:#8A7400; --a2:#3C8A26; --a3:#00806A; --a4:#00789A;
+  --accent-bg:rgba(194,74,0,.1); --accent-hover:rgba(194,74,0,.3);
   --b0:#E9F1F4; --b1:#F7FAFB; --b2:#DFEBEF; --b3:#CFE0E6; --b4:#A9C6D0;
-  --c0:#12242C; --c1:#2C4450; --c2:#48606C; --c3:#5F7885; --c4:#7E96A1;
+  --c0:#12242C; --c1:#2C4450; --c2:#48606C; --c3:#546F7D; --c4:#5F7885;
   --failure:#BE3A32; --success:#177A57; --alert:#8F6400;
   --chrome:#EDF4F6;
   --shadow-menu:0 8px 24px -16px rgb(30 60 70/.35),0 2px 8px -6px rgb(30 60 70/.25);
@@ -79,7 +79,7 @@ try{
   --a0:#C6F135; --a1:#3B82F6; --a2:#7BD84A; --a3:#22D3EE; --a4:#2E90FA;
   --accent-bg:rgba(198,241,53,.10); --accent-hover:rgba(198,241,53,.25);
   --b0:#070F1E; --b1:#0C1830; --b2:#13233D; --b3:#1A2E4E; --b4:#28405F;
-  --c0:#F2F7FF; --c1:#CBD8EC; --c2:#A8B9D2; --c3:#8296B4; --c4:#66789A;
+  --c0:#F2F7FF; --c1:#CBD8EC; --c2:#A8B9D2; --c3:#8296B4; --c4:#7C90AE;
   --failure:#FF6B6B; --success:#2FE0A0; --alert:#F5C542;
   --chrome:#101E38;
   --shadow-menu:0 8px 24px -16px rgb(0 10 30/.6),0 2px 8px -6px rgb(0 10 30/.5);
@@ -98,6 +98,7 @@ a{color:var(--a0)}
 :focus-visible{outline:2px solid var(--a0);outline-offset:2px;border-radius:4px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
+input[type=number]:focus-visible,select:focus-visible,textarea.note:focus-visible{outline:2px solid var(--a0);outline-offset:2px}
 /* ================= APP SHELL ================= */
 #app{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);grid-template-rows:auto 1fr;height:100%}
 /* padding-top: keeps the header's buttons below the iPhone status bar /
@@ -154,13 +155,16 @@ html[data-display="browser"] #dock{padding-bottom:6px}
   .v-head h1{font-size:27px}
   /* The brand group yields, the buttons never do: the pill truncates with
      an ellipsis before the share/AA/theme buttons can be pushed off-screen. */
-  .verpill{font-size:9.5px;padding:3px 5px;letter-spacing:.04em;flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .brand .verpill{font-size:9px;padding:3px 5px;letter-spacing:0;flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   #hdBtns{margin-left:8px;gap:4px;flex:none}
   .tbtn{width:34px;height:34px;font-size:13px}
   #topbar{padding:0 12px;padding-top:env(safe-area-inset-top,0px);gap:8px}
   .brand{gap:8px;flex:1 1 auto;min-width:0}
   .mark{width:28px;height:28px;flex:none}
-  .wordmark{font-size:17px;letter-spacing:.06em;flex:none}
+  .wordmark{font-size:17px;letter-spacing:.04em;flex:none}
+  /* Canvas behind the body takes the footer chrome color, so any strip a
+     browser reserves below the layout viewport reads as part of the bar. */
+  html{background:var(--chrome)}
 }
 
 /* labeled sidebar */
@@ -189,7 +193,7 @@ html[data-display="browser"] #dock{padding-bottom:6px}
 /* update banner (FlockOff pattern) */
 #updateBar{display:none;position:fixed;top:calc(env(safe-area-inset-top,0px) + 72px);left:50%;transform:translateX(-50%);z-index:50;align-items:center;gap:14px;background:var(--chrome);border:.5px solid var(--edge);border-left:3px solid var(--a0);border-radius:10px;padding:12px 16px;box-shadow:var(--shadow-menu);font:500 14px/1.4 var(--sans);color:var(--c0);max-width:min(92vw,420px)}
 #updateBar.show{display:flex}
-#updateBar button{background:var(--accent-bg);border:.5px solid rgba(255,134,0,.45);color:var(--a0);font:600 13px/1 var(--sans);padding:10px 14px;border-radius:8px;flex:none}
+#updateBar button{background:var(--accent-bg);border:.5px solid var(--accent-hover);color:var(--a0);font:600 13px/1 var(--sans);padding:10px 14px;border-radius:8px;flex:none}
 #updateBar button:hover{background:var(--accent-hover)}
 #updateBar button:disabled{opacity:.6;cursor:default}
 /* toasts */
@@ -233,7 +237,7 @@ select:focus{border-color:var(--a0);outline:none}
 /* print: cut sheets (printing always renders the build log) */
 @media print{
   html,body{position:static!important;background:#fff!important;color:#000!important;overflow:visible!important;height:auto!important}
-  #topbar,#rail,#dock,#toasts,#wireFix{display:none!important}
+  #topbar,#rail,#dock,#toasts,#wireFix,#updateBar{display:none!important}
   #app{display:block!important;height:auto!important}
   #main{overflow:visible!important;padding:0!important}
   .view{display:none!important}
@@ -286,7 +290,7 @@ input[type=number]:focus{border-color:var(--a0);outline:none}
 /* results cards */
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:11px;margin-top:14px}
 .card{background:var(--b1);border:.5px solid var(--edge);border-radius:14px;padding:16px 17px;position:relative}
-.card.feature{border-color:rgba(255,134,0,.5);background:linear-gradient(180deg,rgba(255,134,0,.06),var(--b1) 55%)}
+.card.feature{border-color:var(--accent-hover);background:linear-gradient(180deg,var(--accent-bg),var(--b1) 55%)}
 .card h3{font:600 12px/1.45 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--c3);padding-right:28px}
 .card.feature h3{color:var(--a0)}
 .card .ic{position:absolute;top:14px;right:14px;width:18px;height:18px}
@@ -323,10 +327,11 @@ td{padding:8px 10px;border-bottom:.5px solid var(--edge-muted);color:var(--c1)}
 tr:last-child td{border-bottom:0}
 td.mut{color:var(--c3)}
 tr.hl td{color:var(--a0)}
+.chips[hidden]{display:none!important}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .chips button{background:var(--b1);border:.5px solid var(--edge);border-radius:999px;font:600 13px/1 var(--mono);color:var(--c1);padding:11px 15px;transition:border-color .1s,color .1s}
 .chips button:hover{border-color:var(--a0);color:var(--a0)}
-.btn{display:inline-block;margin-top:16px;background:var(--accent-bg);border:.5px solid rgba(255,134,0,.45);color:var(--a0);font:600 15px/1 var(--sans);padding:13px 18px;border-radius:10px;transition:background .12s}
+.btn{display:inline-block;margin-top:16px;background:var(--accent-bg);border:.5px solid var(--accent-hover);color:var(--a0);font:600 15px/1 var(--sans);padding:13px 18px;border-radius:10px;transition:background .12s}
 .btn:hover{background:var(--accent-hover)}
 .btn.flash{background:var(--a0);color:#050403}
 .li .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
@@ -740,7 +745,7 @@ window.addEventListener("hashchange",()=>{
   if(VIEWS.some(v=>v.id===id))go(id,false);
 });
 document.addEventListener("keydown",e=>{
-  if(e.target.tagName==="INPUT"||e.metaKey||e.ctrlKey||e.altKey)return;
+  if(/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)||e.metaKey||e.ctrlKey||e.altKey)return;
   const n=parseInt(e.key,10);
   if(n>=1&&n<=VIEWS.length)go(VIEWS[n-1].id);
 });
@@ -770,7 +775,7 @@ function card(cls,ic,title,valFt,note,extra){
   return `<div class="card ${cls}"><svg class="ic" viewBox="0 0 16 16">${CARD_ICONS[ic]}</svg><h3>${title}</h3><div class="big">${fmt(valFt)}</div><div class="note">${note}</div>${extra||""}</div>`;
 }
 function calc(){
-  const f=parseFloat($("freq").value),k=parseFloat($("kf").value)||0.95,adj=k/0.95;
+  const f=parseFloat($("freq").value),k=kVal(),adj=k/0.95;
   const R=$("results");
   if(!f||f<1||f>60){R.innerHTML='<div class="card"><h3>Enter a frequency</h3><div class="note">Between 1 and 60 MHz.</div></div>';return;}
   const half=468/f*adj;
@@ -820,6 +825,7 @@ function markBand(){
   });
 }
 
+function kVal(){const k=parseFloat($("kf").value);return (k>=0.5&&k<=1.1)?k:0.95;}
 /* ---------- wire check ---------- */
 /* Verdicts are computed across the whole band span (lo–hi), not just band
    center: the worst-case distance (in half-wave multiples) from the length's
@@ -829,11 +835,14 @@ function wireBands(){return BANDS.filter(b=>b.n!=="6m");}
 function distToInt(a,b,n){return n<a?a-n:(n>b?n-b:0);}
 function bandOffset(ft,b){
   const mLo=ft*b.lo/468,mHi=ft*b.hi/468;
-  const c1=Math.round(mLo),c2=Math.round(mHi);
-  let n=c1,off=distToInt(mLo,mHi,c1);
-  const o2=distToInt(mLo,mHi,c2);
-  if(o2<off){n=c2;off=o2;}
-  return {n,off};
+  /* Any integer inside [mLo,mHi] is an in-band resonance — off 0. A wide
+     band on a long wire can span a whole multiple, so rounding only the
+     endpoints (the old code) could report a spike-free length that wasn't. */
+  const nIn=Math.ceil(mLo);
+  if(nIn<=Math.floor(mHi))return {n:nIn,off:0};
+  const nLo=Math.floor(mLo),nHi=Math.ceil(mHi);
+  const dLo=mLo-nLo,dHi=nHi-mHi;
+  return dLo<=dHi?{n:nLo,off:dLo}:{n:nHi,off:dHi};
 }
 /* "Spike-free" = no AVOID on any band. Demanding no-MARGINAL-anywhere is
    unsatisfiable past ~13 ft once band edges are honored, so the suggestion
@@ -868,7 +877,7 @@ function checkWire(){
     FX.innerHTML="";
     const b=document.createElement("button");b.type="button";
     b.textContent="Nearest spike-free length: "+(wireMetric?(sug*FT_M).toFixed(1)+" m":sug+" ft");
-    b.addEventListener("click",()=>{$("wire").value=wireMetric?(sug*FT_M).toFixed(1):sug;checkWire();saveSettings();});
+    b.addEventListener("click",()=>{$("wire").value=wireMetric?(sug*FT_M).toFixed(2):sug;checkWire();saveSettings();});
     FX.appendChild(b);
   }
 }
@@ -891,7 +900,7 @@ function recommendLens(sel){
   }
   if(start!==null)wins.push([start,500]);
   return wins.filter(w=>w[1]-w[0]>=1)
-    .map(([a,b])=>({mid:Math.round(a+b)/2,a,b,width:b-a}))
+    .map(([a,b])=>{const mid=Math.round(a+b)/2;return {mid,a,b,width:b-a,spread:Math.min(mid-a,b-mid)};})
     .slice(0,8);
 }
 function renderBandPick(){
@@ -923,11 +932,11 @@ function renderRecs(){
   recs.forEach(r=>{
     const btn=document.createElement("button");btn.type="button";
     const disp=wireMetric?(r.mid*FT_M).toFixed(1)+" m":r.mid+" ft";
-    const spread=wireMetric?((r.width/2)*FT_M).toFixed(1)+" m":(r.width/2)+" ft";
+    const spread=wireMetric?(r.spread*FT_M).toFixed(1)+" m":r.spread+" ft";
     btn.innerHTML="<b>"+disp+"</b><small>±"+spread+"</small>";
     btn.title="Safe from "+(wireMetric?(r.a*FT_M).toFixed(1)+" to "+(r.b*FT_M).toFixed(1)+" m":r.a+" to "+r.b+" ft")+" on "+sel.map(b=>b.n).join(", ");
     btn.addEventListener("click",()=>{
-      $("wire").value=wireMetric?(r.mid*FT_M).toFixed(1):r.mid;
+      $("wire").value=wireMetric?(r.mid*FT_M).toFixed(2):r.mid;
       checkWire();saveSettings();
     });
     R.appendChild(btn);
@@ -936,11 +945,11 @@ function renderRecs(){
 
 function renderChips(){
   const C=$("goodLens");C.innerHTML="";
-  GOOD_LENS.forEach(l=>{
+  GOOD_LENS.filter(l=>!hasAvoid(l)).forEach(l=>{
     const b=document.createElement("button");b.type="button";
     b.textContent=wireMetric?(l*FT_M).toFixed(1)+" m":l+" ft";
     b.addEventListener("click",()=>{
-      $("wire").value=wireMetric?(l*FT_M).toFixed(1):l;
+      $("wire").value=wireMetric?(l*FT_M).toFixed(2):l;
       checkWire();saveSettings();
     });
     C.appendChild(b);
@@ -1012,6 +1021,7 @@ const DB=(()=>{
       const t=db.transaction("kv","readwrite");
       t.objectStore("kv").put(val,key);
       t.oncomplete=()=>res();
+      t.onabort=()=>rej(t.error||new Error("aborted"));
       t.onerror=()=>rej(t.error);
     });
   }
@@ -1088,14 +1098,14 @@ function loadEntry(id){
   const e=LOG.find(x=>x.ts===id);
   if(!e)return;
   if(e.kind==="cut"){
-    const f=typeof e.f==="number"?e.f:parseFloat((e.title.match(/([\d.]+) MHz/)||[])[1]);
-    const k=typeof e.k==="number"?e.k:parseFloat((e.title.match(/K ([\d.]+)/)||[])[1]);
+    const f=typeof e.f==="number"?e.f:parseFloat(((e.title||"").match(/([\d.]+) MHz/)||[])[1]);
+    const k=typeof e.k==="number"?e.k:parseFloat(((e.title||"").match(/K ([\d.]+)/)||[])[1]);
     if(!f)return toast("Entry has no frequency to load",{kind:"err"});
     $("freq").value=f.toFixed(3);
     if(k)$("kf").value=k.toFixed(2);
     markKChips();markBand();calc();saveSettings();go("calc");
   }else{
-    const ft=typeof e.ft==="number"?e.ft:parseFloat((e.title.match(/([\d.]+) ft/)||[])[1]);
+    const ft=typeof e.ft==="number"?e.ft:parseFloat(((e.title||"").match(/([\d.]+) ft/)||[])[1]);
     if(!ft)return toast("Entry has no length to load",{kind:"err"});
     $("wire").value=wireMetric?(ft*FT_M).toFixed(1):ft.toFixed(1);
     checkWire();saveSettings();go("wire");
@@ -1130,7 +1140,7 @@ async function persistLog(btn){
   }
 }
 function saveCut(){
-  const f=parseFloat($("freq").value),k=parseFloat($("kf").value)||0.95;
+  const f=parseFloat($("freq").value),k=kVal();
   if(!f||f<1||f>60)return;
   const adj=k/0.95,half=468/f*adj;
   const band=BANDS.find(b=>f>=b.lo-0.05&&f<=b.hi+0.05);
@@ -1161,7 +1171,7 @@ function saveWire(){
 /* ---------- backup & restore ---------- */
 function exportBackup(){
   const data=JSON.stringify({app:"feedpoint",version:1,build:APP_VERSION,exported:new Date().toISOString(),
-    settings:{metric,wireMetric,region,theme,uiscale,freq:$("freq").value,kf:$("kf").value,wire:$("wire").value},log:LOG},null,2);
+    settings:{metric,wireMetric,region,theme,uiscale,freq:$("freq").value,kf:$("kf").value,wire:$("wire").value,wireSel:[...wireSel]},log:LOG},null,2);
   const blob=new Blob([data],{type:"application/json"});
   const a=document.createElement("a");
   a.href=URL.createObjectURL(blob);
@@ -1177,7 +1187,7 @@ function importBackup(file){
       const d=JSON.parse(r.result);
       const appName=String(d.app||"").toLowerCase();
       if((appName!=="feedpoint"&&appName!=="halfwave")||!Array.isArray(d.log))throw new Error("wrong shape");
-      LOG=d.log.filter(e=>e&&typeof e.ts==="number"&&Array.isArray(e.items));
+      LOG=d.log.filter(e=>e&&typeof e.ts==="number"&&isFinite(e.ts)&&Array.isArray(e.items)&&e.items.every(it=>Array.isArray(it)&&it.every(x=>typeof x==="string"||typeof x==="number")));
       await safeSet("log",LOG);
       if(d.settings){
         metric=!!d.settings.metric;wireMetric=!!d.settings.wireMetric;
@@ -1232,7 +1242,8 @@ $("impFile").addEventListener("change",e=>{if(e.target.files[0])importBackup(e.t
   setTextSize((s&&(s.uiscale===2||s.uiscale===3))?s.uiscale:(parseInt(document.documentElement.getAttribute("data-uiscale"),10)||1),false);
   if(s&&Array.isArray(s.wireSel))wireSel=new Set(s.wireSel.filter(n=>typeof n==="string"));
   applyUnitButtons();markKChips();
-  renderBands();buildNotes();calc();markBand();checkWire();renderBandPick();logRender();noteStorage();renderCoil();
+  renderBands();buildNotes();calc();markBand();checkWire();renderBandPick();noteStorage();renderCoil();
+  try{logRender();}catch(e){LOG=[];logRender();toast("Stored log was unreadable — starting a fresh log. Restore a backup if you have one.",{kind:"err"});}
   go(VIEWS.some(v=>v.id===location.hash.slice(1))?location.hash.slice(1):"calc",false);
 })();
 

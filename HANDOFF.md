@@ -32,6 +32,36 @@ Everything else — markup, CSS, JS — is the owner's verbatim.
 
 ## Release notes
 
+**`v2026.08.20.007` — v15 icons + full audit:** icons redone per the owner
+(solid `#C6F135` tile, navy λ only — no grid/frame/rule) across favicons,
+touch/512 v15 URLs, mark.svg, open-app.svg, and the header chip. Then a
+two-reviewer audit; every confirmed finding fixed:
+- **bandOffset false-CLEAR (serious):** only the band endpoints were
+  rounded, so a multiple lying strictly inside a wide band was missed —
+  423 ft was called CLEAR on 10 m while sitting exactly on the 26th
+  half-wave in-band. Now any integer inside [mLo,mHi] → off 0. The proven-
+  lengths chips are filtered through the corrected math (41/58/107 ft
+  survive across 160–10 m).
+- **Import soft-brick:** malformed backup items crashed logRender at boot;
+  items are validated element-wise and boot's logRender is guarded (bad
+  stored log → fresh log + honest toast).
+- Keyboard view shortcuts no longer fire from TEXTAREA/SELECT; export now
+  round-trips wireSel; K factor clamped to 0.5–1.1; recommendation ±range
+  clamped to the true window; metric chip/suggestion values set with 2
+  decimals so a spike-free pick stays spike-free; DB.set settles on
+  transaction abort; loadEntry survives titleless entries; stale
+  "nearest spike-free" chip actually hides ([hidden] beat by .chips rule);
+  #updateBar hidden in print; visible focus on inputs/selects/textareas;
+  hardcoded Macro-orange borders (btn/updateBar/feature card) now
+  theme-accent; Daylight accent + muted text and Circuit --c4 darkened/
+  lightened for AA contrast; mobile verpill override finally applies
+  (base rule later in source was winning — now .brand .verpill) so the
+  full version string fits on phones.
+Known-not-fixed (documented): AA text-size doesn't scale header/dock
+chrome; uiscale 3 on ≤320px can pan horizontally (cards min 265px);
+Daylight band/card icon strokes are dark-theme hues; sub-44px targets on
+header buttons and log delete.
+
 **`v2026.08.20.006` — footer knows where it's running:** the pre-paint
 script now stamps `data-display="standalone"|"browser"` (from
 `navigator.standalone` / `display-mode: standalone`). In a browser the

@@ -213,7 +213,9 @@ check('main pane: no bounce, own layer', mainLayer.over === 'none' && mainLayer.
 
 // --- long proven lengths + wide suggestion search ---
 const chipTexts = await page.$$eval('#goodLens button', els => els.map(e => e.textContent));
-check('chips extend past 119 ft', chipTexts.length === 12 && chipTexts.includes('203 ft') && chipTexts.at(-1) === '423 ft', JSON.stringify(chipTexts.slice(-4)));
+check('proven-length chips are all genuinely spike-free', JSON.stringify(chipTexts) === JSON.stringify(['41 ft','58 ft','107 ft']), JSON.stringify(chipTexts));
+const noFalseClear = await page.evaluate(() => bandOffset(423, wireBands().find(b => b.n === '10m')).off === 0);
+check('423 ft correctly flagged resonant in the 10m span (old false-CLEAR)', noFalseClear);
 await page.fill('#wire', '150');
 await page.waitForTimeout(250);
 const longFix = await page.evaluate(() => ({
@@ -266,15 +268,15 @@ check('suggestion hides once clear', fixHidden);
 await page.fill('#wire', '71');
 await page.waitForTimeout(150);
 let chip0 = await page.$eval('#goodLens button', e => e.textContent);
-check('chips imperial', chip0 === '25.5 ft', chip0);
+check('chips imperial', chip0 === '41 ft', chip0);
 await page.click('#wM');
 await page.waitForTimeout(150);
 chip0 = await page.$eval('#goodLens button', e => e.textContent);
-check('chips metric', chip0 === '7.8 m', chip0);
+check('chips metric', chip0 === '12.5 m', chip0);
 await page.click('#goodLens button');
 await page.waitForTimeout(150);
 const wireVal = await page.$eval('#wire', e => e.value);
-check('metric chip sets metric value', wireVal === '7.8', wireVal);
+check('metric chip sets metric value', wireVal === '12.50', wireVal);
 await page.click('#wFt');
 await page.waitForTimeout(150);
 
