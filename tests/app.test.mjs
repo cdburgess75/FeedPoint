@@ -4,7 +4,7 @@ import { chromium } from 'playwright';
 import { readFileSync } from 'fs';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.08.20.009';
+const VERSION = 'v2026.08.20.010';
 const SRC = readFileSync(new URL('../feedpoint.html', import.meta.url), 'utf8');
 const errors = [];
 let failed = 0;
@@ -454,6 +454,39 @@ check('browser mode drops the home-indicator inset (6px pad)',
   JSON.stringify(displayMode));
 check('app box is sized to the dynamic viewport, not the physical screen',
   SRC.includes('height:100dvh'));
+const vvFit = await page.evaluate(() => {
+  const d = document.getElementById('dock').getBoundingClientRect();
+  return { appH: document.documentElement.style.getPropertyValue('--app-h'),
+           vv: Math.round(visualViewport.height), dockBottom: Math.round(d.bottom) };
+});
+check('app height is measured from visualViewport, footer lands on its bottom edge',
+  vvFit.appH === vvFit.vv + 'px' && vvFit.dockBottom === vvFit.vv, JSON.stringify(vvFit));
+const vvBefore = await page.evaluate(() => document.documentElement.style.getPropertyValue('--app-h'));
+await page.setViewportSize({ width: 400, height: 860 });
+await page.waitForTimeout(350);
+const vvAfter = await page.evaluate(() => {
+  const d = document.getElementById('dock').getBoundingClientRect();
+  return { appH: document.documentElement.style.getPropertyValue('--app-h'),
+           vv: Math.round(visualViewport.height), dockBottom: Math.round(d.bottom) };
+});
+check('app re-measures when the visible area changes (toolbar retract/rotate)',
+  vvAfter.appH !== vvBefore && vvAfter.appH === vvAfter.vv + 'px' && vvAfter.dockBottom === vvAfter.vv,
+  JSON.stringify({ vvBefore, vvAfter }));
+await page.setViewportSize({ width: 400, height: 800 });
+await page.waitForTimeout(350);
+const diagOpen = await page.evaluate(async () => {
+  location.hash = '#debug';
+  await new Promise(r => setTimeout(r, 250));
+  const b = document.getElementById('diagBox');
+  const txt = b ? b.textContent : '';
+  if (b) b.click();
+  await new Promise(r => setTimeout(r, 100));
+  location.hash = '';
+  return { had: !!b, closed: !document.getElementById('diagBox'),
+           hasVV: txt.includes('visualViewport'), hasFooter: txt.includes('footer vs visualVP') };
+});
+check('#debug diagnostics panel opens, reports viewport truth, and closes',
+  diagOpen.had && diagOpen.closed && diagOpen.hasVV && diagOpen.hasFooter, JSON.stringify(diagOpen));
 const dvhBox = await page.evaluate(() => ({
   bodyH: Math.round(document.body.getBoundingClientRect().height), vh: innerHeight
 }));

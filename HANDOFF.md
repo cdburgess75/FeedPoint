@@ -32,6 +32,25 @@ Everything else — markup, CSS, JS — is the owner's verbatim.
 
 ## Release notes
 
+**`v2026.08.20.010` — measure the viewport instead of guessing at it:**
+`.009` (dvh) still did not satisfy the owner. Rather than a ninth CSS
+assumption about iOS, the app now sizes itself from `window.visualViewport`
+— the browser's own report of the area the user can actually see, which
+excludes browser toolbars. A pre-paint script sets `--app-h` from
+`visualViewport.height` and re-measures on its `resize`/`scroll`,
+`orientationchange` and `pageshow`; `html,body{height:var(--app-h,100dvh)}`
+with `100%` beneath. Skipped while a field is focused (the keyboard shrinks
+the visual viewport) and while pinch-zoomed (`scale != 1`), where the
+reading is not a layout size.
+**New: `#debug` diagnostics.** Opening the app with `#debug` (or `?debug`)
+overlays what the DEVICE measures: mode, innerHeight, visualViewport
+h/w/offset/scale, `--app-h`, dvh support, safe-area insets, footer
+top→bottom, and the two deltas that matter — `footer vs innerH` and
+`footer vs visualVP`. **`footer vs visualVP` should read 0.** Tap to close;
+also opens on hashchange in an already-loaded app. This exists because the
+headless suite cannot see browser chrome — it is how a device report gets
+settled in one screenshot instead of another guess.
+
 **`v2026.08.20.009` — the footer fix that actually addresses the cause:**
 review of .008 surfaced that converting the dock to an in-flow row did NOT
 move it. `html,body{position:fixed;inset:0}` resolves against the initial
