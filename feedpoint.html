@@ -87,6 +87,7 @@ try{
 html[data-uiscale="2"] #main{zoom:1.18}
 html[data-uiscale="3"] #main{zoom:1.36}
 *{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 html{background:var(--b0)}
 /* Pin the document on iOS: the page itself can never scroll or rubber-band,
    so the shell stays locked while #main scrolls inside it. */
@@ -136,7 +137,10 @@ input[type=number]:focus-visible,select:focus-visible,textarea.note:focus-visibl
 /* mobile dock — Macro island chrome */
 /* Full-width footer tab bar; the safe-area inset lives INSIDE the bar so
    its background runs under the iPhone home indicator like a native app. */
-#dock{display:none;position:fixed;left:0;right:0;bottom:0;background:var(--chrome);border-top:.5px solid var(--edge);padding:6px 8px calc(env(safe-area-inset-bottom,0px) + 6px);justify-content:space-evenly;z-index:24;backdrop-filter:blur(12px)}
+/* The footer is a real grid row of #app, not a fixed overlay: #app fills the
+   pinned body box, so row 3 IS the physical bottom of whatever area the
+   browser grants the page. No fixed-positioning fights with browser chrome. */
+#dock{display:none;position:relative;grid-column:1/-1;background:var(--chrome);border-top:.5px solid var(--edge);padding:6px 8px calc(env(safe-area-inset-bottom,0px) + 6px);justify-content:space-evenly;z-index:24}
 /* Chrome-colored slab below the bar. In the installed app it's offscreen;
    in Safari it fills the strip behind the browser's minimized bottom bar,
    so the footer reads as reaching the physical bottom of the screen. */
@@ -147,21 +151,22 @@ input[type=number]:focus-visible,select:focus-visible,textarea.note:focus-visibl
 html[data-display="browser"] #dock{padding-bottom:6px}
 #dock .nav-btn{width:52px;height:52px;border-radius:12px}
 @media(max-width:800px){
-  #app{grid-template-columns:minmax(0,1fr)}
+  #app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto}
   #rail{display:none}
   #dock{display:flex}
   #topbar{grid-column:1}
-  #main{padding:20px 14px 130px}
+  #main{padding:20px 14px 28px}
   .v-head h1{font-size:27px}
   /* The brand group yields, the buttons never do: the pill truncates with
      an ellipsis before the share/AA/theme buttons can be pushed off-screen. */
-  .brand .verpill{font-size:9px;padding:3px 5px;letter-spacing:0;flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .brand .verpill{font-size:9.5px;padding:3px 5px;letter-spacing:0;flex:none;white-space:nowrap}
   #hdBtns{margin-left:8px;gap:4px;flex:none}
   .tbtn{width:34px;height:34px;font-size:13px}
   #topbar{padding:0 12px;padding-top:env(safe-area-inset-top,0px);gap:8px}
-  .brand{gap:8px;flex:1 1 auto;min-width:0}
+  .brand{gap:6px 8px;flex:1 1 auto;min-width:0;flex-wrap:wrap}
   .mark{width:28px;height:28px;flex:none}
   .wordmark{font-size:17px;letter-spacing:.04em;flex:none}
+  #topbar{align-items:center}
   /* Canvas behind the body takes the footer chrome color, so any strip a
      browser reserves below the layout viewport reads as part of the bar. */
   html{background:var(--chrome)}
@@ -204,7 +209,7 @@ html[data-display="browser"] #dock{padding-bottom:6px}
 .toast .t-act{font:600 12.5px/1 var(--mono);letter-spacing:.08em;color:var(--a0);padding:6px 8px;border-radius:6px;flex:none}
 .toast .t-act:hover{background:var(--accent-bg)}
 @keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-@media(max-width:800px){#toasts{left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 74px)}.toast{max-width:none}}
+@media(max-width:800px){#toasts{left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 78px)}.toast{max-width:none}}
 
 /* section row with inline control */
 .sec-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:26px 2px 10px}
@@ -599,7 +604,7 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
 "use strict";
 const $=id=>document.getElementById(id);
 const FT_M=0.3048;
-const APP_VERSION="v2026.08.20.007";
+const APP_VERSION="v2026.08.20.008";
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 /* ---------- data ---------- */

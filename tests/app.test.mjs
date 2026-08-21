@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.08.20.007';
+const VERSION = 'v2026.08.20.008';
 const errors = [];
 let failed = 0;
 const check = (name, cond, extra = '') => {
@@ -412,28 +412,28 @@ const dockFooter = await page.evaluate(() => {
   const d = document.getElementById('dock');
   const s = getComputedStyle(d);
   const r = d.getBoundingClientRect();
-  return { bottom: s.bottom, left: Math.round(r.left), right: Math.round(r.right),
-           vw: innerWidth, borderTop: s.borderTopWidth !== '0px', radius: s.borderRadius };
+  const main = document.getElementById('main').getBoundingClientRect();
+  return { bottom: Math.round(r.bottom), vh: innerHeight, left: Math.round(r.left),
+           right: Math.round(r.right), vw: innerWidth, borderTop: s.borderTopWidth !== '0px',
+           position: s.position, mainBottom: Math.round(main.bottom), top: Math.round(r.top) };
 });
-check('dock is a full-width footer flush to the bottom',
-  dockFooter.bottom === '0px' && dockFooter.left === 0 && dockFooter.right === dockFooter.vw && dockFooter.borderTop,
+check('footer is an in-flow grid row reaching the true bottom',
+  dockFooter.position !== 'fixed' && dockFooter.bottom === dockFooter.vh &&
+  dockFooter.left === 0 && dockFooter.right === dockFooter.vw && dockFooter.borderTop,
   JSON.stringify(dockFooter));
-const dockSlab = await page.evaluate(() => {
-  const d = document.getElementById('dock');
-  const s = getComputedStyle(d, '::after');
-  return { h: s.height, bg: s.backgroundColor, top: parseFloat(s.top),
-           dockH: d.getBoundingClientRect().height, dockBg: getComputedStyle(d).backgroundColor };
+check('content ends exactly where the footer begins (no gap, no overlap)',
+  dockFooter.mainBottom === dockFooter.top, JSON.stringify(dockFooter));
+const pillFits = await page.evaluate(() => {
+  const p = document.querySelector('.verpill');
+  const r = p.getBoundingClientRect();
+  return { full: r.width >= p.scrollWidth - 0.5, text: p.textContent,
+           right: Math.round(r.right), vw: innerWidth };
 });
-check('under-bar slab paints past the bottom (Safari chrome strip)',
-  dockSlab.h === '200px' && Math.abs(dockSlab.top - dockSlab.dockH) <= 1.5 && dockSlab.bg === dockSlab.dockBg,
-  JSON.stringify(dockSlab));
-const displayMode = await page.evaluate(() => ({
-  attr: document.documentElement.getAttribute('data-display'),
-  padBottom: getComputedStyle(document.getElementById('dock')).paddingBottom
-}));
-check('browser mode drops the home-indicator inset (6px pad)',
-  displayMode.attr === 'browser' && displayMode.padBottom === '6px',
-  JSON.stringify(displayMode));
+check('full version string visible on mobile, never truncated',
+  pillFits.full && /^v\d{4}\.\d{2}\.\d{2}\.\d{3}$/.test(pillFits.text) && pillFits.right <= pillFits.vw,
+  JSON.stringify(pillFits));
+const noAdjust = await page.evaluate(() => getComputedStyle(document.documentElement).webkitTextSizeAdjust);
+check('iOS text inflation disabled', noAdjust === '100%', noAdjust);
 const pillMobile = await page.$eval('.verpill', e => {
   const r = e.getBoundingClientRect();
   return getComputedStyle(e).display !== 'none' && r.width > 0

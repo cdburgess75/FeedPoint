@@ -32,6 +32,21 @@ Everything else — markup, CSS, JS — is the owner's verbatim.
 
 ## Release notes
 
+**`v2026.08.20.008` — footer is a real footer; header stops overflowing:**
+the root cause of both complaints. The dock was a `position:fixed` overlay,
+which on iOS argues with browser chrome and the home indicator no matter
+how it is padded — five releases of padding tweaks never fixed it. It is
+now an **in-flow grid row** of `#app` (`grid-template-rows:auto minmax(0,1fr)
+auto`, `#dock{position:relative}`): since `html,body` are pinned to
+`inset:0`, row 3 IS the physical bottom of whatever area the browser grants
+the page. `#main` bottom padding drops 130px→28px (nothing to clear now).
+Header: `-webkit-text-size-adjust:100%` stops iOS inflating small text (a
+silent cause of on-device overflow that desktop testing cannot reproduce),
+and the version pill is `flex:none` with `.brand{flex-wrap:wrap}` — the
+full build string is now guaranteed readable at every width, wrapping to a
+second line rather than ever truncating. Verified 320–430px with simulated
+59px/34px safe-area insets.
+
 **`v2026.08.20.007` — v15 icons + full audit:** icons redone per the owner
 (solid `#C6F135` tile, navy λ only — no grid/frame/rule) across favicons,
 touch/512 v15 URLs, mark.svg, open-app.svg, and the header chip. Then a
