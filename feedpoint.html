@@ -26,6 +26,33 @@ try{
   var __sa=(navigator.standalone===true)||(window.matchMedia&&matchMedia("(display-mode: standalone)").matches);
   document.documentElement.setAttribute("data-display",__sa?"standalone":"browser");
 }catch(e){document.documentElement.setAttribute("data-display","browser");}
+/* Size the app to the VISIBLE area, measured rather than assumed. Skipped
+   while a field is focused (the keyboard shrinks the visual viewport) and
+   while pinch-zoomed (scale != 1), where the reading is not a layout size. */
+(function(){
+  var d=document.documentElement,last=0;
+  function fit(){
+    try{
+      var vv=window.visualViewport;if(!vv)return;
+      var ae=document.activeElement;
+      if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName))return;
+      if(Math.abs(vv.scale-1)>0.01)return;
+      var h=Math.round(vv.height);
+      if(h>0&&h!==last){last=h;d.style.setProperty("--app-h",h+"px");}
+    }catch(e){}
+  }
+  fit();
+  try{
+    if(window.visualViewport){
+      visualViewport.addEventListener("resize",fit);
+      visualViewport.addEventListener("scroll",fit);
+    }
+    addEventListener("resize",fit);
+    addEventListener("orientationchange",function(){setTimeout(fit,300);});
+    addEventListener("pageshow",fit);
+  }catch(e){}
+  window.__fitViewport=fit;
+})();
 </script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2040%2040%27%3E%3Crect%20width%3D%2740%27%20height%3D%2740%27%20rx%3D%279%27%20fill%3D%27%23C6F135%27%2F%3E%3Cpath%20d%3D%27M24.79%2019.66L25.34%2019.98Q25.11%2021.50%2024.42%2022.64Q23.73%2023.78%2022.53%2023.78Q21.50%2023.78%2021.50%2021.73L21.50%2016.90L21.45%2016.90L17.24%2023.48L13.86%2023.48L21.50%2012.07Q21.43%209.77%2020.46%209.77Q19.22%209.77%2018.65%2011.33L18.09%2011.06Q18.25%2010.32%2018.53%209.60Q18.81%208.87%2019.46%208.15Q20.12%207.42%2020.95%207.42Q21.73%207.42%2021.99%208.47Q22.26%209.52%2022.28%2011.56L22.35%2019.84Q22.35%2021.38%2023.25%2021.38Q23.82%2021.38%2024.26%2020.84Q24.69%2020.30%2024.79%2019.66%27%20fill%3D%27%2308111F%27%20transform%3D%27translate%2820%2020%29%20scale%281.55%29%20translate%28-19.6%20-15.6%29%27%2F%3E%3C%2Fsvg%3E">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -97,6 +124,11 @@ html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;overscro
    bottom that viewport-fit=cover exposes. This is what puts the footer on
    screen in Safari; 100% above is the fallback for engines without dvh. */
 @supports(height:100dvh){html,body{height:100dvh}}
+/* --app-h is set from window.visualViewport, the browser's own report of the
+   area the user can actually see (it excludes browser toolbars). CSS viewport
+   units guess at that; visualViewport measures it. Falls back to dvh/100%. */
+html,body{height:var(--app-h,100%)}
+@supports(height:100dvh){html,body{height:var(--app-h,100dvh)}}
 body{background:var(--page);color:var(--c0);font-family:var(--sans);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%}
 button,a,input,select,textarea{touch-action:manipulation}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
@@ -605,7 +637,7 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
 "use strict";
 const $=id=>document.getElementById(id);
 const FT_M=0.3048;
-const APP_VERSION="v2026.08.20.009";
+const APP_VERSION="v2026.08.20.010";
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 /* ---------- data ---------- */
@@ -748,6 +780,7 @@ function go(id,push=true){
 }
 window.addEventListener("hashchange",()=>{
   const id=location.hash.slice(1);
+  if(id==="debug"&&!$("diagBox")){showDiag();return;}
   if(VIEWS.some(v=>v.id===id))go(id,false);
 });
 document.addEventListener("keydown",e=>{
@@ -1230,6 +1263,39 @@ $("expBtn").addEventListener("click",exportBackup);
 $("impBtn").addEventListener("click",()=>$("impFile").click());
 $("impFile").addEventListener("change",e=>{if(e.target.files[0])importBackup(e.target.files[0]);e.target.value="";});
 
+/* ---------- layout diagnostics (open the app with #debug) ----------
+   Reports what the DEVICE actually measures, so a footer/header report can be
+   settled with one screenshot instead of another guess. Zero cost otherwise. */
+function showDiag(){
+  const probe=document.createElement("div");
+  probe.style.cssText="position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)";
+  document.body.appendChild(probe);
+  const ps=getComputedStyle(probe),insT=ps.paddingTop,insB=ps.paddingBottom;
+  probe.remove();
+  const vv=window.visualViewport,d=$("dock").getBoundingClientRect();
+  const rows=[
+    ["mode",document.documentElement.getAttribute("data-display")],
+    ["build",APP_VERSION],
+    ["innerHeight",innerHeight+" × "+innerWidth],
+    ["visualViewport",vv?Math.round(vv.height)+" × "+Math.round(vv.width)+"  off "+Math.round(vv.offsetTop)+"  scale "+vv.scale.toFixed(2):"unsupported"],
+    ["--app-h",document.documentElement.style.getPropertyValue("--app-h")||"(unset)"],
+    ["dvh support",(window.CSS&&CSS.supports&&CSS.supports("height","100dvh"))?"yes":"no"],
+    ["safe-area t/b",insT+" / "+insB],
+    ["footer top→bottom",Math.round(d.top)+" → "+Math.round(d.bottom)],
+    ["footer vs innerH",(Math.round(d.bottom)-innerHeight)+" px"],
+    ["footer vs visualVP",vv?(Math.round(d.bottom)-Math.round(vv.height))+" px":"n/a"],
+    ["body height",Math.round(document.body.getBoundingClientRect().height)]
+  ];
+  const box=document.createElement("div");
+  box.id="diagBox";
+  box.style.cssText="position:fixed;left:8px;right:8px;top:8px;z-index:99;background:#000;color:#0f0;font:600 11px/1.5 ui-monospace,Menlo,monospace;padding:10px 12px;border:1px solid #0f0;border-radius:8px;white-space:pre;overflow:auto;max-height:70vh";
+  box.textContent="FEEDPOINT LAYOUT DIAGNOSTICS\n(tap to close)\n\n"+
+    rows.map(r=>String(r[0]).padEnd(20)+r[1]).join("\n")+
+    "\n\nWANTED: 'footer vs visualVP' = 0";
+  box.addEventListener("click",()=>box.remove());
+  document.body.appendChild(box);
+}
+
 /* ---------- boot ---------- */
 (async()=>{
   const s=await safeGet("settings",null);
@@ -1251,6 +1317,7 @@ $("impFile").addEventListener("change",e=>{if(e.target.files[0])importBackup(e.t
   renderBands();buildNotes();calc();markBand();checkWire();renderBandPick();noteStorage();renderCoil();
   try{logRender();}catch(e){LOG=[];logRender();toast("Stored log was unreadable — starting a fresh log. Restore a backup if you have one.",{kind:"err"});}
   go(VIEWS.some(v=>v.id===location.hash.slice(1))?location.hash.slice(1):"calc",false);
+  if(location.hash==="#debug"||location.search.indexOf("debug")>-1)showDiag();
 })();
 
 /* PWA update flow — FlockOff methodology: the deploy stamps a new version
