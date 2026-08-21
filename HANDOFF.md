@@ -32,6 +32,12 @@ Everything else — markup, CSS, JS — is the owner's verbatim.
 
 ## Release notes
 
+**`v2026.08.20.002` — dock sits lower:** the floating dock stacked 12px on
+top of the home-indicator inset, leaving it hovering ~46px off the bottom
+on iPhones. Now `bottom:max(env(safe-area-inset-bottom),8px)` — it hugs
+the safe area directly (34px on notched iPhones, 8px floor elsewhere) and
+mobile toasts follow it down.
+
 **`v2026.08.20.001` — versioning corrected:** the version string is meant
 to be the release date plus that day's revision, but the `2026.08.03` date
 had been carried forward across two and a half weeks of releases. From here
