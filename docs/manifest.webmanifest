@@ -9,8 +9,8 @@
   "background_color": "#050403",
   "theme_color": "#050403",
   "icons": [
-    { "src": "https://cdburgess75.github.io/FeedPoint/touch-icon-180-v14.png", "sizes": "180x180", "type": "image/png", "purpose": "any" },
-    { "src": "https://cdburgess75.github.io/FeedPoint/icon-512-v14.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "https://cdburgess75.github.io/FeedPoint/icon-512-v14.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    { "src": "https://cdburgess75.github.io/FeedPoint/touch-icon-180-v15.png", "sizes": "180x180", "type": "image/png", "purpose": "any" },
+    { "src": "https://cdburgess75.github.io/FeedPoint/icon-512-v15.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "https://cdburgess75.github.io/FeedPoint/icon-512-v15.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
