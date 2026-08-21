@@ -46,6 +46,8 @@ jobs:
           cp docs/icon-512-v13.png _site/icon-512-v13.png
           cp docs/touch-icon-180-v14.png _site/touch-icon-180-v14.png
           cp docs/icon-512-v14.png _site/icon-512-v14.png
+          cp docs/touch-icon-180-v15.png _site/touch-icon-180-v15.png
+          cp docs/icon-512-v15.png _site/icon-512-v15.png
       - name: Stamp build version
         run: |
           VER=$(grep -o 'APP_VERSION="[^"]*"' _site/index.html | head -1 | cut -d'"' -f2)
@@ -57,11 +59,11 @@ jobs:
       - name: Verify icons
         run: |
           set -e
-          for f in touch-icon-180-v14.png icon-512-v14.png touch-icon-180-v13.png icon-512-v13.png touch-icon-180-v12.png icon-512-v12.png touch-icon-180-v11.png icon-512-v11.png touch-icon-180-v10.png icon-512-v10.png apple-touch-icon.png manifest.webmanifest; do
+          for f in touch-icon-180-v15.png icon-512-v15.png touch-icon-180-v14.png icon-512-v14.png touch-icon-180-v13.png icon-512-v13.png touch-icon-180-v12.png icon-512-v12.png touch-icon-180-v11.png icon-512-v11.png touch-icon-180-v10.png icon-512-v10.png apple-touch-icon.png manifest.webmanifest; do
             test -s "_site/$f" || { echo "MISSING OR EMPTY: $f"; exit 1; }
           done
-          file _site/touch-icon-180-v14.png _site/icon-512-v14.png
-          sha256sum _site/touch-icon-180-v14.png _site/icon-512-v14.png _site/manifest.webmanifest
+          file _site/touch-icon-180-v15.png _site/icon-512-v15.png
+          sha256sum _site/touch-icon-180-v15.png _site/icon-512-v15.png _site/manifest.webmanifest
       - uses: actions/configure-pages@v5
         with:
           enablement: true
