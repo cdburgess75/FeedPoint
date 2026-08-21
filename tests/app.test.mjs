@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.08.03.021';
+const VERSION = 'v2026.08.03.022';
 const errors = [];
 let failed = 0;
 const check = (name, cond, extra = '') => {
@@ -56,7 +56,22 @@ await page.waitForTimeout(700);
 check('light theme survives reload (pre-paint stamp)', await page.evaluate(() => document.documentElement.getAttribute('data-theme')) === 'light');
 await page.click('#btnTheme');
 await page.waitForTimeout(200);
-check('toggle back to dark', await page.evaluate(() => document.documentElement.getAttribute('data-theme')) === 'dark');
+const circuitState = await page.evaluate(() => ({
+  attr: document.documentElement.getAttribute('data-theme'),
+  metaColor: document.querySelector('meta[name="theme-color"]').getAttribute('content'),
+  btn: document.getElementById('btnTheme').textContent,
+  markBg: getComputedStyle(document.querySelector('.mark')).backgroundColor
+}));
+check('third click reaches Circuit (navy/lime)',
+  circuitState.attr === 'circuit' && circuitState.metaColor.toLowerCase() === '#070f1e' &&
+  circuitState.btn === '⚡' && circuitState.markBg === 'rgb(198, 241, 53)',
+  JSON.stringify(circuitState));
+await page.reload();
+await page.waitForTimeout(700);
+check('Circuit survives reload (pre-paint stamp)', await page.evaluate(() => document.documentElement.getAttribute('data-theme')) === 'circuit');
+await page.click('#btnTheme');
+await page.waitForTimeout(200);
+check('cycle wraps back to dark', await page.evaluate(() => document.documentElement.getAttribute('data-theme')) === 'dark');
 
 // --- AA text size ---
 await page.click('#btnTextSize');

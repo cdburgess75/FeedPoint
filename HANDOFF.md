@@ -32,6 +32,15 @@ Everything else — markup, CSS, JS — is the owner's verbatim.
 
 ## Release notes
 
+**`v2026.08.03.022` — Circuit theme:** third theme in the toggle rotation
+(Macro Dark ☾ → Daylight ☀ → Circuit ⚡ → …), from the owner's "Keep React"
+ad reference: deep navy surfaces, neon lime `#C6F135` accent, electric-blue
+data colors, teal-leaning success so verdicts don't fight the lime. The
+header λ chip goes lime/navy under Circuit only. Pre-paint stamp, settings
+persistence, and meta theme-color all handle the third value; theme cycling
+is table-driven now (`THEME_NEXT`/`THEME_GLYPH`), so a fourth theme is a
+CSS block + two table entries.
+
 **`v2026.08.03.021` — share button:** new header button (left of AA) that
 shares the canonical live URL. Uses the native share sheet
 (`navigator.share` — text, email, AirDrop, whatever the OS offers); on
