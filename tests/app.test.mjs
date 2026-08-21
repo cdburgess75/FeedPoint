@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.08.20.004';
+const VERSION = 'v2026.08.20.005';
 const errors = [];
 let failed = 0;
 const check = (name, cond, extra = '') => {
@@ -416,6 +416,15 @@ const dockFooter = await page.evaluate(() => {
 check('dock is a full-width footer flush to the bottom',
   dockFooter.bottom === '0px' && dockFooter.left === 0 && dockFooter.right === dockFooter.vw && dockFooter.borderTop,
   JSON.stringify(dockFooter));
+const dockSlab = await page.evaluate(() => {
+  const d = document.getElementById('dock');
+  const s = getComputedStyle(d, '::after');
+  return { h: s.height, bg: s.backgroundColor, top: parseFloat(s.top),
+           dockH: d.getBoundingClientRect().height, dockBg: getComputedStyle(d).backgroundColor };
+});
+check('under-bar slab paints past the bottom (Safari chrome strip)',
+  dockSlab.h === '200px' && Math.abs(dockSlab.top - dockSlab.dockH) <= 1.5 && dockSlab.bg === dockSlab.dockBg,
+  JSON.stringify(dockSlab));
 const pillMobile = await page.$eval('.verpill', e => {
   const r = e.getBoundingClientRect();
   return getComputedStyle(e).display !== 'none' && r.width > 0

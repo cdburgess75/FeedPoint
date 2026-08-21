@@ -32,6 +32,15 @@ Everything else — markup, CSS, JS — is the owner's verbatim.
 
 ## Release notes
 
+**`v2026.08.20.005` — footer reads flush in Safari too:** in-browser
+Safari reserves a strip at the bottom for its minimized toolbar; a page
+cannot place content there, but Safari shows the page's background behind
+it — which read as a navy gap under the footer. A `#dock::after` slab now
+paints 200px of chrome color below the bar: offscreen (invisible) in the
+installed app, and filling the behind-toolbar strip in Safari so the
+footer visually reaches the physical bottom. The installed home-screen
+app was already flush.
+
 **`v2026.08.20.004` — footer tab bar:** the mobile floating dock island is
 now a full-width footer flush to the bottom edge — hairline top border,
 buttons spread evenly, and the home-indicator inset padded INSIDE the bar

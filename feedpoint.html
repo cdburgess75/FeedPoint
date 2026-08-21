@@ -130,6 +130,10 @@ a{color:var(--a0)}
 /* Full-width footer tab bar; the safe-area inset lives INSIDE the bar so
    its background runs under the iPhone home indicator like a native app. */
 #dock{display:none;position:fixed;left:0;right:0;bottom:0;background:var(--chrome);border-top:.5px solid var(--edge);padding:6px 8px calc(env(safe-area-inset-bottom,0px) + 6px);justify-content:space-evenly;z-index:24;backdrop-filter:blur(12px)}
+/* Chrome-colored slab below the bar. In the installed app it's offscreen;
+   in Safari it fills the strip behind the browser's minimized bottom bar,
+   so the footer reads as reaching the physical bottom of the screen. */
+#dock::after{content:"";position:absolute;top:100%;left:0;right:0;height:200px;background:var(--chrome)}
 #dock .nav-btn{width:52px;height:52px;border-radius:12px}
 @media(max-width:800px){
   #app{grid-template-columns:minmax(0,1fr)}
@@ -574,7 +578,7 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
 "use strict";
 const $=id=>document.getElementById(id);
 const FT_M=0.3048;
-const APP_VERSION="v2026.08.20.004";
+const APP_VERSION="v2026.08.20.005";
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 /* ---------- data ---------- */
