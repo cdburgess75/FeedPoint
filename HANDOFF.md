@@ -32,6 +32,15 @@ Everything else — markup, CSS, JS — is the owner's verbatim.
 
 ## Release notes
 
+**`v2026.08.20.006` — footer knows where it's running:** the pre-paint
+script now stamps `data-display="standalone"|"browser"` (from
+`navigator.standalone` / `display-mode: standalone`). In a browser the
+footer drops the home-indicator inset (6px pad) — the browser's own chrome
+guards that zone, so the buttons sit as low as the browser allows. The
+installed app keeps the full inset. Hard limit worth remembering: Safari's
+minimized-toolbar strip is browser chrome; no page content can occupy it —
+only the installed home-screen app is truly edge-to-edge.
+
 **`v2026.08.20.005` — footer reads flush in Safari too:** in-browser
 Safari reserves a strip at the bottom for its minimized toolbar; a page
 cannot place content there, but Safari shows the page's background behind
