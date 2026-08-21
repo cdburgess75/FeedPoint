@@ -32,6 +32,13 @@ Everything else — markup, CSS, JS — is the owner's verbatim.
 
 ## Release notes
 
+**`v2026.08.20.001` — versioning corrected:** the version string is meant
+to be the release date plus that day's revision, but the `2026.08.03` date
+had been carried forward across two and a half weeks of releases. From here
+the date is the owner's local calendar day (US Central) and the revision
+resets to `.001` each day. No functional changes beyond the number itself
+(pill, footer, backup `build`, stamped service worker).
+
 **`v2026.08.03.023` — header fits every phone:** the share button had tipped
 the header past narrow viewports (the app grid's `1fr` columns carry an
 implicit `auto` minimum, so the column refused to shrink below the header's
@@ -162,7 +169,12 @@ length (no AVOID anywhere; no-MARGINAL-anywhere is unsatisfiable past ~13 ft).
   and `log`. Wrap every access; degrade gracefully when sandboxed.
 - **Backups:** JSON `{app, version, exported, settings, log}`; import
   validates shape and accepts legacy `halfwave` backups.
-- **Versioning:** `v2026.08.02.001` style — date + revision of the day.
+- **Versioning:** `v2026.08.20.001` style — the OWNER'S LOCAL DATE
+  (US Central) + 3-digit revision of the day, resetting to `.001` each new
+  day. The date must be the day the release actually ships — do NOT carry
+  yesterday's date forward. (Releases `.004`–`.023` were all mislabeled
+  `2026.08.03` while actually shipping Aug 3–20; corrected from
+  `v2026.08.20.001` on.)
   Stamp it in the UI and in backup JSON.
 - **Design tokens:** Macro Dark. Accent `#FF8600`, warm near-black `#050403`
   base, 0.5px hairlines, orange left-bar + fading tint band on
