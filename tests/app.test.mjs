@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.08.03.022';
+const VERSION = 'v2026.08.03.023';
 const errors = [];
 let failed = 0;
 const check = (name, cond, extra = '') => {
@@ -412,6 +412,17 @@ const pillMobile = await page.$eval('.verpill', e => {
     && r.right <= window.innerWidth && e.textContent.startsWith('v20');
 });
 check('version pill visible on mobile', pillMobile);
+await page.setViewportSize({ width: 320, height: 700 });
+await page.waitForTimeout(300);
+const narrowFit = await page.evaluate(() => {
+  const t = document.getElementById('btnTheme').getBoundingClientRect();
+  const s = document.getElementById('btnShare').getBoundingClientRect();
+  const p = document.querySelector('.verpill').getBoundingClientRect();
+  return { themeRight: Math.round(t.right), shareOn: s.left >= 0, pillOn: p.width > 0, vw: innerWidth };
+});
+check('header buttons fit on the narrowest phones (320px)',
+  narrowFit.themeRight <= narrowFit.vw && narrowFit.shareOn && narrowFit.pillOn,
+  JSON.stringify(narrowFit));
 
 // --- persistence across reload ---
 await page.setViewportSize({ width: 1280, height: 900 });
