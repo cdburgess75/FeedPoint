@@ -4,7 +4,7 @@ import { chromium } from 'playwright';
 import { readFileSync } from 'fs';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.08.20.011';
+const VERSION = 'v2026.08.20.012';
 const SRC = readFileSync(new URL('../feedpoint.html', import.meta.url), 'utf8');
 const errors = [];
 let failed = 0;
@@ -568,6 +568,46 @@ const iosFit = await iosPage.evaluate(() => {
 check('iOS short-viewport report leaves no dead band below the footer',
   iosFit.gapBelow === 0 && iosFit.dockBottom === iosFit.innerH, JSON.stringify(iosFit));
 await iosPage.close();
+
+// --- standalone: iOS under-reports every viewport height ---------------
+/* Owner's device: installed app on a 375x812 screen, but every height the
+   page can read comes back 768 (short by the status-bar area), anchoring
+   the app at the top with a dead band at the BOTTOM. In standalone the web
+   view covers the whole screen, so screen.height is the right answer. */
+const saPage = await browser.newPage({ viewport: { width: 375, height: 768 } });
+await saPage.addInitScript(() => {
+  const mm = window.matchMedia;
+  window.matchMedia = q => q.includes('display-mode: standalone')
+    ? { matches: true, addEventListener(){}, removeEventListener(){} } : mm.call(window, q);
+  Object.defineProperty(screen, 'height', { get: () => 812 });
+  Object.defineProperty(screen, 'width', { get: () => 375 });
+});
+await saPage.goto(PAGE_URL);
+await saPage.waitForTimeout(1500);
+const saFit = await saPage.evaluate(() => ({
+  mode: document.documentElement.getAttribute('data-display'),
+  appH: document.documentElement.style.getPropertyValue('--app-h')
+}));
+check('standalone uses the full physical screen height',
+  saFit.mode === 'standalone' && saFit.appH === '812px', JSON.stringify(saFit));
+await saPage.close();
+
+/* And the inverse: a BROWSER must never stretch to screen.height, or the
+   footer lands under the browser's toolbar (the original bug). */
+const brPage = await browser.newPage({ viewport: { width: 375, height: 666 } });
+await brPage.addInitScript(() => {
+  Object.defineProperty(screen, 'height', { get: () => 812 });
+  Object.defineProperty(screen, 'width', { get: () => 375 });
+});
+await brPage.goto(PAGE_URL);
+await brPage.waitForTimeout(1500);
+const brFit = await brPage.evaluate(() => ({
+  mode: document.documentElement.getAttribute('data-display'),
+  appH: document.documentElement.style.getPropertyValue('--app-h')
+}));
+check('browser mode ignores screen height (footer stays above browser chrome)',
+  brFit.mode === 'browser' && brFit.appH === '666px', JSON.stringify(brFit));
+await brPage.close();
 
 console.log(errors.length ? 'JS ERRORS:\n' + errors.join('\n') : 'NO JS ERRORS');
 console.log(failed ? failed + ' FAILURES' : 'ALL PASS');
