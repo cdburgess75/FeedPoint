@@ -32,6 +32,19 @@ Everything else — markup, CSS, JS — is the owner's verbatim.
 
 ## Release notes
 
+**`v2026.08.20.012` — standalone fills the physical screen:** two owner
+`#debug`/screenshot reports after .011: in Safari the footer is now
+pixel-perfect (`footer vs visualVP = 0`; the space below is Safari's own
+URL bar, unreachable by any page). In the INSTALLED app a ~44pt black band
+remained at the bottom: iOS under-reports every readable viewport height
+in standalone by roughly the status-bar area, anchoring the app at the top
+and leaving the shortfall at the bottom. Since the standalone web view
+covers the entire screen, `fit()` now also considers the physical screen
+dimension — `data-display="standalone"` only, orientation-guarded because
+iOS keeps `screen.*` in portrait terms. A browser must never do this (the
+footer would land under its toolbar — the original bug), and a regression
+test asserts both directions.
+
 **`v2026.08.20.011` — the dead band below the footer, finally diagnosed:**
 an owner screenshot showed the footer drawn correctly but with a ~85px band
 of page background BELOW it. Cause: iOS exposes several viewport heights,

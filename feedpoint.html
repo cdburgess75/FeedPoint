@@ -44,7 +44,21 @@ try{
          left a band of dead space under the footer. Take the LARGEST measure
          so the app always fills what the user can see; the footer keeps its
          safe-area padding so its buttons stay clear of the home indicator. */
-      var h=Math.round(Math.max(vv.height||0,d.clientHeight||0,window.innerHeight||0));
+      var h=Math.max(vv.height||0,d.clientHeight||0,window.innerHeight||0);
+      /* Installed (standalone) app only: the web view covers the ENTIRE
+         screen — there is no browser chrome — yet iOS under-reports every
+         viewport height by roughly the status-bar area, anchoring the app
+         at the top and leaving a dead band at the BOTTOM. The physical
+         screen dimension is the correct answer there, and only there
+         (in a browser it would put the footer under the browser's bar).
+         Orientation-guarded because iOS keeps screen.* in portrait terms. */
+      if(d.getAttribute("data-display")==="standalone"){
+        var scrH=matchMedia("(orientation: landscape)").matches
+          ?Math.min(screen.height,screen.width)
+          :Math.max(screen.height,screen.width);
+        if(scrH>h)h=scrH;
+      }
+      h=Math.round(h);
       if(h>0&&h!==last){last=h;d.style.setProperty("--app-h",h+"px");}
     }catch(e){}
   }
@@ -647,7 +661,7 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
 "use strict";
 const $=id=>document.getElementById(id);
 const FT_M=0.3048;
-const APP_VERSION="v2026.08.20.011";
+const APP_VERSION="v2026.08.20.012";
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 /* ---------- data ---------- */
