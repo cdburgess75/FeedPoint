@@ -56,7 +56,11 @@ try{
         var scrH=matchMedia("(orientation: landscape)").matches
           ?Math.min(screen.height,screen.width)
           :Math.max(screen.height,screen.width);
-        if(scrH>h)h=scrH;
+        /* When iOS lies about the height it also reports the home-indicator
+           inset as 0, so mark the stretch: CSS restores a clearance floor
+           under the footer buttons only in this exact situation. */
+        if(scrH>h){h=scrH;d.setAttribute("data-stretched","1");}
+        else if(d.getAttribute("data-stretched"))d.removeAttribute("data-stretched");
       }
       h=Math.round(h);
       if(h>0&&h!==last){last=h;d.style.setProperty("--app-h",h+"px");}
@@ -207,6 +211,10 @@ input[type=number]:focus-visible,select:focus-visible,textarea.note:focus-visibl
    so row 3 lands at the bottom of the VISIBLE area — on screen and tappable
    even when a browser toolbar is showing. */
 #dock{display:none;position:relative;grid-column:1/-1;background:var(--chrome);border-top:.5px solid var(--edge);padding:6px 8px calc(env(safe-area-inset-bottom,0px) + 6px);justify-content:space-evenly;z-index:24}
+/* Stretched standalone (iOS under-reported the screen, env() insets came
+   back 0): guarantee the buttons clear the home indicator. max() keeps the
+   real env() winning wherever it does report. */
+html[data-stretched="1"] #dock{padding-bottom:max(calc(env(safe-area-inset-bottom,0px) + 6px),40px)}
 #dock .nav-btn{width:52px;height:52px;border-radius:12px}
 @media(max-width:800px){
   #app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto}
@@ -661,7 +669,7 @@ details.k summary .del{color:var(--c3);padding:8px;border-radius:7px;flex:none}
 "use strict";
 const $=id=>document.getElementById(id);
 const FT_M=0.3048;
-const APP_VERSION="v2026.08.20.012";
+const APP_VERSION="v2026.08.20.013";
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 /* ---------- data ---------- */

@@ -32,6 +32,17 @@ Everything else — markup, CSS, JS — is the owner's verbatim.
 
 ## Release notes
 
+**`v2026.08.20.013` — home-indicator clearance in stretched standalone:**
+.012 put the installed app's footer on the physical bottom, but the owner
+reported it a "little too far": when iOS under-reports the standalone
+viewport it ALSO reports `env(safe-area-inset-bottom)` as 0, so the
+stretched bar's buttons rode ~30pt low, into the home-indicator zone.
+`fit()` now stamps `data-stretched="1"` whenever the screen-height stretch
+actually applies, and CSS gives the footer
+`padding-bottom:max(calc(env()+6px),40px)` in that state only — the real
+`env()` still wins wherever it reports, browsers and honest standalone
+keep the slim padding. Tests assert 40px when stretched, 6px otherwise.
+
 **`v2026.08.20.012` — standalone fills the physical screen:** two owner
 `#debug`/screenshot reports after .011: in Safari the footer is now
 pixel-perfect (`footer vs visualVP = 0`; the space below is Safari's own
