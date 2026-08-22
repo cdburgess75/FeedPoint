@@ -4,7 +4,7 @@ import { chromium } from 'playwright';
 import { readFileSync } from 'fs';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.08.20.012';
+const VERSION = 'v2026.08.20.013';
 const SRC = readFileSync(new URL('../feedpoint.html', import.meta.url), 'utf8');
 const errors = [];
 let failed = 0;
@@ -590,6 +590,12 @@ const saFit = await saPage.evaluate(() => ({
 }));
 check('standalone uses the full physical screen height',
   saFit.mode === 'standalone' && saFit.appH === '812px', JSON.stringify(saFit));
+const saInset = await saPage.evaluate(() => ({
+  stretched: document.documentElement.getAttribute('data-stretched'),
+  padBottom: getComputedStyle(document.getElementById('dock')).paddingBottom
+}));
+check('stretched standalone restores home-indicator clearance (40px floor)',
+  saInset.stretched === '1' && saInset.padBottom === '40px', JSON.stringify(saInset));
 await saPage.close();
 
 /* And the inverse: a BROWSER must never stretch to screen.height, or the
@@ -607,6 +613,12 @@ const brFit = await brPage.evaluate(() => ({
 }));
 check('browser mode ignores screen height (footer stays above browser chrome)',
   brFit.mode === 'browser' && brFit.appH === '666px', JSON.stringify(brFit));
+const brInset = await brPage.evaluate(() => ({
+  stretched: document.documentElement.getAttribute('data-stretched'),
+  padBottom: getComputedStyle(document.getElementById('dock')).paddingBottom
+}));
+check('un-stretched footer keeps its slim padding',
+  brInset.stretched === null && brInset.padBottom === '6px', JSON.stringify(brInset));
 await brPage.close();
 
 console.log(errors.length ? 'JS ERRORS:\n' + errors.join('\n') : 'NO JS ERRORS');
