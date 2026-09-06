@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="docs/mark.svg" width="110" alt="FeedPoint mark — λ on a pale-sky engineering grid above a graduated rule">
+<img src="docs/mark.svg" width="110" alt="FeedPoint mark — the Wave badge: lime disc with a navy sine on navy">
 
 # FeedPoint
 
@@ -30,9 +30,9 @@ That is the entire install.*
 
 [![CI](https://github.com/cdburgess75/FeedPoint/actions/workflows/ci.yml/badge.svg)](https://github.com/cdburgess75/FeedPoint/actions/workflows/ci.yml)
 [![Deploy](https://github.com/cdburgess75/FeedPoint/actions/workflows/pages.yml/badge.svg)](https://github.com/cdburgess75/FeedPoint/actions/workflows/pages.yml)
-![Single file](https://img.shields.io/badge/single_file-~230_KB-FF9500)
+![Single file](https://img.shields.io/badge/single_file-~210_KB-FF9500)
 ![Offline](https://img.shields.io/badge/offline-100%25-2FC898)
-![Tests](https://img.shields.io/badge/checks-76_passing-62CA40)
+![Tests](https://img.shields.io/badge/checks-122_passing-62CA40)
 
 <br>
 
@@ -48,25 +48,25 @@ That is the entire install.*
 
 ## ⚡ What it does
 
-- **📐 Element calculator** — pick a band or type a frequency; get EFHW,
-  dipole, ¼-wave vertical, counterpoise, full-wave loop, and ⅝-wave cut
-  lengths to the quarter inch (or metric). K-factor presets for bare /
-  insulated / inverted-V wire, ITU region band plans (R1/R2/R3), and a dot
-  on every band you've already cut for.
-- **📊 Random-wire check** — test a 9:1 random-wire length against every
-  band 160–10 m, or work backwards: **pick the bands you want and get
-  recommended lengths** sitting dead-center in the safe windows. Verdicts
-  are computed across the *entire band span*, with the nearest spike-free
-  length offered when yours fails.
-- **🧲 Ununs & baluns** — winding recipes for the 1:1 choke, 4:1, 9:1, and
-  49:1 EFHW autotransformer, a toroid core cheat sheet, and a coil winding
-  calculator (Wheeler air-core + ferrite A·L).
-- **📻 End-fed reference & field notes** — EFHW vs EFRW harmonics,
-  counterpoise rules, FT8 duty-cycle derating, NVIS — the stuff datasheets
-  skip.
-- **📒 Build log** — every saved cut as an expandable spec sheet: per-entry
-  notes, reload into the calculator, print a clean cut sheet, delete with
-  undo, JSON export/import.
+- **📐 Cut** — pick the antenna (EFHW, dipole, ¼-wave vertical, full-wave
+  loop), tap a band, slide across it, and read one big number to the quarter
+  inch (or metric) with its companions — counterpoise, harmonics, total
+  span, radials, ⅝-wave, loop sides — plus the transformer recipe to build
+  it. K-factor presets for bare / insulated / inverted-V wire, ITU region
+  band plans (R1/R2/R3), and a dot on every band you've already cut for.
+- **📊 Wire** — pick the bands you want and get **recommended random-wire
+  lengths** sitting dead-center in the safe windows, drawn on a 0–150 ft
+  safe-window ruler with your wire marked. Verdicts for a 9:1 random wire
+  are computed across the *entire band span* on every band 160–10 m, with
+  the nearest spike-free length offered when yours fails.
+- **📒 Log** — every saved cut and wire check, headline first: antenna,
+  band, the length in big type. Expand for the spec sheet, per-entry notes,
+  reload into Cut, a printable cut sheet, delete with undo, JSON
+  export/import.
+- **🧲 Learn** — winding recipes for the 1:1 choke, 4:1, 9:1, and 49:1 EFHW
+  autotransformer, a toroid core cheat sheet, a coil winding calculator
+  (Wheeler air-core + ferrite A·L), EFHW vs EFRW, and the field notes
+  datasheets skip.
 - **📴 Works with zero signal** — it's a file, not a website. On a summit,
   at field day, or in 2040, it still cuts wire.
 - **🔔 Update-aware PWA** — installed copies quietly check for new builds
@@ -80,7 +80,7 @@ That is the entire install.*
 ![Vanilla JS](https://img.shields.io/badge/JavaScript-vanilla,_zero_deps-F7DF1E?logo=javascript&logoColor=black)
 ![PWA](https://img.shields.io/badge/PWA-installable_+_offline-5A0FC8)
 ![IndexedDB](https://img.shields.io/badge/IndexedDB-local_storage-orange)
-![Playwright](https://img.shields.io/badge/Playwright-76_checks-2EAD33?logo=playwright&logoColor=white)
+![Playwright](https://img.shields.io/badge/Playwright-122_checks-2EAD33?logo=playwright&logoColor=white)
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-CI_+_deploy-2088FF?logo=githubactions&logoColor=white)
 ![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-hosting-222?logo=github)
 
@@ -118,7 +118,7 @@ start feedpoint.html       # Windows
 
 Edit `feedpoint.html`, refresh the tab, done — there is no build step.
 
-**Run the functional suite** (76 headless checks: navigation, verdict math,
+**Run the functional suite** (122 headless checks: navigation, verdict math,
 theming, import validation, XSS escaping, undo, persistence, responsive
 breakpoints — the same gate every PR passes in CI):
 
@@ -179,16 +179,17 @@ to lie about which one you're making.)
 
 ## 🏕️ Made for the field
 
-<img src="docs/mobile.png" align="right" width="230" alt="FeedPoint build log rendered one-handed on a phone, floating dock navigation at the bottom">
+<img src="docs/mobile.png" align="right" width="230" alt="FeedPoint build log rendered one-handed on a phone, labeled tab bar at the bottom">
 
-- **Phone-first when it needs to be** — the sidebar becomes a floating dock,
-  touch targets stay 48 px+, the header respects the iPhone notch, and the
-  layout works one-handed on a summit.
-- **Keyboard-driven at home** — number keys <kbd>1</kbd>–<kbd>6</kbd> switch
-  views; every control is focusable and screen-reader labeled (`aria-live`
-  toasts, visible focus rings, reduced-motion respected).
-- **Light & dark themes** with an AA text-size stepper — both persist, both
-  apply before first paint (no flash).
+- **Phone-first when it needs to be** — the sidebar becomes a labeled tab
+  bar pinned to the true bottom of the screen, touch targets stay 44 px+,
+  the header respects the iPhone notch, and the layout works one-handed on
+  a summit.
+- **Keyboard-driven at home** — number keys <kbd>1</kbd>–<kbd>4</kbd> switch
+  sections; every control is focusable and screen-reader labeled
+  (`aria-live` toasts, visible focus rings, reduced-motion respected).
+- **Three themes** (Macro Dark, Daylight, Circuit) and a text-size stepper
+  in the settings sheet — all persist, all apply before first paint.
 - **Storage honesty** — a status dot tells you whether IndexedDB is really
   persisting. If it isn't, saves say *"Session only"* instead of a
   comforting lie.
@@ -222,11 +223,11 @@ case-insensitively (including backups from the app's earlier life as
 | Quarter wave | `234 / f` | | ⅝ wave | `585 / f` |
 | Counterpoise 0.05 λ | `0.05 × 984 / f` | | Verdict thresholds | ±7% AVOID · ±15% MARGINAL |
 
-**The look** is Macro Dark — warm near-black, orange accent, hairline
-edges, embedded Inter / Roboto Mono / Playfair Display / Chakra Petch
-(latin subsets; ~150 KB of the file is fonts). The brand mark is a real
-typographic λ (FreeSerif Bold Italic) on a pale-sky engineering grid —
-`#9FDEFF` + LED amber `#FF9500`.
+**The look** is Macro Dark by default — warm near-black, orange accent,
+hairline edges, embedded Inter / Roboto Mono / Chakra Petch (latin subsets;
+~110 KB of the file is fonts) — with Daylight and Circuit (navy + lime
+`#C6F135`) alongside. The brand mark is the Wave badge: a lime disc carrying
+a navy sine on a navy tile.
 
 **Storage** is raw IndexedDB — one database, one key-value store, every
 access wrapped so the app degrades gracefully anywhere it runs.

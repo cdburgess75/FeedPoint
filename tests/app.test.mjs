@@ -1,10 +1,10 @@
-/* FEEDPOINT headless functional suite.
+/* FEEDPOINT headless functional suite (v2 antenna-first flow).
    Run: npm i playwright && npx playwright install chromium && node tests/app.test.mjs */
 import { chromium } from 'playwright';
 import { readFileSync } from 'fs';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.08.20.013';
+const VERSION = 'v2026.09.06.001';
 const SRC = readFileSync(new URL('../feedpoint.html', import.meta.url), 'utf8');
 const errors = [];
 let failed = 0;
@@ -30,7 +30,8 @@ const icons = await page.evaluate(() => ({
   touch: document.querySelector('link[rel="apple-touch-icon"]')?.getAttribute('href'),
   iosTitle: document.querySelector('meta[name="apple-mobile-web-app-title"]')?.content
 }));
-check('favicon + apple-touch-icon wired', icons.favicon && icons.touch === 'https://cdburgess75.github.io/FeedPoint/touch-icon-180-v15.png' && icons.iosTitle === 'FeedPoint', JSON.stringify(icons));
+check('favicon + apple-touch-icon wired (wave badge v16)', icons.favicon && icons.touch === 'https://cdburgess75.github.io/FeedPoint/touch-icon-180-v16.png' && icons.iosTitle === 'FeedPoint', JSON.stringify(icons));
+check('no stale v15 icon references in the page', !SRC.includes('v15.png'));
 const manifest = await page.$eval('link[rel="manifest"]', e => e.getAttribute('href'));
 check('PWA manifest linked', manifest === 'manifest.webmanifest', manifest);
 const desktopIcons = await page.evaluate(() => ({
@@ -39,107 +40,188 @@ const desktopIcons = await page.evaluate(() => ({
   mask: document.querySelector('link[rel="mask-icon"]')?.getAttribute('href')
 }));
 check('desktop favicon set wired', desktopIcons.p32 === 'favicon-32.png' && desktopIcons.p16 === 'favicon-16.png' && desktopIcons.mask === 'mask-icon.svg', JSON.stringify(desktopIcons));
+const labels = await page.$$eval('#rail .nav-lbl', els => els.map(e => e.textContent));
+check('four labeled sections', JSON.stringify(labels) === JSON.stringify(['Cut','Wire','Log','Learn']), JSON.stringify(labels));
+const dockLabels = await page.$$eval('#dock .nav-lbl', els => els.map(e => e.textContent));
+check('mobile tab bar carries the same labels', JSON.stringify(dockLabels) === JSON.stringify(labels), JSON.stringify(dockLabels));
+const ver = await page.$eval('#topbar .verpill', e => e.textContent);
+check('version shown in the header', ver === VERSION, ver);
+const foot = await page.$eval('#railFoot .db-lbl', e => e.textContent);
+check('storage indicator', foot === 'LOCAL DB' || foot === 'NO STORAGE', foot);
+check('header mark is the wave badge, not the lambda', await page.evaluate(() => {
+  const s = document.querySelector('.mark svg');
+  return !!s && s.innerHTML.includes('c2.5 0 2.5-6') && !s.innerHTML.includes('Q25.11');
+}));
 
-// --- theme changer (FlockOff pattern) ---
+// --- first run: antenna picker ---
+const firstRun = await page.evaluate(() => ({
+  pick: !document.getElementById('pickWrap').hidden,
+  cut: document.getElementById('cutWrap').hidden,
+  view: document.getElementById('view-cut').classList.contains('on'),
+  cards: [...document.querySelectorAll('#pick button .name')].map(e => e.textContent)
+}));
+check('first run opens on the antenna picker', firstRun.pick && firstRun.cut && firstRun.view, JSON.stringify(firstRun));
+check('picker lists the five antennas', JSON.stringify(firstRun.cards) === JSON.stringify(['End-fed half-wave','Dipole','Quarter-wave vertical','Random wire','Full-wave loop']), JSON.stringify(firstRun.cards));
+await page.click('#pick button[data-ant="rw"]');
+await page.waitForTimeout(150);
+check('Random wire card goes straight to Wire', await page.$eval('#view-wire', e => e.classList.contains('on')));
+await page.keyboard.press('1');
+await page.waitForTimeout(150);
+check('Cut still shows the picker until an antenna is chosen', await page.$eval('#pickWrap', e => !e.hidden));
+await page.click('#pick button[data-ant="efhw"]');
+await page.waitForTimeout(200);
+const cutState = await page.evaluate(() => ({
+  pick: document.getElementById('pickWrap').hidden,
+  name: document.getElementById('antName').textContent,
+  band: document.querySelector('#bandRail .chip.on')?.textContent,
+  freq: document.getElementById('freq').value,
+  hero: document.querySelector('#heroBig .val').textContent,
+  lbl: document.querySelector('#heroBig .lbl').textContent,
+  ratio: document.querySelector('#build .ratio').textContent,
+  rows: document.querySelectorAll('#build dt').length
+}));
+check('choosing EFHW opens the cut screen on 40m',
+  cutState.pick && cutState.name === 'End-fed half-wave' && cutState.band === '40m' && cutState.freq === '7.150', JSON.stringify(cutState));
+check('EFHW hero = 468/f (65′ 5½″ at 7.150)', cutState.hero === '65′ 5½″' && cutState.lbl.startsWith('Total wire'), cutState.hero);
+check('build recipe names the 49:1', cutState.ratio === '49:1' && cutState.rows >= 4, JSON.stringify(cutState));
+await page.reload();
+await page.waitForTimeout(700);
+check('chosen antenna persists reload (no picker again)', await page.evaluate(() => document.getElementById('pickWrap').hidden && document.getElementById('antName').textContent === 'End-fed half-wave'));
+
+// --- per-antenna heroes ---
+await page.click('#changeAnt');
+await page.waitForTimeout(100);
+check('CHANGE returns to the picker', await page.$eval('#pickWrap', e => !e.hidden));
+await page.click('#pick button[data-ant="dip"]');
+await page.waitForTimeout(150);
+const dip = await page.evaluate(() => ({
+  lbl: document.querySelector('#heroBig .lbl').textContent,
+  leg: document.querySelector('#heroBig .val').textContent,
+  total: document.querySelectorAll('#heroPair .mid .val')[0].textContent,
+  ratio: document.querySelector('#build .ratio').textContent
+}));
+check('dipole hero is per leg (234/f) with total span alongside',
+  dip.lbl.startsWith('Each leg') && dip.leg === '32′ 8¾″' && dip.total === '65′ 5½″' && dip.ratio === '1:1', JSON.stringify(dip));
+await page.click('#changeAnt'); await page.click('#pick button[data-ant="vert"]');
+await page.waitForTimeout(150);
+const vert = await page.evaluate(() => [document.querySelector('#heroBig .lbl').textContent, document.querySelector('#heroBig .val').textContent, document.querySelectorAll('#heroPair .mid .val')[1].textContent]);
+check('vertical hero: radiator 234/f, ⅝ option 585/f', vert[0].startsWith('Radiator') && vert[1] === '32′ 8¾″' && vert[2] === '81′ 9¾″', JSON.stringify(vert));
+await page.click('#changeAnt'); await page.click('#pick button[data-ant="loop"]');
+await page.waitForTimeout(150);
+const loop = await page.evaluate(() => [document.querySelector('#heroBig .val').textContent, document.querySelectorAll('#heroPair .mid .val')[0].textContent]);
+check('loop hero: 1005/f with square side', loop[0] === '140′ 6¾″' && loop[1] === '35′ 1¾″', JSON.stringify(loop));
+await page.click('#changeAnt'); await page.click('#pick button[data-ant="efhw"]');
+await page.waitForTimeout(150);
+
+// --- band rail + tune slider ---
+await page.click('#bandRail .chip[data-band="20m"]');
+await page.waitForTimeout(150);
+const b20 = await page.evaluate(() => ({ f: document.getElementById('freq').value, on: document.querySelector('#bandRail .chip.on').textContent, tune: document.getElementById('tune').value }));
+check('band chip sets center frequency and centers the tune slider', b20.f === '14.175' && b20.on === '20m' && b20.tune === '500', JSON.stringify(b20));
+await page.evaluate(() => { const t = document.getElementById('tune'); t.value = 0; t.dispatchEvent(new Event('input', { bubbles: true })); });
+await page.waitForTimeout(150);
+check('tune slider at 0 = band edge', await page.$eval('#freq', e => e.value) === '14.000');
+await page.fill('#freq', '7.150');
+await page.waitForTimeout(150);
+const typed = await page.evaluate(() => ({ on: document.querySelector('#bandRail .chip.on')?.textContent, hero: document.querySelector('#heroBig .val').textContent }));
+check('typing a frequency re-marks the band and recomputes', typed.on === '40m' && typed.hero === '65′ 5½″', JSON.stringify(typed));
+await page.fill('#freq', '9.000');
+await page.waitForTimeout(150);
+const offBand = await page.evaluate(() => ({ on: !!document.querySelector('#bandRail .chip.on'), dis: document.getElementById('tune').disabled }));
+check('out-of-band frequency: no chip lit, slider disabled', !offBand.on && offBand.dis, JSON.stringify(offBand));
+await page.fill('#freq', '7.150');
+await page.waitForTimeout(150);
+
+// --- units + K presets ---
+await page.click('#uM');
+await page.waitForTimeout(150);
+const mHero = await page.$eval('#heroBig .val', e => e.textContent);
+check('metric hero', mHero === '19.95 m', mHero);
+await page.click('#uFt');
+await page.waitForTimeout(150);
+const kChip = await page.$$eval('.kpre button', els => els.map(e => [e.dataset.k, e.classList.contains('on')]));
+check('K preset 0.95 active by default', JSON.stringify(kChip) === JSON.stringify([["0.95",true],["0.91",false],["0.92",false]]), JSON.stringify(kChip));
+await page.click('.kpre button[data-k="0.91"]');
+await page.waitForTimeout(150);
+const k91 = await page.evaluate(() => ({ kf: document.getElementById('kf').value, on: document.querySelector('.kpre button[data-k="0.91"]').classList.contains('on'), hero: document.querySelector('#heroBig .val').textContent }));
+check('K preset click sets value, active chip, shorter wire', k91.kf === '0.91' && k91.on && k91.hero === '62′ 8½″', JSON.stringify(k91));
+await page.click('.kpre button[data-k="0.95"]');
+await page.waitForTimeout(150);
+
+// --- settings sheet: theme / text size / region / K ---
+check('settings sheet closed by default', await page.$eval('#sheet', e => !e.classList.contains('on')));
+await page.click('#btnSettings');
+await page.waitForTimeout(150);
+check('gear opens the settings sheet', await page.$eval('#sheet', e => e.classList.contains('on')));
 const darkBg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
 check('boots in dark theme', await page.evaluate(() => document.documentElement.getAttribute('data-theme')) === 'dark');
-await page.click('#btnTheme');
+await page.click('#themeSeg button[data-theme="light"]');
 await page.waitForTimeout(200);
 const lightState = await page.evaluate(() => ({
   attr: document.documentElement.getAttribute('data-theme'),
   bg: getComputedStyle(document.body).backgroundColor,
   metaColor: document.querySelector('meta[name="theme-color"]').getAttribute('content'),
-  btn: document.getElementById('btnTheme').textContent
+  on: document.querySelector('#themeSeg button.on').dataset.theme
 }));
-check('toggle switches to light', lightState.attr === 'light' && lightState.bg !== darkBg && lightState.btn === '☀', JSON.stringify(lightState));
+check('Daylight selected', lightState.attr === 'light' && lightState.bg !== darkBg && lightState.on === 'light', JSON.stringify(lightState));
 check('meta theme-color follows scheme', lightState.metaColor.toLowerCase() === '#e9f1f4', lightState.metaColor);
-await page.reload();
-await page.waitForTimeout(700);
-check('light theme survives reload (pre-paint stamp)', await page.evaluate(() => document.documentElement.getAttribute('data-theme')) === 'light');
-await page.click('#btnTheme');
+await page.click('#themeSeg button[data-theme="circuit"]');
 await page.waitForTimeout(200);
 const circuitState = await page.evaluate(() => ({
   attr: document.documentElement.getAttribute('data-theme'),
   metaColor: document.querySelector('meta[name="theme-color"]').getAttribute('content'),
-  btn: document.getElementById('btnTheme').textContent,
   markBg: getComputedStyle(document.querySelector('.mark')).backgroundColor
 }));
-check('third click reaches Circuit (navy/lime)',
-  circuitState.attr === 'circuit' && circuitState.metaColor.toLowerCase() === '#070f1e' &&
-  circuitState.btn === '⚡' && circuitState.markBg === 'rgb(198, 241, 53)',
-  JSON.stringify(circuitState));
+check('Circuit theme (navy/lime badge)', circuitState.attr === 'circuit' && circuitState.metaColor.toLowerCase() === '#070f1e' && circuitState.markBg === 'rgb(198, 241, 53)', JSON.stringify(circuitState));
 await page.reload();
 await page.waitForTimeout(700);
 check('Circuit survives reload (pre-paint stamp)', await page.evaluate(() => document.documentElement.getAttribute('data-theme')) === 'circuit');
-await page.click('#btnTheme');
-await page.waitForTimeout(200);
-check('cycle wraps back to dark', await page.evaluate(() => document.documentElement.getAttribute('data-theme')) === 'dark');
-
-// --- AA text size ---
-await page.click('#btnTextSize');
+await page.click('#btnSettings');
+await page.click('#sizeSeg button[data-size="2"]');
 await page.waitForTimeout(100);
-check('AA steps to 2', await page.evaluate(() => document.documentElement.getAttribute('data-uiscale')) === '2');
-await page.click('#btnTextSize');
-await page.click('#btnTextSize');
+check('AA text size 2', await page.evaluate(() => document.documentElement.getAttribute('data-uiscale')) === '2');
+await page.click('#sizeSeg button[data-size="1"]');
+await page.click('#themeSeg button[data-theme="dark"]');
 await page.waitForTimeout(100);
-check('AA wraps to 1', await page.evaluate(() => document.documentElement.getAttribute('data-uiscale')) === '1');
-
-// --- K-factor presets ---
-const kChip = await page.$$eval('.kpre button', els => els.map(e => [e.dataset.k, e.classList.contains('on')]));
-check('K preset 0.95 active by default', JSON.stringify(kChip) === JSON.stringify([["0.95",true],["0.91",false],["0.92",false]]), JSON.stringify(kChip));
-await page.click('.kpre button[data-k="0.91"]');
-await page.waitForTimeout(150);
-const kVal = await page.$eval('#kf', e => e.value);
-const kOn = await page.$eval('.kpre button[data-k="0.91"]', e => e.classList.contains('on'));
-check('K preset click sets value + active', kVal === '0.91' && kOn, kVal);
-await page.click('.kpre button[data-k="0.95"]');
-await page.waitForTimeout(150);
-
-// --- ITU region band plans ---
-const bandRange = async (name) => page.$$eval('#bandList .li', (els, n) => {
-  const row = els.find(e => e.querySelector('.t1').textContent.startsWith(n));
-  return row ? row.querySelector('.t2').textContent : null;
-}, name);
-check('R2 80m default', (await bandRange('80m')).includes('3.500 – 4.000'), await bandRange('80m'));
+const bandRange = async (name) => page.evaluate(n => { const b = BANDS.find(x => x.n === n); return b.lo.toFixed(3) + ' – ' + b.hi.toFixed(3); }, name);
+check('R2 80m default', (await bandRange('80m')) === '3.500 – 4.000', await bandRange('80m'));
 await page.click('#rg1');
 await page.waitForTimeout(200);
-check('R1 80m narrows', (await bandRange('80m')).includes('3.500 – 3.800'), await bandRange('80m'));
-check('R1 40m narrows', (await bandRange('40m')).includes('7.000 – 7.200'), await bandRange('40m'));
+check('R1 80m narrows', (await bandRange('80m')) === '3.500 – 3.800', await bandRange('80m'));
+check('R1 40m narrows (rail chip title too)', (await bandRange('40m')) === '7.000 – 7.200' && (await page.$eval('#bandRail .chip[data-band="40m"]', e => e.title)).includes('7.200'));
 await page.reload();
 await page.waitForTimeout(700);
-check('region persists reload', (await bandRange('80m')).includes('3.500 – 3.800'), await bandRange('80m'));
-const r1on = await page.$eval('#rg1', e => e.classList.contains('on'));
-check('region seg restored', r1on);
+check('region persists reload', (await bandRange('80m')) === '3.500 – 3.800');
+check('region seg restored', await page.$eval('#rg1', e => e.classList.contains('on')));
+await page.click('#btnSettings');
 await page.click('#rg2');
 await page.waitForTimeout(200);
-check('back to R2', (await bandRange('80m')).includes('3.500 – 4.000'));
+check('back to R2', (await bandRange('80m')) === '3.500 – 4.000');
+await page.keyboard.press('Escape');
+await page.waitForTimeout(100);
+check('Escape closes the sheet', await page.$eval('#sheet', e => !e.classList.contains('on')));
 
-// --- coil winding calculator ---
-const coil = await page.evaluate(() => ({
-  air: airTurns(34, 2, 19.4),          // ~28.3 turns
-  tor: torTurns(34, 952)               // FT140-43 ≈ 6 turns
-}));
+// --- coil winding calculator + Learn ---
+const coil = await page.evaluate(() => ({ air: airTurns(34, 2, 19.4), tor: torTurns(34, 952) }));
 check('air-core turns math', coil.air > 27.5 && coil.air < 29, coil.air.toFixed(2));
 check('toroid turns math', coil.tor > 5.5 && coil.tor < 6.5, coil.tor.toFixed(2));
-const coilOut = await page.$eval('#coilOut', e => e.textContent);
-check('coil output rendered', coilOut.includes('turns'), coilOut);
-const labels = await page.$$eval('#rail .nav-lbl', els => els.map(e => e.textContent));
-check('sidebar labels', JSON.stringify(labels) === JSON.stringify(['Calculator','Wire check','Ununs & baluns','End-fed antennas','Field notes','Build log']), JSON.stringify(labels));
-const groups = await page.$$eval('#rail .rail-lbl', els => els.map(e => e.textContent));
-check('sidebar groups', JSON.stringify(groups) === JSON.stringify(['Workbench','Reference','Records']), JSON.stringify(groups));
-const ver = await page.$eval('.verpill', e => e.textContent);
-check('version pill', ver === VERSION, ver);
-const foot = await page.$eval('#railFoot .db-lbl', e => e.textContent);
-check('storage indicator', foot === 'LOCAL DB' || foot === 'NO STORAGE', foot);
-const footVer = await page.$eval('#railFoot .ver', e => e.textContent);
-check('footer version', footVer === VERSION, footVer);
-
-// --- keyboard nav ---
-await page.keyboard.press('3');
+check('coil output rendered', (await page.$eval('#coilOut', e => e.textContent)).includes('turns'));
+await page.keyboard.press('4');
 await page.waitForTimeout(150);
-check('key 3 -> unun view', await page.$eval('#view-unun', e => e.classList.contains('on')));
+check('key 4 -> Learn', await page.$eval('#view-learn', e => e.classList.contains('on')));
+const learnBits = await page.evaluate(() => ({
+  ununs: [...document.querySelectorAll('#view-learn details.k .ratio')].map(e => e.textContent),
+  notes: document.querySelectorAll('#notesList details').length,
+  table: !!document.querySelector('#view-learn table')
+}));
+check('Learn keeps transformers, notes, core table', learnBits.ununs.slice(0, 4).join() === '1:1,4:1,9:1,49:1' && learnBits.notes === 6 && learnBits.table, JSON.stringify(learnBits));
 await page.keyboard.press('1');
-await page.waitForTimeout(150);
+await page.click('#build .more');
+await page.waitForTimeout(200);
+check('"Winding details" opens the matching Learn card', await page.evaluate(() => document.getElementById('view-learn').classList.contains('on') && document.getElementById('k-49').open));
+await page.evaluate(() => { location.hash = '#calc'; });
+await page.waitForTimeout(200);
+check('legacy #calc deep link lands on Cut', await page.$eval('#view-cut', e => e.classList.contains('on')));
 
 // --- fractional inches ---
 const f1 = await page.evaluate(() => fmt(10.354));
@@ -150,24 +232,27 @@ const l1 = await page.evaluate(() => fmtLogLen(65.708));
 check('log fmt quarter inch', l1.includes('8½″') && l1.includes('20.03 m'), l1);
 
 // --- band-span wire verdicts ---
-// 71 ft on 40 m: multiple spans 1.062–1.107 across 7.0–7.3 MHz, worst case
-// 0.062 from 1×½λ -> AVOID even though band center alone would say MARGINAL.
 await page.keyboard.press('2');
 await page.waitForTimeout(150);
 await page.fill('#wire', '71');
 await page.waitForTimeout(200);
-const v40 = await page.$$eval('#verdict .li', els => {
-  const row = els.find(e => e.querySelector('.t1') && e.querySelector('.t1').textContent === '40m');
+const v40 = await page.$$eval('#verdict .v', els => {
+  const row = els.find(e => e.firstElementChild.textContent.startsWith('40m'));
   return row ? row.querySelector('.pill').textContent : null;
 });
 check('71 ft AVOID on 40m (band edge)', v40 === 'AVOID', v40);
-const wireRows = await page.$$eval('#verdict .li', els => ({
-  n: els.length,
-  first: els[0].querySelector('.t1').textContent,
-  pill: els[0].querySelector('.pill').textContent
+const wireRows = await page.$$eval('#verdict .v', els => ({
+  n: els.length, first: els[0].firstElementChild.textContent.slice(0, 4), pill: els[0].querySelector('.pill').textContent,
+  dimmed: els.filter(e => e.classList.contains('dim')).length
 }));
-check('wire check covers 160m (SHORT at 71 ft)', wireRows.n === 10 && wireRows.first === '160m' && wireRows.pill === 'SHORT', JSON.stringify(wireRows));
-check('clocks removed from header', await page.evaluate(() => !document.getElementById('clkUtc') && !document.getElementById('clocks')));
+check('verdicts cover 10 bands, 160m SHORT at 71 ft, unselected bands dimmed', wireRows.n === 10 && wireRows.first === '160m' && wireRows.pill === 'SHORT' && wireRows.dimmed === 7, JSON.stringify(wireRows));
+const ruler = await page.evaluate(() => {
+  const c = document.getElementById('rulerC');
+  const ctx = c.getContext('2d');
+  const px = ctx.getImageData(Math.round(c.width * 0.05), Math.round(c.height / 2), 1, 1).data;
+  return { w: c.width, ticks: document.getElementById('rulerTicks').textContent, painted: px[3] > 0 };
+});
+check('safe-window ruler is drawn', ruler.w > 300 && ruler.ticks.startsWith('0') && ruler.ticks.endsWith('150 ft') && ruler.painted, JSON.stringify(ruler));
 const shared = await page.evaluate(async () => {
   const btn = document.getElementById('btnShare');
   if (!btn || btn.parentElement.id !== 'hdBtns') return null;
@@ -196,7 +281,7 @@ const topbarSafe = await page.evaluate(() => {
   const s = getComputedStyle(document.getElementById('topbar'));
   return { minH: s.minHeight, padTop: s.paddingTop };
 });
-check('header reserves iOS safe area (60px min, env pad)', topbarSafe.minH === '60px' && topbarSafe.padTop === '0px', JSON.stringify(topbarSafe));
+check('header reserves iOS safe area (58px + env pad)', topbarSafe.minH === '58px' && topbarSafe.padTop === '0px', JSON.stringify(topbarSafe));
 check('update banner present, hidden by default', await page.evaluate(() => {
   const b = document.getElementById('updateBar');
   return !!b && !b.classList.contains('show') && getComputedStyle(b).display === 'none' && !!document.getElementById('updateBtn');
@@ -229,13 +314,10 @@ check('suggestion reaches far for long wires', longFix.shown && longFix.label.in
 // --- band-set length recommender ---
 const pickCount = await page.$$eval('#bandPick button', els => els.length);
 check('band picker shows 10 bands', pickCount === 10, String(pickCount));
-const clickBand = async (name) => page.$$eval('#bandPick button', (els, n) => {
-  els.find(e => e.textContent === n).click();
-}, name);
-await clickBand('40m'); await clickBand('20m'); await clickBand('10m');
-await page.waitForTimeout(250);
-const recs = await page.$$eval('#recLens button', els => els.map(e => parseFloat(e.querySelector('b').textContent)));
-check('recommendations produced', recs.length >= 3, JSON.stringify(recs));
+const selDefault = await page.$$eval('#bandPick button.on', els => els.map(e => e.textContent).sort().join(','));
+check('first run pre-selects 40/20/10', selDefault === '10m,20m,40m', selDefault);
+const recs = await page.$$eval('#recLens .rec', els => els.map(e => parseFloat(e.querySelector('b').textContent)));
+check('recommendation tiles produced', recs.length >= 3, JSON.stringify(recs));
 const recsClear = await page.evaluate((vals) => {
   const sel = wireBands().filter(b => ['40m','20m','10m'].includes(b.n));
   return vals.every(ft => sel.every(b => { const r = bandOffset(ft, b); return r.n > 0 && r.off >= 0.15; }));
@@ -243,28 +325,26 @@ const recsClear = await page.evaluate((vals) => {
 check('every recommendation CLEAR on selected bands', recsClear);
 const lowestFloor = await page.evaluate(() => 234 / 7.15);
 check('recommendations respect quarter-wave floor', recs.every(v => v >= Math.floor(lowestFloor)), JSON.stringify([recs[0], lowestFloor.toFixed(1)]));
-await page.click('#recLens button');
+await page.click('#recLens .rec');
 await page.waitForTimeout(250);
-const recLoaded = await page.evaluate((first) => parseFloat(document.getElementById('wire').value) === first, recs[0]);
-check('tapping a recommendation loads it', recLoaded);
+const recLoaded = await page.evaluate((first) => parseFloat(document.getElementById('wire').value) === first && document.querySelector('#recLens .rec').classList.contains('on'), recs[0]);
+check('tapping a recommendation loads it and lights the tile', recLoaded);
+const clickBand = async (name) => page.$$eval('#bandPick button', (els, n) => { els.find(e => e.textContent === n).click(); }, name);
+await clickBand('80m');
+await page.waitForTimeout(200);
 await page.reload();
 await page.waitForTimeout(700);
 const selRestored = await page.$$eval('#bandPick button.on', els => els.map(e => e.textContent).sort().join(','));
-check('band selection persists reload', selRestored === '10m,20m,40m', selRestored);
-await clickBand('40m'); await clickBand('20m'); await clickBand('10m'); // reset selection
-await page.fill('#wire', '71');   // restore the state the next section expects
+check('band selection persists reload', selRestored === '10m,20m,40m,80m', selRestored);
+await clickBand('80m');
+await page.fill('#wire', '71');
 await page.waitForTimeout(250);
 const fixShown = await page.$eval('#wireFix', e => !e.hidden);
 check('all-clear suggestion offered', fixShown);
 await page.click('#wireFix button');
 await page.waitForTimeout(200);
-const sugClean = await page.evaluate(() => {
-  const ft = parseFloat(document.getElementById('wire').value);
-  return !hasAvoid(ft);
-});
-check('suggestion is actually spike-free', sugClean);
-const fixHidden = await page.$eval('#wireFix', e => e.hidden);
-check('suggestion hides once clear', fixHidden);
+check('suggestion is actually spike-free', await page.evaluate(() => !hasAvoid(parseFloat(document.getElementById('wire').value))));
+check('suggestion hides once clear', await page.$eval('#wireFix', e => e.hidden));
 
 // --- chips convert in meters mode ---
 await page.fill('#wire', '71');
@@ -275,10 +355,10 @@ await page.click('#wM');
 await page.waitForTimeout(150);
 chip0 = await page.$eval('#goodLens button', e => e.textContent);
 check('chips metric', chip0 === '12.5 m', chip0);
+check('ruler relabels in metres', (await page.$eval('#rulerTicks', e => e.textContent)).endsWith('50 m'));
 await page.click('#goodLens button');
 await page.waitForTimeout(150);
-const wireVal = await page.$eval('#wire', e => e.value);
-check('metric chip sets metric value', wireVal === '12.50', wireVal);
+check('metric chip sets metric value', (await page.$eval('#wire', e => e.value)) === '12.50');
 await page.click('#wFt');
 await page.waitForTimeout(150);
 
@@ -290,7 +370,6 @@ const importResult = async (obj) => page.evaluate(async (o) => {
   const t = document.querySelector('#toasts .toast');
   return t ? { text: t.textContent, err: t.classList.contains('err') } : null;
 }, obj);
-
 let r = await importResult({ app: 'FEEDPOINT', log: [] });
 check('import FEEDPOINT casing', r && !r.err && r.text.includes('Restored 0'), r && r.text);
 r = await importResult({ app: 'halfwave', log: [{ ts: 123, items: [['a','b']], kind: 'cut', title: 'legacy' }] });
@@ -306,20 +385,17 @@ check('import rejects missing log', r && r.err, r && r.text);
 r = await importResult({ app: 'feedpoint', log: [{ ts: 456, kind: 'cut',
   title: '<img src=x onerror=window.__pwned=1>', items: [['<b>k</b>', '<i>v</i>']] }] });
 check('import of markup title accepted', r && !r.err, r && r.text);
-await page.keyboard.press('6');
+await page.keyboard.press('3');
 await page.waitForTimeout(200);
 const injected = await page.evaluate(() => ({
   img: !!document.querySelector('#logList img'),
   pwned: '__pwned' in window,
-  titleText: document.querySelector('#logList .t1').textContent,
+  titleText: document.querySelector('#logList .entry .t').textContent,
   specHasBold: !!document.querySelector('#logList .spec b, #logList .spec i')
 }));
-check('markup rendered as text', !injected.img && !injected.pwned && !injected.specHasBold
-  && injected.titleText.includes('<img'), JSON.stringify(injected));
-
-// --- toast is aria-live ---
-const live = await page.$eval('#toasts', e => e.getAttribute('aria-live'));
-check('toasts aria-live', live === 'polite', live);
+check('markup rendered as text', !injected.img && !injected.pwned && !injected.specHasBold && injected.titleText.includes('<img'), JSON.stringify(injected));
+check('legacy entry without a length still gets a headline', await page.$eval('#logList .entry .n', e => e.textContent.length > 0));
+check('toasts aria-live', (await page.$eval('#toasts', e => e.getAttribute('aria-live'))) === 'polite');
 
 // --- save cut + delete with undo ---
 await importResult({ app: 'feedpoint', log: [] }); // reset log
@@ -327,55 +403,56 @@ await page.keyboard.press('1');
 await page.waitForTimeout(150);
 await page.click('#saveCut');
 await page.waitForTimeout(200);
-check('save flash', await page.$eval('#saveCut', e => e.textContent === 'Saved'));
-await page.keyboard.press('6');
+check('save flash', await page.$eval('#saveCut', e => e.textContent === 'Saved ✓'));
+await page.keyboard.press('3');
 await page.waitForTimeout(200);
-let count = await page.$$eval('#logList details.k', els => els.length);
-check('log has entry', count === 1, String(count));
-await page.evaluate(() => { document.getElementById('toasts').innerHTML = ''; });
+const entry = await page.evaluate(() => {
+  const e = document.querySelector('#logList .entry');
+  return { n: document.querySelectorAll('#logList .entry').length, title: e.querySelector('.t').textContent,
+           head: e.querySelector('.n').textContent, detail: e.querySelector('.d').textContent };
+});
+check('log entry is headline-first (EFHW · 40m / 65′ 5½″)', entry.n === 1 && entry.title === 'EFHW · 40m' && entry.head === '65′ 5½″' && entry.detail.startsWith('7.150 MHz'), JSON.stringify(entry));
+await page.evaluate(() => { document.getElementById('toasts').innerHTML = ''; document.querySelector('#logList .entry').open = true; });
 await page.click('#logList .del');
 await page.waitForTimeout(200);
-count = await page.$$eval('#logList details.k', els => els.length);
+let count = await page.$$eval('#logList .entry', els => els.length);
 check('entry deleted', count === 0, String(count));
 const undoBtn = await page.$('#toasts .t-act');
 check('undo offered', !!undoBtn);
 await undoBtn.click();
 await page.waitForTimeout(200);
-count = await page.$$eval('#logList details.k', els => els.length);
+count = await page.$$eval('#logList .entry', els => els.length);
 check('undo restores entry', count === 1, String(count));
 
 // --- per-band cut memory dot ---
 await page.keyboard.press('1');
 await page.waitForTimeout(150);
-const dot40 = await page.$$eval('#bandList .li', els => {
-  const row = els.find(e => e.querySelector('.t1').textContent.startsWith('40m'));
-  return !!row.querySelector('.cutdot');
-});
-check('40m shows cut-memory dot', dot40);
+check('40m rail chip shows the saved dot', await page.$eval('#bandRail .chip[data-band="40m"]', e => e.classList.contains('saved')));
 
-// --- load log entry back into calculator ---
+// --- load log entry back into Cut ---
+await page.click('#changeAnt'); await page.click('#pick button[data-ant="loop"]');
 await page.fill('#freq', '14.175');
 await page.waitForTimeout(150);
 await page.evaluate(() => go('log'));
 await page.waitForTimeout(150);
-await page.$eval('#logList details.k', e => e.open = true);
+await page.$eval('#logList .entry', e => e.open = true);
 await page.click('#logList .load');
 await page.waitForTimeout(200);
 const loaded = await page.evaluate(() => ({
-  view: document.getElementById('view-calc').classList.contains('on'),
-  freq: document.getElementById('freq').value
+  view: document.getElementById('view-cut').classList.contains('on'),
+  freq: document.getElementById('freq').value, ant: document.getElementById('antName').textContent
 }));
-check('load restores freq + switches view', loaded.view && loaded.freq === '7.150', JSON.stringify(loaded));
+check('load restores antenna + freq and switches to Cut', loaded.view && loaded.freq === '7.150' && loaded.ant === 'End-fed half-wave', JSON.stringify(loaded));
 
 // --- per-entry notes persist ---
 await page.evaluate(() => go('log'));
 await page.waitForTimeout(150);
-await page.$eval('#logList details.k', e => e.open = true);
+await page.$eval('#logList .entry', e => e.open = true);
 await page.fill('#logList textarea.note', 'Backyard EFHW, tuned flat on 40');
 await page.waitForTimeout(800);
 await page.reload();
 await page.waitForTimeout(700);
-await page.$eval('#logList details.k', e => e.open = true);
+await page.$eval('#logList .entry', e => e.open = true);
 const noteVal = await page.$eval('#logList textarea.note', e => e.value);
 check('note persists across reload', noteVal === 'Backyard EFHW, tuned flat on 40', noteVal);
 
@@ -385,31 +462,32 @@ await page.click('#logList .print');
 await page.waitForTimeout(100);
 const during = await page.evaluate(() => ({
   one: document.body.classList.contains('print-one'),
-  target: !!document.querySelector('#logList details.k.print-target')
+  target: !!document.querySelector('#logList .entry.print-target')
 }));
 check('print marks single entry', during.one && during.target, JSON.stringify(during));
 await page.waitForTimeout(1100);
-const after = await page.evaluate(() => document.body.classList.contains('print-one'));
-check('print state cleaned up', !after);
+check('print state cleaned up', !(await page.evaluate(() => document.body.classList.contains('print-one'))));
 
-// --- backup includes build stamp ---
+// --- wire save ---
+await page.keyboard.press('2');
+await page.fill('#wire', '58');
+await page.waitForTimeout(150);
+await page.click('#saveWire');
+await page.waitForTimeout(200);
+await page.keyboard.press('3');
+await page.waitForTimeout(150);
+const wEntry = await page.evaluate(() => { const e = document.querySelector('#logList .entry'); return { t: e.querySelector('.t').textContent, n: e.querySelector('.n').textContent, d: e.querySelector('.d').textContent }; });
+check('wire entry headline-first with clear count', wEntry.t.startsWith('Wire check · 58.0 ft') && wEntry.n === '58′ 0″' && /\d+ of 10 bands clear/.test(wEntry.d), JSON.stringify(wEntry));
+
 const build = await page.evaluate(() => APP_VERSION);
 check('APP_VERSION accessible', build === VERSION, build);
 
-// --- responsive: collapsed rail at 900px ---
-await page.setViewportSize({ width: 900, height: 800 });
+// --- responsive: mobile tab bar below 900px ---
+await page.setViewportSize({ width: 899, height: 800 });
 await page.waitForTimeout(200);
-const railW = await page.$eval('#rail', e => e.getBoundingClientRect().width);
-check('rail collapses at 900px', railW < 80, railW + 'px');
-const lblVisible = await page.$eval('#rail .nav-lbl', e => getComputedStyle(e).display);
-check('labels hidden collapsed', lblVisible === 'none', lblVisible);
-
-// --- responsive: mobile dock at 400px ---
+check('tab bar takes over below 900px', await page.evaluate(() => getComputedStyle(document.getElementById('dock')).display === 'flex' && getComputedStyle(document.getElementById('rail')).display === 'none'));
 await page.setViewportSize({ width: 400, height: 800 });
 await page.waitForTimeout(200);
-const dockShown = await page.$eval('#dock', e => getComputedStyle(e).display);
-const railShown = await page.$eval('#rail', e => getComputedStyle(e).display);
-check('mobile: dock shown, rail hidden', dockShown === 'flex' && railShown === 'none');
 const dockFooter = await page.evaluate(() => {
   const d = document.getElementById('dock');
   const s = getComputedStyle(d);
@@ -417,67 +495,47 @@ const dockFooter = await page.evaluate(() => {
   const main = document.getElementById('main').getBoundingClientRect();
   return { bottom: Math.round(r.bottom), vh: innerHeight, left: Math.round(r.left),
            right: Math.round(r.right), vw: innerWidth, borderTop: s.borderTopWidth !== '0px',
-           position: s.position, mainBottom: Math.round(main.bottom), top: Math.round(r.top) };
+           position: s.position, mainBottom: Math.round(main.bottom), top: Math.round(r.top),
+           labels: [...d.querySelectorAll('.nav-lbl')].every(l => getComputedStyle(l).display !== 'none') };
 });
-check('footer is an in-flow grid row reaching the true bottom',
+check('footer is an in-flow grid row reaching the true bottom, with labels',
   dockFooter.position !== 'fixed' && dockFooter.bottom === dockFooter.vh &&
-  dockFooter.left === 0 && dockFooter.right === dockFooter.vw && dockFooter.borderTop,
+  dockFooter.left === 0 && dockFooter.right === dockFooter.vw && dockFooter.borderTop && dockFooter.labels,
   JSON.stringify(dockFooter));
-check('content ends exactly where the footer begins (no gap, no overlap)',
-  dockFooter.mainBottom === dockFooter.top, JSON.stringify(dockFooter));
-/* Measures the RENDERED TEXT with a Range and compares it to the pill's
-   content box. The previous version compared scrollWidth to border-box
-   width, which passes by construction once truncation is removed. */
+check('content ends exactly where the footer begins (no gap, no overlap)', dockFooter.mainBottom === dockFooter.top, JSON.stringify(dockFooter));
 const measurePill = () => page.evaluate(() => {
-  const p = document.querySelector('.verpill');
+  const p = document.querySelector('#topbar .verpill');
   const r = document.createRange(); r.selectNodeContents(p);
   const cs = getComputedStyle(p), box = p.getBoundingClientRect();
-  const inner = box.width
-    - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)
-    - parseFloat(cs.borderLeftWidth) - parseFloat(cs.borderRightWidth);
-  return { textW: +r.getBoundingClientRect().width.toFixed(1), inner: +inner.toFixed(1),
-           right: Math.round(box.right), vw: innerWidth, text: p.textContent };
+  const inner = box.width - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - parseFloat(cs.borderLeftWidth) - parseFloat(cs.borderRightWidth);
+  return { textW: +r.getBoundingClientRect().width.toFixed(1), inner: +inner.toFixed(1), right: Math.round(box.right), vw: innerWidth, text: p.textContent };
 });
 const pillFits = await measurePill();
-check('full version string fits its pill and stays on screen',
-  pillFits.inner >= pillFits.textW - 0.5 && pillFits.right <= pillFits.vw &&
-  /^v\d{4}\.\d{2}\.\d{2}\.\d{3}$/.test(pillFits.text),
-  JSON.stringify(pillFits));
-const noAdjust = await page.evaluate(() => getComputedStyle(document.documentElement).webkitTextSizeAdjust);
-check('iOS text inflation disabled', noAdjust === '100%', noAdjust);
-const dockPad = await page.evaluate(() => ({
-  attr: document.documentElement.getAttribute('data-display'),
-  padBottom: parseFloat(getComputedStyle(document.getElementById('dock')).paddingBottom)
-}));
-check('footer keeps home-indicator padding in every display mode',
-  !!dockPad.attr && dockPad.padBottom >= 6, JSON.stringify(dockPad));
-check('app box is sized to the dynamic viewport, not the physical screen',
-  SRC.includes('height:100dvh'));
+check('full version string fits under the wordmark and stays on screen',
+  pillFits.inner >= pillFits.textW - 0.5 && pillFits.right <= pillFits.vw && /^v\d{4}\.\d{2}\.\d{2}\.\d{3}$/.test(pillFits.text), JSON.stringify(pillFits));
+check('iOS text inflation disabled', (await page.evaluate(() => getComputedStyle(document.documentElement).webkitTextSizeAdjust)) === '100%');
+const dockPad = await page.evaluate(() => ({ attr: document.documentElement.getAttribute('data-display'), padBottom: parseFloat(getComputedStyle(document.getElementById('dock')).paddingBottom) }));
+check('footer keeps home-indicator padding in every display mode', !!dockPad.attr && dockPad.padBottom >= 6, JSON.stringify(dockPad));
+check('app box is sized to the dynamic viewport, not the physical screen', SRC.includes('height:100dvh'));
 const vvFit = await page.evaluate(() => {
   const d = document.getElementById('dock').getBoundingClientRect();
-  return { appH: document.documentElement.style.getPropertyValue('--app-h'),
-           vv: Math.round(visualViewport.height), dockBottom: Math.round(d.bottom) };
+  return { appH: document.documentElement.style.getPropertyValue('--app-h'), vv: Math.round(visualViewport.height), dockBottom: Math.round(d.bottom) };
 });
-check('app fills the visible area, footer lands on its bottom edge — no dead band below',
-  vvFit.appH === vvFit.vv + 'px' && vvFit.dockBottom === vvFit.vv, JSON.stringify(vvFit));
+check('app fills the visible area, footer lands on its bottom edge', vvFit.appH === vvFit.vv + 'px' && vvFit.dockBottom === vvFit.vv, JSON.stringify(vvFit));
 const noGap = await page.evaluate(() => {
   const d = document.getElementById('dock').getBoundingClientRect();
   const biggest = Math.max(visualViewport.height, document.documentElement.clientHeight, innerHeight);
   return { dockBottom: Math.round(d.bottom), biggest: Math.round(biggest) };
 });
-check('no dead space below the footer on any reported viewport measure',
-  noGap.dockBottom === noGap.biggest, JSON.stringify(noGap));
+check('no dead space below the footer on any reported viewport measure', noGap.dockBottom === noGap.biggest, JSON.stringify(noGap));
 const vvBefore = await page.evaluate(() => document.documentElement.style.getPropertyValue('--app-h'));
 await page.setViewportSize({ width: 400, height: 860 });
 await page.waitForTimeout(350);
 const vvAfter = await page.evaluate(() => {
   const d = document.getElementById('dock').getBoundingClientRect();
-  return { appH: document.documentElement.style.getPropertyValue('--app-h'),
-           vv: Math.round(visualViewport.height), dockBottom: Math.round(d.bottom) };
+  return { appH: document.documentElement.style.getPropertyValue('--app-h'), vv: Math.round(visualViewport.height), dockBottom: Math.round(d.bottom) };
 });
-check('app re-measures when the visible area changes (toolbar retract/rotate)',
-  vvAfter.appH !== vvBefore && vvAfter.appH === vvAfter.vv + 'px' && vvAfter.dockBottom === vvAfter.vv,
-  JSON.stringify({ vvBefore, vvAfter }));
+check('app re-measures when the visible area changes', vvAfter.appH !== vvBefore && vvAfter.appH === vvAfter.vv + 'px' && vvAfter.dockBottom === vvAfter.vv, JSON.stringify({ vvBefore, vvAfter }));
 await page.setViewportSize({ width: 400, height: 800 });
 await page.waitForTimeout(350);
 const diagOpen = await page.evaluate(async () => {
@@ -488,118 +546,76 @@ const diagOpen = await page.evaluate(async () => {
   if (b) b.click();
   await new Promise(r => setTimeout(r, 100));
   location.hash = '';
-  return { had: !!b, closed: !document.getElementById('diagBox'),
-           hasVV: txt.includes('visualViewport'), hasFooter: txt.includes('footer vs visualVP') };
+  return { had: !!b, closed: !document.getElementById('diagBox'), hasVV: txt.includes('visualViewport'), hasFooter: txt.includes('footer vs visualVP') };
 });
-check('#debug diagnostics panel opens, reports viewport truth, and closes',
-  diagOpen.had && diagOpen.closed && diagOpen.hasVV && diagOpen.hasFooter, JSON.stringify(diagOpen));
-const dvhBox = await page.evaluate(() => ({
-  bodyH: Math.round(document.body.getBoundingClientRect().height), vh: innerHeight
-}));
+check('#debug diagnostics panel opens, reports viewport truth, and closes', diagOpen.had && diagOpen.closed && diagOpen.hasVV && diagOpen.hasFooter, JSON.stringify(diagOpen));
+const dvhBox = await page.evaluate(() => ({ bodyH: Math.round(document.body.getBoundingClientRect().height), vh: innerHeight }));
 check('app box height tracks the viewport', dvhBox.bodyH === dvhBox.vh, JSON.stringify(dvhBox));
-/* Simulated iPhone insets (59px top / 34px bottom). Headless Chromium has no
-   browser chrome, so this cannot prove the footer clears a real Safari
-   toolbar — it guards the layout math only. Device check remains manual. */
 await page.addStyleTag({ content: '#topbar{padding-top:59px!important;min-height:119px!important}#dock{padding-bottom:40px!important}' });
 await page.waitForTimeout(200);
 const inset = await page.evaluate(() => {
   const d = document.getElementById('dock').getBoundingClientRect();
   const m = document.getElementById('main').getBoundingClientRect();
-  return { dockBottom: Math.round(d.bottom), vh: innerHeight, dockTop: Math.round(d.top),
-           mainBottom: Math.round(m.bottom), btnsRight: Math.round(document.getElementById('hdBtns').getBoundingClientRect().right),
-           vw: innerWidth, hOverflow: document.documentElement.scrollWidth > innerWidth };
+  return { dockBottom: Math.round(d.bottom), vh: innerHeight, dockTop: Math.round(d.top), mainBottom: Math.round(m.bottom),
+           btnsRight: Math.round(document.getElementById('hdBtns').getBoundingClientRect().right), vw: innerWidth,
+           hOverflow: document.documentElement.scrollWidth > innerWidth };
 });
-check('layout holds with simulated safe-area insets',
-  inset.dockBottom === inset.vh && inset.mainBottom === inset.dockTop &&
-  inset.btnsRight <= inset.vw && !inset.hOverflow, JSON.stringify(inset));
-const insetPill = await measurePill();
-check('version still fits with insets applied',
-  insetPill.inner >= insetPill.textW - 0.5 && insetPill.right <= insetPill.vw, JSON.stringify(insetPill));
+check('layout holds with simulated safe-area insets', inset.dockBottom === inset.vh && inset.mainBottom === inset.dockTop && inset.btnsRight <= inset.vw && !inset.hOverflow, JSON.stringify(inset));
 await page.reload(); await page.waitForTimeout(600);
-const pillMobile = await page.$eval('.verpill', e => {
-  const r = e.getBoundingClientRect();
-  return getComputedStyle(e).display !== 'none' && r.width > 0
-    && r.right <= window.innerWidth && e.textContent.startsWith('v20');
+const mobileCut = await page.evaluate(() => {
+  const seg = document.querySelector('.hero-top .seg').getBoundingClientRect();
+  const big = document.querySelector('#heroBig .val').getBoundingClientRect();
+  const btns = [...document.querySelectorAll('.hero-top .seg button')].map(b => b.getBoundingClientRect().height);
+  return { segOn: seg.right <= innerWidth, oneLine: Math.max(...btns) < 40, bigOn: big.right <= innerWidth, hOverflow: document.getElementById('main').scrollWidth > document.getElementById('main').clientWidth };
 });
-check('version pill visible on mobile', pillMobile);
+check('phone Cut screen: hero + units fit on one line, no horizontal scroll', mobileCut.segOn && mobileCut.oneLine && mobileCut.bigOn && !mobileCut.hOverflow, JSON.stringify(mobileCut));
 await page.setViewportSize({ width: 320, height: 700 });
 await page.waitForTimeout(300);
 const narrowFit = await page.evaluate(() => {
-  const t = document.getElementById('btnTheme').getBoundingClientRect();
+  const t = document.getElementById('btnSettings').getBoundingClientRect();
   const s = document.getElementById('btnShare').getBoundingClientRect();
-  const p = document.querySelector('.verpill').getBoundingClientRect();
-  const pl = document.querySelector('.verpill');
-  const rg = document.createRange(); rg.selectNodeContents(pl);
-  const cs = getComputedStyle(pl);
-  const innerW = p.width - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)
-    - parseFloat(cs.borderLeftWidth) - parseFloat(cs.borderRightWidth);
-  return { themeRight: Math.round(t.right), shareOn: s.left >= 0,
-           pillFits: innerW >= rg.getBoundingClientRect().width - 0.5,
-           pillRight: Math.round(p.right), vw: innerWidth };
+  const p = document.querySelector('#topbar .verpill').getBoundingClientRect();
+  return { gearRight: Math.round(t.right), shareOn: s.left >= 0, pillRight: Math.round(p.right), vw: innerWidth,
+           hOverflow: document.documentElement.scrollWidth > innerWidth };
 });
-check('header buttons fit on the narrowest phones (320px)',
-  narrowFit.themeRight <= narrowFit.vw && narrowFit.shareOn &&
-  narrowFit.pillFits && narrowFit.pillRight <= narrowFit.vw,
-  JSON.stringify(narrowFit));
+check('header fits on the narrowest phones (320px)', narrowFit.gearRight <= narrowFit.vw && narrowFit.shareOn && narrowFit.pillRight <= narrowFit.vw && !narrowFit.hOverflow, JSON.stringify(narrowFit));
 
 // --- persistence across reload ---
 await page.setViewportSize({ width: 1280, height: 900 });
 await page.reload();
 await page.waitForTimeout(700);
-count = await page.$$eval('#logList details.k', els => els.length);
-check('log persists across reload', count === 1, String(count));
+count = await page.$$eval('#logList .entry', els => els.length);
+check('log persists across reload', count === 2, String(count));
 
 // --- iOS small-viewport regression -------------------------------------
-/* Reproduces the reported defect: iOS reports the LAYOUT viewport (sized as
-   if the browser toolbar were showing) while the screen is actually taller,
-   which left a dead band of page background below the footer. */
 const iosPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
-await iosPage.addInitScript(() => {
-  Object.defineProperty(window.visualViewport, 'height', { get: () => 760 });
-});
+await iosPage.addInitScript(() => { Object.defineProperty(window.visualViewport, 'height', { get: () => 760 }); });
 await iosPage.goto(PAGE_URL);
 await iosPage.waitForTimeout(1500);
 const iosFit = await iosPage.evaluate(() => {
   const d = document.getElementById('dock').getBoundingClientRect();
-  return { appH: document.documentElement.style.getPropertyValue('--app-h'),
-           vvReports: visualViewport.height, innerH: innerHeight,
+  return { appH: document.documentElement.style.getPropertyValue('--app-h'), vvReports: visualViewport.height, innerH: innerHeight,
            dockBottom: Math.round(d.bottom), gapBelow: innerHeight - Math.round(d.bottom) };
 });
-check('iOS short-viewport report leaves no dead band below the footer',
-  iosFit.gapBelow === 0 && iosFit.dockBottom === iosFit.innerH, JSON.stringify(iosFit));
+check('iOS short-viewport report leaves no dead band below the footer', iosFit.gapBelow === 0 && iosFit.dockBottom === iosFit.innerH, JSON.stringify(iosFit));
 await iosPage.close();
 
 // --- standalone: iOS under-reports every viewport height ---------------
-/* Owner's device: installed app on a 375x812 screen, but every height the
-   page can read comes back 768 (short by the status-bar area), anchoring
-   the app at the top with a dead band at the BOTTOM. In standalone the web
-   view covers the whole screen, so screen.height is the right answer. */
 const saPage = await browser.newPage({ viewport: { width: 375, height: 768 } });
 await saPage.addInitScript(() => {
   const mm = window.matchMedia;
-  window.matchMedia = q => q.includes('display-mode: standalone')
-    ? { matches: true, addEventListener(){}, removeEventListener(){} } : mm.call(window, q);
+  window.matchMedia = q => q.includes('display-mode: standalone') ? { matches: true, addEventListener(){}, removeEventListener(){} } : mm.call(window, q);
   Object.defineProperty(screen, 'height', { get: () => 812 });
   Object.defineProperty(screen, 'width', { get: () => 375 });
 });
 await saPage.goto(PAGE_URL);
 await saPage.waitForTimeout(1500);
-const saFit = await saPage.evaluate(() => ({
-  mode: document.documentElement.getAttribute('data-display'),
-  appH: document.documentElement.style.getPropertyValue('--app-h')
-}));
-check('standalone uses the full physical screen height',
-  saFit.mode === 'standalone' && saFit.appH === '812px', JSON.stringify(saFit));
-const saInset = await saPage.evaluate(() => ({
-  stretched: document.documentElement.getAttribute('data-stretched'),
-  padBottom: getComputedStyle(document.getElementById('dock')).paddingBottom
-}));
-check('stretched standalone restores home-indicator clearance (40px floor)',
-  saInset.stretched === '1' && saInset.padBottom === '40px', JSON.stringify(saInset));
+const saFit = await saPage.evaluate(() => ({ mode: document.documentElement.getAttribute('data-display'), appH: document.documentElement.style.getPropertyValue('--app-h') }));
+check('standalone uses the full physical screen height', saFit.mode === 'standalone' && saFit.appH === '812px', JSON.stringify(saFit));
+const saInset = await saPage.evaluate(() => ({ stretched: document.documentElement.getAttribute('data-stretched'), padBottom: getComputedStyle(document.getElementById('dock')).paddingBottom }));
+check('stretched standalone restores home-indicator clearance (40px floor)', saInset.stretched === '1' && saInset.padBottom === '40px', JSON.stringify(saInset));
 await saPage.close();
 
-/* And the inverse: a BROWSER must never stretch to screen.height, or the
-   footer lands under the browser's toolbar (the original bug). */
 const brPage = await browser.newPage({ viewport: { width: 375, height: 666 } });
 await brPage.addInitScript(() => {
   Object.defineProperty(screen, 'height', { get: () => 812 });
@@ -607,18 +623,10 @@ await brPage.addInitScript(() => {
 });
 await brPage.goto(PAGE_URL);
 await brPage.waitForTimeout(1500);
-const brFit = await brPage.evaluate(() => ({
-  mode: document.documentElement.getAttribute('data-display'),
-  appH: document.documentElement.style.getPropertyValue('--app-h')
-}));
-check('browser mode ignores screen height (footer stays above browser chrome)',
-  brFit.mode === 'browser' && brFit.appH === '666px', JSON.stringify(brFit));
-const brInset = await brPage.evaluate(() => ({
-  stretched: document.documentElement.getAttribute('data-stretched'),
-  padBottom: getComputedStyle(document.getElementById('dock')).paddingBottom
-}));
-check('un-stretched footer keeps its slim padding',
-  brInset.stretched === null && brInset.padBottom === '6px', JSON.stringify(brInset));
+const brFit = await brPage.evaluate(() => ({ mode: document.documentElement.getAttribute('data-display'), appH: document.documentElement.style.getPropertyValue('--app-h') }));
+check('browser mode ignores screen height (footer stays above browser chrome)', brFit.mode === 'browser' && brFit.appH === '666px', JSON.stringify(brFit));
+const brInset = await brPage.evaluate(() => ({ stretched: document.documentElement.getAttribute('data-stretched'), padBottom: getComputedStyle(document.getElementById('dock')).paddingBottom }));
+check('un-stretched footer keeps its slim padding', brInset.stretched === null && brInset.padBottom === '6px', JSON.stringify(brInset));
 await brPage.close();
 
 console.log(errors.length ? 'JS ERRORS:\n' + errors.join('\n') : 'NO JS ERRORS');

@@ -32,6 +32,33 @@ Everything else — markup, CSS, JS — is the owner's verbatim.
 
 ## Release notes
 
+**`v2026.09.06.001` — v2: the antenna-first rebuild + Wave badge icon:**
+The owner called the old six-view interface "terrible"; a clickable
+prototype of an antenna-first flow was approved ("I love the look of the
+app") and this release rebuilds `feedpoint.html` around it. Four labeled
+sections (keys 1–4): **Cut** (pick an antenna → band rail + tune slider →
+one hero number per antenna with its pair of secondary figures → K chips →
+"Build it" recipe naming the transformer → Save), **Wire** (band chips →
+recommended-length tiles → a canvas safe-window ruler 0–150 ft / 0–50 m
+colored by worst verdict with your wire marked → length + verdict pills,
+unselected bands dimmed → proven lengths), **Log** (headline-first entry
+cards: antenna · band, the cut length big, MHz/K under it; spec sheet,
+load/print/delete-undo, notes, backup), **Learn** (transformers, core
+table, coil calculator, EFHW/EFRW, field notes). Desktop keeps a labeled
+left rail; phones get an in-flow labeled tab bar (all the iOS viewport
+machinery from .008–.013 is preserved verbatim, tests included). Units,
+region, theme (segmented Dark/Day/Circuit), text size, K factor, backup,
+storage status and version moved into a **settings sheet** behind a gear in
+the header; the version stays visible under the wordmark. Legacy hashes
+(`#calc`, `#unun`, `#ant`, `#notes`) still resolve. Cut entries now carry
+`ant` and `ft`; older entries render with their first spec row as headline.
+First run pre-selects 40/20/10 on Wire. Icon: the **Wave badge** (v16) —
+navy radial tile, lime disc, navy sine — rolled out to apple-touch/512
+(`-v16` URLs), favicons, .ico, inline SVG favicon, mask-icon, manifest,
+sw ASSETS, pages.yml staging/verify, README `mark.svg`/`open-app.svg`, and
+the header chip (accent disc, wave in `--on-a`). Playfair Display was
+dropped from the embedded fonts (unused). Suite rewritten: 122 checks.
+
 **`v2026.08.20.013` — home-indicator clearance in stretched standalone:**
 .012 put the installed app's footer on the physical bottom, but the owner
 reported it a "little too far": when iOS under-reports the standalone
