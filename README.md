@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="docs/mark.svg" width="110" alt="FeedPoint mark — the Wave badge: lime disc with a navy sine on navy">
+<img src="docs/mark.svg" width="110" alt="FeedPoint mark — the Wave badge: Fiesta Red disc with an Olympic White sine on Fender Black">
 
 # FeedPoint
 
@@ -30,9 +30,9 @@ That is the entire install.*
 
 [![CI](https://github.com/cdburgess75/FeedPoint/actions/workflows/ci.yml/badge.svg)](https://github.com/cdburgess75/FeedPoint/actions/workflows/ci.yml)
 [![Deploy](https://github.com/cdburgess75/FeedPoint/actions/workflows/pages.yml/badge.svg)](https://github.com/cdburgess75/FeedPoint/actions/workflows/pages.yml)
-![Single file](https://img.shields.io/badge/single_file-~210_KB-FF9500)
+![Single file](https://img.shields.io/badge/single_file-~210_KB-D65A3E)
 ![Offline](https://img.shields.io/badge/offline-100%25-2FC898)
-![Tests](https://img.shields.io/badge/checks-126_passing-62CA40)
+![Tests](https://img.shields.io/badge/checks-128_passing-62CA40)
 
 <br>
 
@@ -80,7 +80,7 @@ That is the entire install.*
 ![Vanilla JS](https://img.shields.io/badge/JavaScript-vanilla,_zero_deps-F7DF1E?logo=javascript&logoColor=black)
 ![PWA](https://img.shields.io/badge/PWA-installable_+_offline-5A0FC8)
 ![IndexedDB](https://img.shields.io/badge/IndexedDB-local_storage-orange)
-![Playwright](https://img.shields.io/badge/Playwright-126_checks-2EAD33?logo=playwright&logoColor=white)
+![Playwright](https://img.shields.io/badge/Playwright-128_checks-2EAD33?logo=playwright&logoColor=white)
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-CI_+_deploy-2088FF?logo=githubactions&logoColor=white)
 ![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-hosting-222?logo=github)
 
@@ -118,7 +118,7 @@ start feedpoint.html       # Windows
 
 Edit `feedpoint.html`, refresh the tab, done — there is no build step.
 
-**Run the functional suite** (126 headless checks: navigation, verdict math,
+**Run the functional suite** (128 headless checks: navigation, verdict math,
 theming, import validation, XSS escaping, undo, persistence, responsive
 breakpoints — the same gate every PR passes in CI):
 
@@ -188,8 +188,8 @@ to lie about which one you're making.)
 - **Keyboard-driven at home** — number keys <kbd>1</kbd>–<kbd>4</kbd> switch
   sections; every control is focusable and screen-reader labeled
   (`aria-live` toasts, visible focus rings, reduced-motion respected).
-- **Three themes** (Macro Dark, Daylight, Circuit) and a text-size stepper
-  in the settings sheet — all persist, all apply before first paint.
+- **Three themes** (Fender Black, Olympic White, Daphne Blue) and a text-size
+  stepper in the settings sheet — all persist, all apply before first paint.
 - **Storage honesty** — a status dot tells you whether IndexedDB is really
   persisting. If it isn't, saves say *"Session only"* instead of a
   comforting lie.
@@ -223,11 +223,14 @@ case-insensitively (including backups from the app's earlier life as
 | Quarter wave | `234 / f` | | ⅝ wave | `585 / f` |
 | Counterpoise 0.05 λ | `0.05 × 984 / f` | | Verdict thresholds | ±7% AVOID · ±15% MARGINAL |
 
-**The look** is Macro Dark by default — warm near-black, orange accent,
-hairline edges, embedded Inter / Roboto Mono / Chakra Petch (latin subsets;
-~110 KB of the file is fonts) — with Daylight and Circuit (navy + lime
-`#C6F135`) alongside. The brand mark is the Wave badge: a lime disc carrying
-a navy sine on a navy tile.
+**The look** is built entirely from Fender's 1960s custom-color chart.
+Three themes: Fender Black with a Fiesta Red accent, Olympic White with Lake
+Placid Blue, and a deep Lake Placid navy with Daphne Blue. Bands run warm to
+cool with frequency (Burgundy Mist on 160 m through Sonic Blue on 6 m) and
+each antenna has its own finish. Hairline edges, embedded Inter / Roboto
+Mono / Chakra Petch (latin subsets; ~110 KB of the file is fonts). The brand
+mark is the Wave badge: a Fiesta Red disc carrying an Olympic White sine on a
+Black tile.
 
 **Storage** is raw IndexedDB — one database, one key-value store, every
 access wrapped so the app degrades gracefully anywhere it runs.

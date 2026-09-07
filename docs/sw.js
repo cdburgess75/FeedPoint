@@ -10,7 +10,7 @@
 const VERSION = "__BUILD_VERSION__";
 const CACHE = "feedpoint-site-" + VERSION;
 const ASSETS = ["./", "apple-touch-icon.png", "icon-512.png", "manifest.webmanifest",
-  "touch-icon-180-v16.png", "icon-512-v16.png",
+  "touch-icon-180-v17.png", "icon-512-v17.png",
   "favicon.ico", "favicon-16.png", "favicon-32.png", "mask-icon.svg"];
 
 self.addEventListener("install", e => {

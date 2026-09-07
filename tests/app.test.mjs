@@ -4,7 +4,7 @@ import { chromium } from 'playwright';
 import { readFileSync } from 'fs';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.09.07.001';
+const VERSION = 'v2026.09.07.002';
 const SRC = readFileSync(new URL('../feedpoint.html', import.meta.url), 'utf8');
 const errors = [];
 let failed = 0;
@@ -30,8 +30,8 @@ const icons = await page.evaluate(() => ({
   touch: document.querySelector('link[rel="apple-touch-icon"]')?.getAttribute('href'),
   iosTitle: document.querySelector('meta[name="apple-mobile-web-app-title"]')?.content
 }));
-check('favicon + apple-touch-icon wired (wave badge v16)', icons.favicon && icons.touch === 'https://cdburgess75.github.io/FeedPoint/touch-icon-180-v16.png' && icons.iosTitle === 'FeedPoint', JSON.stringify(icons));
-check('no stale v15 icon references in the page', !SRC.includes('v15.png'));
+check('favicon + apple-touch-icon wired (wave badge v17, Fender colors)', icons.favicon && icons.touch === 'https://cdburgess75.github.io/FeedPoint/touch-icon-180-v17.png' && icons.iosTitle === 'FeedPoint', JSON.stringify(icons));
+check('no stale icon references in the page', !SRC.includes('v15.png') && !SRC.includes('v16.png'));
 const manifest = await page.$eval('link[rel="manifest"]', e => e.getAttribute('href'));
 check('PWA manifest linked', manifest === 'manifest.webmanifest', manifest);
 const desktopIcons = await page.evaluate(() => ({
@@ -52,6 +52,12 @@ check('header mark is the wave badge, not the lambda', await page.evaluate(() =>
   const s = document.querySelector('.mark svg');
   return !!s && s.innerHTML.includes('c2.5 0 2.5-6') && !s.innerHTML.includes('Q25.11');
 }));
+const fender = await page.evaluate(() => ({
+  mark: getComputedStyle(document.querySelector('.mark')).backgroundColor, page: getComputedStyle(document.body).backgroundColor,
+  save: getComputedStyle(document.getElementById('saveCut')).backgroundColor
+}));
+check('no orange or lime left anywhere: header badge Fiesta Red on Black', fender.mark === 'rgb(214, 90, 62)' && fender.page === 'rgb(18, 18, 18)' && fender.save === 'rgb(214, 90, 62)'
+  && !/#FF8600|#C6F135|#FF9500|#050403|#070F1E|#C24A00/i.test(SRC), JSON.stringify(fender));
 
 // --- first run: antenna picker ---
 const firstRun = await page.evaluate(() => ({
@@ -176,8 +182,8 @@ const lightState = await page.evaluate(() => ({
   metaColor: document.querySelector('meta[name="theme-color"]').getAttribute('content'),
   on: document.querySelector('#themeSeg button.on').dataset.theme
 }));
-check('Daylight selected', lightState.attr === 'light' && lightState.bg !== darkBg && lightState.on === 'light', JSON.stringify(lightState));
-check('meta theme-color follows scheme', lightState.metaColor.toLowerCase() === '#e9f1f4', lightState.metaColor);
+check('Olympic White selected', lightState.attr === 'light' && lightState.bg !== darkBg && lightState.on === 'light', JSON.stringify(lightState));
+check('meta theme-color follows scheme', lightState.metaColor.toLowerCase() === '#f1eee3', lightState.metaColor);
 await page.click('#themeSeg button[data-theme="circuit"]');
 await page.waitForTimeout(200);
 const circuitState = await page.evaluate(() => ({
@@ -185,10 +191,10 @@ const circuitState = await page.evaluate(() => ({
   metaColor: document.querySelector('meta[name="theme-color"]').getAttribute('content'),
   markBg: getComputedStyle(document.querySelector('.mark')).backgroundColor
 }));
-check('Circuit theme (navy/lime badge)', circuitState.attr === 'circuit' && circuitState.metaColor.toLowerCase() === '#070f1e' && circuitState.markBg === 'rgb(198, 241, 53)', JSON.stringify(circuitState));
+check('Daphne Blue theme (navy page, Daphne badge)', circuitState.attr === 'circuit' && circuitState.metaColor.toLowerCase() === '#0e1a2e' && circuitState.markBg === 'rgb(169, 196, 216)', JSON.stringify(circuitState));
 await page.reload();
 await page.waitForTimeout(700);
-check('Circuit survives reload (pre-paint stamp)', await page.evaluate(() => document.documentElement.getAttribute('data-theme')) === 'circuit');
+check('Daphne survives reload (pre-paint stamp)', await page.evaluate(() => document.documentElement.getAttribute('data-theme')) === 'circuit');
 await page.click('#btnSettings');
 await page.click('#sizeSeg button[data-size="2"]');
 await page.waitForTimeout(100);

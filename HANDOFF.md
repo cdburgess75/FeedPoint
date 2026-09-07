@@ -32,6 +32,22 @@ Everything else — markup, CSS, JS — is the owner's verbatim.
 
 ## Release notes
 
+**`v2026.09.07.002` — every color is a Fender finish, icon included:**
+The owner: "change every color to include the Apple icon". The three
+themes are now built from the chart: **Fender Black** (Black page, Fiesta
+Red accent, Olympic White text, Surf Green / Firemist Gold / Candy Apple
+Red verdicts), **Olympic White** (Olympic White → Blond surfaces, Lake
+Placid Blue accent, Black text, Sherwood Green / deep Shoreline Gold /
+Dakota Red verdicts) and **Daphne Blue** (theme key still `circuit` so
+stored settings survive; Lake Placid navy surfaces, Daphne Blue accent,
+Sonic/Daphne text, Fiesta Red failure). `--on-ok` added for text on the
+success color. The **Wave badge v17** is a Fiesta Red disc with an Olympic
+White sine on a Black radial tile — apple-touch/512 `-v17` URLs, favicons,
+.ico, inline SVG favicon, mask-icon tint `#D65A3E`, manifest colors
+`#121212`, sw ASSETS, pages.yml, README mark/open-app. No `#FF8600`,
+`#C6F135`, `#050403` or `#070F1E` remain in the file (a test guards it).
+128 checks.
+
 **`v2026.09.07.001` — Fender custom colors for bands and antennas:**
 The owner shared Fender's 1960s custom-color chart and asked for it to be
 used "in an intelligent way" — a color per band and a color per antenna.
