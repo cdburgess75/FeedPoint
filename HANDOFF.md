@@ -32,6 +32,14 @@ Everything else — markup, CSS, JS — is the owner's verbatim.
 
 ## Release notes
 
+**`v2026.09.07.003` — icon disc goes Candy Apple Red:**
+Owner: the home-screen icon still "looks orange" — Fiesta Red at icon
+scale reads as orange. The Wave badge disc is now **Candy Apple Red**
+(`#B92A33`), a true red, on the Black tile with the Olympic White sine;
+the in-app Fiesta Red accent is unchanged (it was approved). Shipped as
+**v18** URLs (apple-touch/512), favicons, .ico, inline SVG favicon,
+mask-icon tint, manifest, sw ASSETS, pages.yml, README mark/open-app.
+
 **`v2026.09.07.002` — every color is a Fender finish, icon included:**
 The owner: "change every color to include the Apple icon". The three
 themes are now built from the chart: **Fender Black** (Black page, Fiesta

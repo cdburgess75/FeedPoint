@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="docs/mark.svg" width="110" alt="FeedPoint mark — the Wave badge: Fiesta Red disc with an Olympic White sine on Fender Black">
+<img src="docs/mark.svg" width="110" alt="FeedPoint mark — the Wave badge: Candy Apple Red disc with an Olympic White sine on Fender Black">
 
 # FeedPoint
 
@@ -229,8 +229,8 @@ Placid Blue, and a deep Lake Placid navy with Daphne Blue. Bands run warm to
 cool with frequency (Burgundy Mist on 160 m through Sonic Blue on 6 m) and
 each antenna has its own finish. Hairline edges, embedded Inter / Roboto
 Mono / Chakra Petch (latin subsets; ~110 KB of the file is fonts). The brand
-mark is the Wave badge: a Fiesta Red disc carrying an Olympic White sine on a
-Black tile.
+mark is the Wave badge: a Candy Apple Red disc carrying an Olympic White sine
+on a Black tile.
 
 **Storage** is raw IndexedDB — one database, one key-value store, every
 access wrapped so the app degrades gracefully anywhere it runs.
