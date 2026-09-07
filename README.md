@@ -32,7 +32,7 @@ That is the entire install.*
 [![Deploy](https://github.com/cdburgess75/FeedPoint/actions/workflows/pages.yml/badge.svg)](https://github.com/cdburgess75/FeedPoint/actions/workflows/pages.yml)
 ![Single file](https://img.shields.io/badge/single_file-~210_KB-FF9500)
 ![Offline](https://img.shields.io/badge/offline-100%25-2FC898)
-![Tests](https://img.shields.io/badge/checks-122_passing-62CA40)
+![Tests](https://img.shields.io/badge/checks-126_passing-62CA40)
 
 <br>
 
@@ -80,7 +80,7 @@ That is the entire install.*
 ![Vanilla JS](https://img.shields.io/badge/JavaScript-vanilla,_zero_deps-F7DF1E?logo=javascript&logoColor=black)
 ![PWA](https://img.shields.io/badge/PWA-installable_+_offline-5A0FC8)
 ![IndexedDB](https://img.shields.io/badge/IndexedDB-local_storage-orange)
-![Playwright](https://img.shields.io/badge/Playwright-122_checks-2EAD33?logo=playwright&logoColor=white)
+![Playwright](https://img.shields.io/badge/Playwright-126_checks-2EAD33?logo=playwright&logoColor=white)
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-CI_+_deploy-2088FF?logo=githubactions&logoColor=white)
 ![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-hosting-222?logo=github)
 
@@ -118,7 +118,7 @@ start feedpoint.html       # Windows
 
 Edit `feedpoint.html`, refresh the tab, done — there is no build step.
 
-**Run the functional suite** (122 headless checks: navigation, verdict math,
+**Run the functional suite** (126 headless checks: navigation, verdict math,
 theming, import validation, XSS escaping, undo, persistence, responsive
 breakpoints — the same gate every PR passes in CI):
 

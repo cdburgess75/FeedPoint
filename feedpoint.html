@@ -391,6 +391,32 @@ tr.hl td{background:var(--accent-bg)}
   .entry .n,.srow span:last-child{color:#000!important}
 }
 
+/* ---- Fender colors ---- */
+.sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px;vertical-align:-1px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.28)}
+.chip.band{display:inline-flex;align-items:center;border-color:color-mix(in srgb,var(--c) 45%,var(--edge))}
+.chip.band.on{background:var(--c);color:var(--ink);border-color:var(--c)}
+.chip.band.on .sw{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 55%,transparent)}
+.chip.band.on.saved::after{background:var(--ink)}
+span.chip.band{cursor:default}
+.v{border-left:3px solid var(--c,var(--edge))}
+.v>span:first-child{display:flex;flex-direction:column}
+.v>span:first-child .sw{margin-right:6px}
+.tone,details.k .ratio.tone{color:var(--c)}
+:root[data-theme="light"] .tone,:root[data-theme="light"] details.k .ratio.tone{color:color-mix(in srgb,var(--c) 58%,#12242C)}
+#cutWrap .ant-row b{display:inline-flex;align-items:center}
+#cutWrap .ant-row .sw{width:12px;height:12px}
+#cutWrap .hero{border-top:3px solid var(--c)}
+#cutWrap .big .val{color:var(--c)}
+:root[data-theme="light"] #cutWrap .big .val{color:color-mix(in srgb,var(--c) 58%,#12242C)}
+#cutWrap .build header .ratio{color:var(--c)}
+:root[data-theme="light"] #cutWrap .build header .ratio{color:color-mix(in srgb,var(--c) 58%,#12242C)}
+.pick button{border-left:4px solid var(--c)}
+.pick .glyph svg{stroke:var(--c)}
+:root[data-theme="light"] .pick .glyph svg{stroke:color-mix(in srgb,var(--c) 58%,#12242C)}
+.entry{border-left:4px solid var(--c,var(--edge))}
+.entry .n{color:var(--c)}
+:root[data-theme="light"] .entry .n{color:color-mix(in srgb,var(--c) 58%,#12242C)}
+.entry .t{display:inline-flex;align-items:center}
 /* ---- v2 additions ---- */
 .tune label{cursor:default}
 .tune input[type=range]:disabled{opacity:.35}
@@ -505,7 +531,7 @@ tr.hl td{background:var(--accent-bg)}
 
       <h2>Transformers</h2>
       <details class="k" id="k-11">
-        <summary><span class="ratio">1:1</span><span><span class="t1">Common-mode choke</span><br><span class="t2">line isolator · dipole &amp; doublet feed</span></span><svg class="chev" width="14" height="14" viewBox="0 0 14 14"><path d="M5 3l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></summary>
+        <summary><span class="ratio tone" style="--c:#4F73AC">1:1</span><span><span class="t1">Common-mode choke</span><br><span class="t2">line isolator · dipole &amp; doublet feed</span></span><svg class="chev" width="14" height="14" viewBox="0 0 14 14"><path d="M5 3l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></summary>
         <div class="k-body">
           <p>Not an impedance transformer — a <b>current choke</b> that blocks RF from crawling down the coax shield. Kills RF-in-the-shack, noise pickup on receive, and pattern skew.</p>
           <div class="spec">
@@ -517,7 +543,7 @@ tr.hl td{background:var(--accent-bg)}
         </div>
       </details>
       <details class="k" id="k-41">
-        <summary><span class="ratio">4:1</span><span><span class="t1">200 Ω → 50 Ω</span><br><span class="t2">OCF dipole · folded dipole · loops</span></span><svg class="chev" width="14" height="14" viewBox="0 0 14 14"><path d="M5 3l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></summary>
+        <summary><span class="ratio tone" style="--c:#F1EEE3">4:1</span><span><span class="t1">200 Ω → 50 Ω</span><br><span class="t2">OCF dipole · folded dipole · loops</span></span><svg class="chev" width="14" height="14" viewBox="0 0 14 14"><path d="M5 3l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></summary>
         <div class="k-body">
           <p><b>Guanella (current)</b> beats Ruthroff (voltage) on real antennas: two 1:1 chokes, inputs in parallel, outputs in series. Two separate cores keeps the balance honest.</p>
           <div class="spec">
@@ -528,7 +554,7 @@ tr.hl td{background:var(--accent-bg)}
         </div>
       </details>
       <details class="k" id="k-91">
-        <summary><span class="ratio">9:1</span><span><span class="t1">≈450 Ω → 50 Ω unun</span><br><span class="t2">EFRW random wire · tuner required</span></span><svg class="chev" width="14" height="14" viewBox="0 0 14 14"><path d="M5 3l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></summary>
+        <summary><span class="ratio tone" style="--c:#C9A23E">9:1</span><span><span class="t1">≈450 Ω → 50 Ω unun</span><br><span class="t2">EFRW random wire · tuner required</span></span><svg class="chev" width="14" height="14" viewBox="0 0 14 14"><path d="M5 3l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></summary>
         <div class="k-body">
           <p><b>Trifilar wound</b> — three wires side by side, wound together, series-connected. Drags a random wire's wild impedance swings into tuner range. A compromise everywhere, which is the point.</p>
           <div class="spec">
@@ -539,7 +565,7 @@ tr.hl td{background:var(--accent-bg)}
         </div>
       </details>
       <details class="k" id="k-49">
-        <summary><span class="ratio">49:1</span><span><span class="t1">≈2450 Ω → 50 Ω unun</span><br><span class="t2">EFHW half-wave · resonant</span></span><svg class="chev" width="14" height="14" viewBox="0 0 14 14"><path d="M5 3l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></summary>
+        <summary><span class="ratio tone" style="--c:#B92A33">49:1</span><span><span class="t1">≈2450 Ω → 50 Ω unun</span><br><span class="t2">EFHW half-wave · resonant</span></span><svg class="chev" width="14" height="14" viewBox="0 0 14 14"><path d="M5 3l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></summary>
         <div class="k-body">
           <p><b>Autotransformer, 2:14 turns.</b> First two turns as a twisted pair (primary), then twelve more of secondary — crossing to the opposite side of the core mid-way improves high-band SWR.</p>
           <div class="spec">
@@ -639,6 +665,15 @@ tr.hl td{background:var(--accent-bg)}
 
       <h2>Field notes</h2>
       <div id="notesList"></div>
+
+      <h2>Colors</h2>
+      <div class="panel">
+        <p class="sub" style="margin-bottom:10px">Borrowed from Fender's 1960s custom-color chart. Bands run warm to cool with frequency; each antenna has its own finish, and its transformer above wears the same one.</p>
+        <div class="lbl">Bands</div>
+        <div class="chips" id="palBands"></div>
+        <div class="lbl" style="margin-top:12px">Antennas</div>
+        <div class="chips" id="palAnts"></div>
+      </div>
       <p class="hint" style="margin-top:18px">Formulas: half-wave <b>468/f</b> · quarter-wave <b>234/f</b> · full-wave loop <b>1005/f</b> · 5/8-wave <b>585/f</b> · × K/0.95 · f in MHz, feet out. Final trim belongs to your analyzer. <b>73.</b></p>
     </section>
 
@@ -685,7 +720,7 @@ tr.hl td{background:var(--accent-bg)}
 "use strict";
 const $=id=>document.getElementById(id);
 const FT_M=0.3048;
-const APP_VERSION="v2026.09.06.001";
+const APP_VERSION="v2026.09.07.001";
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 /* ---------- data ---------- */
@@ -720,6 +755,27 @@ const BAND_PLANS={
 let region=2;
 let BANDS=BAND_PLANS[region];
 const GOOD_LENS=[25.5,35.5,41,58,71,84,107,119,148,203,347,423];
+/* Fender custom colors (1960s nitrocellulose chart, approximated). Bands run
+   warm → cool with frequency, like a spectrum; each antenna gets its own
+   finish and its transformer in Learn wears the same one. */
+const FENDER={
+ "Burgundy Mist":"#7E4E5E","Dakota Red":"#A3282A","Fiesta Red":"#D65A3E","Candy Apple Red":"#B92A33",
+ "Shoreline Gold":"#C9A23E","Firemist Gold":"#D4B95A","Blond":"#E3D3A6","Olympic White":"#F1EEE3",
+ "Sherwood Green":"#2E5A44","Surf Green":"#B8DDC6","Foam Green":"#D0E6D6","Ocean Turquoise":"#4B9AAA",
+ "Lake Placid Blue":"#4F73AC","Daphne Blue":"#A9C4D8","Sonic Blue":"#D0DCEA","Inca Silver":"#B6BCC3",
+ "Shell Pink":"#E8B7B7","Black":"#141414"
+};
+const BAND_COLOR={"160m":"Burgundy Mist","80m":"Dakota Red","60m":"Fiesta Red","40m":"Firemist Gold","30m":"Blond",
+ "20m":"Sherwood Green","17m":"Surf Green","15m":"Foam Green","12m":"Ocean Turquoise","10m":"Daphne Blue","6m":"Sonic Blue"};
+const bandHex=n=>FENDER[BAND_COLOR[n]]||"#888";
+/* text that reads on a swatch of this color */
+function inkFor(hex){
+  const r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255;
+  const L=0.2126*r+0.7152*g+0.0722*b;
+  return L>0.45?"#121212":"#FFFFFF";
+}
+const swatchStyle=hex=>`--c:${hex};--ink:${inkFor(hex)}`;
+const swatch=(hex,title)=>`<i class="sw" style="background:${hex}" title="${title||""}" aria-hidden="true"></i>`;
 const NOTES=[
  ["Unun vs balun","terminology","Unun = unbalanced-to-unbalanced (coax to end-fed wire). Balun = unbalanced-to-balanced (coax to dipole or doublet). Same cores, different job."],
  ["Doublet + tuner","feeding ladder line","A doublet on ladder line wants a 4:1 or 1:1 balun at the tuner, not an unun — the feedline is part of the antenna system."],
@@ -731,22 +787,23 @@ const NOTES=[
 /* The antenna registry drives the Cut screen: what the hero shows, which
    transformer the recipe names, and which Learn card it links to. */
 const ANT={
- efhw:{name:"End-fed half-wave",short:"EFHW",what:"One wire, 49:1 at the end. Works its harmonics too.",ratio:"49:1",learn:"k-49",
+ efhw:{name:"End-fed half-wave",short:"EFHW",what:"One wire, 49:1 at the end. Works its harmonics too.",ratio:"49:1",learn:"k-49",color:"Candy Apple Red",
    ic:'<path d="M3 15h20M23 15v6"/><circle cx="23" cy="15" r="2"/>',
    recipe:[["Transformer","49:1 autotransformer · 2:14 turns"],["Core","FT240-43 (100 W) · FT82-43 (QRP)"],["Compensation","100 pF · 3 kV across the primary"],["Counterpoise","0.05 λ — the coax shield before a 1:1 choke"],["Cut","3–5% long, then trim to resonance"]]},
- dip:{name:"Dipole",short:"Dipole",what:"Two legs, fed in the middle. The honest reference antenna.",ratio:"1:1",learn:"k-11",
+ dip:{name:"Dipole",short:"Dipole",what:"Two legs, fed in the middle. The honest reference antenna.",ratio:"1:1",learn:"k-11",color:"Lake Placid Blue",
    ic:'<path d="M3 13h10M17 13h10M15 13v9"/><circle cx="15" cy="13" r="2"/>',
    recipe:[["Feed","1:1 current choke at the center"],["Core","10–12 t RG-316 on FT240-43 (100 W)"],["Legs","two equal legs, a quarter wave each"],["Height","a quarter wave up if you can"],["Inverted-V","drop K to 0.92 — the legs get shorter"]]},
- vert:{name:"Quarter-wave vertical",short:"¼-wave vertical",what:"One radiator up, radials out. Low angle, small footprint.",ratio:"1:1",learn:"k-11",
+ vert:{name:"Quarter-wave vertical",short:"¼-wave vertical",what:"One radiator up, radials out. Low angle, small footprint.",ratio:"1:1",learn:"k-11",color:"Inca Silver",
    ic:'<path d="M15 5v16M6 21h18M9 24l6-3 6 3"/>',
    recipe:[["Feed","direct, with a 1:1 choke at the base"],["Radials","4+ elevated, or 16+ laid on the ground"],["Radiator","a quarter wave — the number above"],["⅝ wave","lower takeoff for DX · needs a base matching coil"],["Tip","elevated radials beat buried ones"]]},
- rw:{name:"Random wire",short:"Random wire",what:"Deliberately non-resonant, 9:1 unun, tuner required.",ratio:"9:1",learn:"k-91",
+ rw:{name:"Random wire",short:"Random wire",what:"Deliberately non-resonant, 9:1 unun, tuner required.",ratio:"9:1",learn:"k-91",color:"Shoreline Gold",
    ic:'<path d="M3 20c4 0 4-10 8-10s4 6 8 6 4-8 8-8"/>',
    recipe:[]},
- loop:{name:"Full-wave loop",short:"Loop",what:"A closed loop of one wavelength. Quiet and forgiving.",ratio:"4:1",learn:"k-41",
+ loop:{name:"Full-wave loop",short:"Loop",what:"A closed loop of one wavelength. Quiet and forgiving.",ratio:"4:1",learn:"k-41",color:"Olympic White",
    ic:'<rect x="6" y="6" width="18" height="18" rx="3"/><circle cx="15" cy="24" r="2"/>',
    recipe:[["Feed","4:1 Guanella (≈115 Ω → 50 Ω) or λ/4 of 75 Ω coax"],["Core","2 × 11 t bifilar on 2 × FT140-43"],["Shape","square or delta — sides above"],["Note","a low horizontal loop is an NVIS antenna on 80/40"]]}
 };
+const antHex=id=>FENDER[(ANT[id]||{}).color]||"#888";
 const VIEWS=[
  {id:"cut",  label:"Cut",  icon:'<path d="M4 17 20 7M4 17l3-1M20 7l-3 1M8 15l2 3M15 9l2 3"/>'},
  {id:"wire", label:"Wire", icon:'<path d="M2 12c3 0 3-6 6-6s3 12 6 12 3-6 6-6"/>'},
@@ -893,7 +950,7 @@ function curBand(){const f=freqVal();return BANDS.find(b=>f>=b.lo-0.05&&f<=b.hi+
 function renderPick(){
   const P=$("pick");P.innerHTML="";
   Object.entries(ANT).forEach(([id,a])=>{
-    const b=document.createElement("button");b.type="button";b.dataset.ant=id;
+    const b=document.createElement("button");b.type="button";b.dataset.ant=id;b.style.cssText=swatchStyle(antHex(id));
     b.innerHTML=`<span class="glyph" aria-hidden="true"><svg viewBox="0 0 30 30">${a.ic}</svg></span><span><span class="name">${a.name}</span><div class="what">${a.what}</div></span><span class="chev" aria-hidden="true">›</span>`;
     b.addEventListener("click",()=>chooseAnt(id));
     P.appendChild(b);
@@ -914,8 +971,9 @@ $("changeAnt").addEventListener("click",()=>{showPick(true);$("main").scrollTop=
 function renderRail(){
   const R=$("bandRail");R.innerHTML="";
   BANDS.forEach(b=>{
-    const c=document.createElement("button");c.type="button";c.className="chip";c.dataset.band=b.n;
-    c.textContent=b.n;c.title=b.lo.toFixed(3)+" – "+b.hi.toFixed(3)+" MHz";
+    const c=document.createElement("button");c.type="button";c.className="chip band";c.dataset.band=b.n;
+    c.style.cssText=swatchStyle(bandHex(b.n));
+    c.innerHTML=swatch(bandHex(b.n))+b.n;c.title=BAND_COLOR[b.n]+" · "+b.lo.toFixed(3)+" – "+b.hi.toFixed(3)+" MHz";
     c.addEventListener("click",()=>{$("freq").value=b.c.toFixed(3);markBand();renderCut();saveSettings();});
     R.appendChild(c);
   });
@@ -931,7 +989,7 @@ function markBand(){
     if(on)try{c.scrollIntoView({inline:"center",block:"nearest"});}catch(e){}
   });
   const t=$("tune");
-  t.disabled=!b;
+  t.disabled=!b;t.style.accentColor=b?bandHex(b.n):"";
   if(b)t.value=Math.round(Math.max(0,Math.min(1,(f-b.lo)/(b.hi-b.lo)))*1000);
 }
 $("tune").addEventListener("input",()=>{
@@ -959,7 +1017,8 @@ function harmonics(bn){
 function renderCut(){
   if(!ant||!ANT[ant])return;
   const a=ANT[ant],b=curBand(),f=freqVal(),k=kVal(),adj=k/0.95;
-  $("antName").textContent=a.name;
+  $("antName").innerHTML=swatch(antHex(ant),a.color)+esc(a.name);
+  $("cutWrap").style.cssText=swatchStyle(antHex(ant));
   const where=(b?b.n+" · ":"")+(f?f.toFixed(3)+" MHz":"—");
   const B=$("heroBig"),P=$("heroPair");
   if(!f){
@@ -1042,7 +1101,7 @@ function checkWire(){
     const {n,off}=bandOffset(ft,b),v=verdictOf(ft,b);
     const msg=v==="short"?"under a half wave":v==="bad"?`≈ ${n} × ½ λ in band`:v==="warn"?`close to ${n} × ½ λ`:"non-resonant across the band";
     const dim=anySel&&!wireSel.has(b.n);
-    return `<div class="v${dim?" dim":""}"><span>${b.n}<span class="t2">${msg}</span></span><span class="pill ${v}">${VLABEL[v]}</span></div>`;
+    return `<div class="v${dim?" dim":""}" style="--c:${bandHex(b.n)}"><span>${swatch(bandHex(b.n))}${b.n}<span class="t2">${msg}</span></span><span class="pill ${v}">${VLABEL[v]}</span></div>`;
   }).join("");
   const sug=hasAvoid(ft)?suggestClear(ft):null;
   FX.hidden=!sug;
@@ -1110,8 +1169,9 @@ function renderBandPick(){
   const names=new Set(wireBands().map(b=>b.n));
   wireSel=new Set([...wireSel].filter(n=>names.has(n)));
   wireBands().forEach(b=>{
-    const btn=document.createElement("button");btn.type="button";btn.className="chip";
-    btn.textContent=b.n;
+    const btn=document.createElement("button");btn.type="button";btn.className="chip band";
+    btn.style.cssText=swatchStyle(bandHex(b.n));btn.title=BAND_COLOR[b.n];
+    btn.innerHTML=swatch(bandHex(b.n))+b.n;
     btn.classList.toggle("on",wireSel.has(b.n));btn.setAttribute("aria-pressed",wireSel.has(b.n)?"true":"false");
     btn.addEventListener("click",()=>{
       wireSel.has(b.n)?wireSel.delete(b.n):wireSel.add(b.n);
@@ -1184,6 +1244,10 @@ function renderCoil(){
 ["coilL","coilD","coilAwg","torL","torCore"].forEach(id=>$(id).addEventListener("input",renderCoil));
 
 /* ---------- notes ---------- */
+function buildPalette(){
+  $("palBands").innerHTML=R2_BANDS.map(b=>`<span class="chip band on" style="${swatchStyle(bandHex(b.n))}">${swatch(bandHex(b.n))}${b.n} · ${BAND_COLOR[b.n]}</span>`).join("");
+  $("palAnts").innerHTML=Object.entries(ANT).map(([id,a])=>`<span class="chip band on" style="${swatchStyle(antHex(id))}">${swatch(antHex(id))}${a.short} · ${a.color}</span>`).join("");
+}
 function buildNotes(){
   $("notesList").innerHTML=NOTES.map(n=>`<details class="k"><summary>
       <span><span class="t1">${n[0]}</span><br><span class="t2">${n[1]}</span></span>
@@ -1271,8 +1335,10 @@ function logRender(){
       <div class="k-actions"><button type="button" class="load" data-id="${e.ts}">${loadLbl}</button><button type="button" class="print" data-id="${e.ts}">Print cut sheet</button><button type="button" class="del" data-id="${e.ts}">Delete</button></div>
       <label class="note-lbl" for="note-${e.ts}">Notes</label>
       <textarea class="note" id="note-${e.ts}" data-id="${e.ts}" rows="2" placeholder="Antenna, QTH, how it tuned…">${esc(e.note||"")}</textarea>`;
-    return `<details class="entry" data-ts="${e.ts}"><summary>
-      <span class="t">${esc(title)}</span><span class="w">${when}</span>
+    const ec=e.kind==="cut"?antHex(a?e.ant:"efhw"):antHex("rw");
+    const bsw=e.kind==="cut"&&BAND_COLOR[e.band]?swatch(bandHex(e.band),BAND_COLOR[e.band]):"";
+    return `<details class="entry" data-ts="${e.ts}" style="${swatchStyle(ec)}"><summary>
+      <span class="t">${bsw}${esc(title)}</span><span class="w">${when}</span>
       <span class="n">${logHeadline(e)}</span>
       <span class="d">${esc(detail)}</span></summary>
       <div class="body">${body}</div></details>`;
@@ -1487,7 +1553,7 @@ function showDiag(){
   wireSel=(s&&Array.isArray(s.wireSel))?new Set(s.wireSel.filter(n=>typeof n==="string")):new Set(["40m","20m","10m"]);
   renderPick();showPick(!ant);
   applyUnitButtons();markKChips();
-  renderRail();buildNotes();renderCut();checkWire();renderBandPick();noteStorage();renderCoil();
+  renderRail();buildNotes();buildPalette();renderCut();checkWire();renderBandPick();noteStorage();renderCoil();
   try{logRender();}catch(e){LOG=[];logRender();toast("Stored log was unreadable — starting a fresh log. Restore a backup if you have one.",{kind:"err"});}
   const h=location.hash.slice(1);
   go((VIEWS.some(v=>v.id===h)||VIEW_ALIAS[h])?h:"cut",false);
