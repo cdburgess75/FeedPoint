@@ -4,7 +4,7 @@ import { chromium } from 'playwright';
 import { readFileSync } from 'fs';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.09.07.002';
+const VERSION = 'v2026.09.07.003';
 const SRC = readFileSync(new URL('../feedpoint.html', import.meta.url), 'utf8');
 const errors = [];
 let failed = 0;
@@ -30,8 +30,8 @@ const icons = await page.evaluate(() => ({
   touch: document.querySelector('link[rel="apple-touch-icon"]')?.getAttribute('href'),
   iosTitle: document.querySelector('meta[name="apple-mobile-web-app-title"]')?.content
 }));
-check('favicon + apple-touch-icon wired (wave badge v17, Fender colors)', icons.favicon && icons.touch === 'https://cdburgess75.github.io/FeedPoint/touch-icon-180-v17.png' && icons.iosTitle === 'FeedPoint', JSON.stringify(icons));
-check('no stale icon references in the page', !SRC.includes('v15.png') && !SRC.includes('v16.png'));
+check('favicon + apple-touch-icon wired (wave badge v18, Candy Apple Red)', icons.favicon && icons.touch === 'https://cdburgess75.github.io/FeedPoint/touch-icon-180-v18.png' && icons.iosTitle === 'FeedPoint', JSON.stringify(icons));
+check('no stale icon references in the page', !SRC.includes('v15.png') && !SRC.includes('v16.png') && !SRC.includes('v17.png'));
 const manifest = await page.$eval('link[rel="manifest"]', e => e.getAttribute('href'));
 check('PWA manifest linked', manifest === 'manifest.webmanifest', manifest);
 const desktopIcons = await page.evaluate(() => ({
