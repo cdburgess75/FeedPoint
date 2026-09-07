@@ -32,6 +32,23 @@ Everything else — markup, CSS, JS — is the owner's verbatim.
 
 ## Release notes
 
+**`v2026.09.07.001` — Fender custom colors for bands and antennas:**
+The owner shared Fender's 1960s custom-color chart and asked for it to be
+used "in an intelligent way" — a color per band and a color per antenna.
+`FENDER` holds 18 approximated nitro finishes; `BAND_COLOR` runs warm →
+cool with frequency (160m Burgundy Mist … 40m Firemist Gold … 20m Sherwood
+Green … 10m Daphne Blue, 6m Sonic Blue); each antenna has `color` (EFHW
+Candy Apple Red, dipole Lake Placid Blue, vertical Inca Silver, random wire
+Shoreline Gold, loop Olympic White) and its transformer ratio in Learn
+wears the same one. Swatch dots on every band chip (rail + Wire picker);
+a selected chip fills with its color and `inkFor()` picks dark/light text by
+luminance; the tune slider takes the band color; verdict rows carry a
+band-colored edge; the picker cards, hero number, hero top edge and Build-it
+ratio take the antenna color; log entries are edged in the antenna color
+with a band dot. Light theme mixes every color 58% toward ink via
+`color-mix` so pale finishes stay readable. Learn gains a "Colors" card
+naming every finish. 126 checks.
+
 **`v2026.09.06.001` — v2: the antenna-first rebuild + Wave badge icon:**
 The owner called the old six-view interface "terrible"; a clickable
 prototype of an antenna-first flow was approved ("I love the look of the

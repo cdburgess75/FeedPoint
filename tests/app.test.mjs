@@ -4,7 +4,7 @@ import { chromium } from 'playwright';
 import { readFileSync } from 'fs';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.09.06.001';
+const VERSION = 'v2026.09.07.001';
 const SRC = readFileSync(new URL('../feedpoint.html', import.meta.url), 'utf8');
 const errors = [];
 let failed = 0;
@@ -84,6 +84,19 @@ check('choosing EFHW opens the cut screen on 40m',
   cutState.pick && cutState.name === 'End-fed half-wave' && cutState.band === '40m' && cutState.freq === '7.150', JSON.stringify(cutState));
 check('EFHW hero = 468/f (65′ 5½″ at 7.150)', cutState.hero === '65′ 5½″' && cutState.lbl.startsWith('Total wire'), cutState.hero);
 check('build recipe names the 49:1', cutState.ratio === '49:1' && cutState.rows >= 4, JSON.stringify(cutState));
+const colors = await page.evaluate(() => {
+  const on = document.querySelector('#bandRail .chip.on');
+  const cs = getComputedStyle(on);
+  return { band: on.dataset.band, bg: cs.backgroundColor, ink: cs.color, dot: !!on.querySelector('.sw'),
+           hero: getComputedStyle(document.querySelector('#heroBig .val')).color,
+           ratio: getComputedStyle(document.querySelector('#build .ratio')).color,
+           tune: document.getElementById('tune').style.accentColor,
+           unsel: document.querySelectorAll('#bandRail .chip .sw').length };
+});
+check('selected 40m chip wears Firemist Gold with dark ink; every band chip has a swatch',
+  colors.band === '40m' && colors.bg === 'rgb(212, 185, 90)' && colors.ink === 'rgb(18, 18, 18)' && colors.dot && colors.unsel === 11 && colors.tune === 'rgb(212, 185, 90)',
+  JSON.stringify(colors));
+check('EFHW hero and its 49:1 wear Candy Apple Red', colors.hero === 'rgb(185, 42, 51)' && colors.ratio === 'rgb(185, 42, 51)', JSON.stringify(colors));
 await page.reload();
 await page.waitForTimeout(700);
 check('chosen antenna persists reload (no picker again)', await page.evaluate(() => document.getElementById('pickWrap').hidden && document.getElementById('antName').textContent === 'End-fed half-wave'));
@@ -215,6 +228,14 @@ const learnBits = await page.evaluate(() => ({
   table: !!document.querySelector('#view-learn table')
 }));
 check('Learn keeps transformers, notes, core table', learnBits.ununs.slice(0, 4).join() === '1:1,4:1,9:1,49:1' && learnBits.notes === 6 && learnBits.table, JSON.stringify(learnBits));
+const pal = await page.evaluate(() => ({
+  bands: document.querySelectorAll('#palBands .chip').length, ants: document.querySelectorAll('#palAnts .chip').length,
+  r49: getComputedStyle(document.querySelector('#k-49 .ratio')).color, r91: getComputedStyle(document.querySelector('#k-91 .ratio')).color,
+  txt: document.querySelector('#palBands').textContent
+}));
+check('Learn color card lists 11 bands + 5 antennas; transformer ratios match their antenna color',
+  pal.bands === 11 && pal.ants === 5 && pal.r49 === 'rgb(185, 42, 51)' && pal.r91 === 'rgb(201, 162, 62)' && pal.txt.includes('Burgundy Mist') && pal.txt.includes('Sonic Blue'),
+  JSON.stringify(pal));
 await page.keyboard.press('1');
 await page.click('#build .more');
 await page.waitForTimeout(200);
@@ -246,6 +267,12 @@ const wireRows = await page.$$eval('#verdict .v', els => ({
   dimmed: els.filter(e => e.classList.contains('dim')).length
 }));
 check('verdicts cover 10 bands, 160m SHORT at 71 ft, unselected bands dimmed', wireRows.n === 10 && wireRows.first === '160m' && wireRows.pill === 'SHORT' && wireRows.dimmed === 7, JSON.stringify(wireRows));
+const vcol = await page.evaluate(() => {
+  const rows = [...document.querySelectorAll('#verdict .v')];
+  return { b160: getComputedStyle(rows[0]).borderLeftColor, b40: getComputedStyle(rows[3]).borderLeftColor,
+           pick40: getComputedStyle(document.querySelector('#bandPick .chip.on')).backgroundColor };
+});
+check('verdict rows and band picker carry the band colors', vcol.b160 === 'rgb(126, 78, 94)' && vcol.b40 === 'rgb(212, 185, 90)' && vcol.pick40 === 'rgb(212, 185, 90)', JSON.stringify(vcol));
 const ruler = await page.evaluate(() => {
   const c = document.getElementById('rulerC');
   const ctx = c.getContext('2d');
@@ -412,6 +439,8 @@ const entry = await page.evaluate(() => {
            head: e.querySelector('.n').textContent, detail: e.querySelector('.d').textContent };
 });
 check('log entry is headline-first (EFHW · 40m / 65′ 5½″)', entry.n === 1 && entry.title === 'EFHW · 40m' && entry.head === '65′ 5½″' && entry.detail.startsWith('7.150 MHz'), JSON.stringify(entry));
+const ecol = await page.evaluate(() => { const e = document.querySelector('#logList .entry'); return { edge: getComputedStyle(e).borderLeftColor, n: getComputedStyle(e.querySelector('.n')).color, dot: e.querySelector('.t .sw')?.style.background }; });
+check('log entry edged in the antenna color with the band dot', ecol.edge === 'rgb(185, 42, 51)' && ecol.n === 'rgb(185, 42, 51)' && ecol.dot === 'rgb(212, 185, 90)', JSON.stringify(ecol));
 await page.evaluate(() => { document.getElementById('toasts').innerHTML = ''; document.querySelector('#logList .entry').open = true; });
 await page.click('#logList .del');
 await page.waitForTimeout(200);
