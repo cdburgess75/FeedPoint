@@ -1,5 +1,5 @@
 <svg xmlns='http://www.w3.org/2000/svg' width='250' height='58' viewBox='0 0 250 58' role='img' aria-label='Open the app'>
-  <defs><radialGradient id='n' cx='.5' cy='.35' r='.85'><stop offset='0' stop-color='#152A52'/><stop offset='1' stop-color='#060C18'/></radialGradient></defs><rect x='1' y='1' width='248' height='56' rx='13' fill='url(#n)'/>
-  <g transform='translate(16 11) scale(0.9)'><circle cx='20' cy='20' r='14.5' fill='#C6F135'/><path d='M10 20c2.5 0 2.5-6 5-6s2.5 12 5 12 2.5-12 5-12 2.5 6 5 6' fill='none' stroke='#08111F' stroke-width='2.6' stroke-linecap='round'/></g>
-  <text x='66' y='36' font-family='Segoe UI, system-ui, -apple-system, Helvetica, Arial, sans-serif' font-size='18' font-weight='700' letter-spacing='2.2' fill='#C6F135'>OPEN THE APP</text>
+  <defs><radialGradient id='n' cx='.5' cy='.35' r='.85'><stop offset='0' stop-color='#2E2C29'/><stop offset='1' stop-color='#0E0E0E'/></radialGradient></defs><rect x='1' y='1' width='248' height='56' rx='13' fill='url(#n)'/>
+  <g transform='translate(16 11) scale(0.9)'><circle cx='20' cy='20' r='14.5' fill='#D65A3E'/><path d='M10 20c2.5 0 2.5-6 5-6s2.5 12 5 12 2.5-12 5-12 2.5 6 5 6' fill='none' stroke='#F1EEE3' stroke-width='2.6' stroke-linecap='round'/></g>
+  <text x='66' y='36' font-family='Segoe UI, system-ui, -apple-system, Helvetica, Arial, sans-serif' font-size='18' font-weight='700' letter-spacing='2.2' fill='#F1EEE3'>OPEN THE APP</text>
 </svg>
