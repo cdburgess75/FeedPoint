@@ -32,6 +32,15 @@ Everything else — markup, CSS, JS — is the owner's verbatim.
 
 ## Release notes
 
+**`v2026.09.26.001` — no blur behind the header:**
+Owner: a "blurry thing" at the top of the header by the logo in the
+home-screen app. The app has no blur; it is iOS 26's frosted scroll-edge
+strip under the (black-translucent) status bar, blurring the header below
+it. A solid, fixed `#sbar` (height `env(safe-area-inset-top)`, page color,
+z 55 under the settings scrim) now sits in that zone so iOS draws a hard
+edge instead. Status-bar style and the viewport `fit()` math are untouched.
+New check guards the strip and that no `blur(`/`backdrop-filter` exists.
+
 **`v2026.09.07.003` — icon disc goes Candy Apple Red:**
 Owner: the home-screen icon still "looks orange" — Fiesta Red at icon
 scale reads as orange. The Wave badge disc is now **Candy Apple Red**
@@ -54,7 +63,7 @@ White sine on a Black radial tile — apple-touch/512 `-v17` URLs, favicons,
 .ico, inline SVG favicon, mask-icon tint `#D65A3E`, manifest colors
 `#121212`, sw ASSETS, pages.yml, README mark/open-app. No `#FF8600`,
 `#C6F135`, `#050403` or `#070F1E` remain in the file (a test guards it).
-128 checks.
+129 checks.
 
 **`v2026.09.07.001` — Fender custom colors for bands and antennas:**
 The owner shared Fender's 1960s custom-color chart and asked for it to be

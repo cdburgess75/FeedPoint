@@ -4,7 +4,7 @@ import { chromium } from 'playwright';
 import { readFileSync } from 'fs';
 
 const PAGE_URL = new URL('../feedpoint.html', import.meta.url).href;
-const VERSION = 'v2026.09.07.003';
+const VERSION = 'v2026.09.26.001';
 const SRC = readFileSync(new URL('../feedpoint.html', import.meta.url), 'utf8');
 const errors = [];
 let failed = 0;
@@ -315,6 +315,16 @@ const topbarSafe = await page.evaluate(() => {
   return { minH: s.minHeight, padTop: s.paddingTop };
 });
 check('header reserves iOS safe area (58px + env pad)', topbarSafe.minH === '58px' && topbarSafe.padTop === '0px', JSON.stringify(topbarSafe));
+const sbar = await page.evaluate(() => {
+  const e = document.getElementById('sbar'); if (!e) return null;
+  const s = getComputedStyle(e);
+  const css = [...document.querySelectorAll('style')].map(x => x.textContent).join('');
+  return { pos: s.position, top: s.top, bg: s.backgroundColor, page: getComputedStyle(document.body).backgroundColor,
+    pe: s.pointerEvents, blur: /blur\(|backdrop-filter/.test(css) };
+});
+check('status-bar strip is solid, pinned, page-colored, no blur anywhere',
+  !!sbar && sbar.pos === 'fixed' && sbar.top === '0px' && sbar.bg === sbar.page && sbar.pe === 'none' && !sbar.blur,
+  JSON.stringify(sbar));
 check('update banner present, hidden by default', await page.evaluate(() => {
   const b = document.getElementById('updateBar');
   return !!b && !b.classList.contains('show') && getComputedStyle(b).display === 'none' && !!document.getElementById('updateBtn');
